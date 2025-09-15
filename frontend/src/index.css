@@ -1,11 +1,47 @@
-body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center; /* horizontal center */
-  align-items: center;     /* vertical center */
+html, body, #root { height: 100%; margin: 0; }
+body { overflow: hidden; }               /* no scrollbars */
+
+.hero {
+  position: fixed; inset: 0;             /* full-screen, full-bleed */
+  display: grid; place-items: center;    /* perfectly center content */
+  text-align: center;
+
+  background-position: center;
+  background-size: cover;                /* fill & crop, no repeat */
+  background-repeat: no-repeat;
 }
 
-.outline{
-  border: 1px solid black;
+/* footer overlay (optional) */
+.footer-overlay {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,.10);
+  border-top: 1px solid rgba(255,255,255,.20);
+  padding: .75rem 0;
+}
+.outline { border: 1px solid black; }
+
+.btn-container{ 
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  min-width: 200px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 5px;
+  background-color: #ffffff;
+  padding:5px;
+}
+.btn-container:hover{ background-color: #d3d3d3; }
+.btn-logo{
+  padding-right: 2px;
+  width: 24px; height:24px; object-fit: cover; border-radius: 50%;
+}
+.blur-container{
+  border: 2px solid #ffffff99;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  color: #fff;
+  padding: 20px;
+  padding-top: 5px;
+  
 }
