@@ -1,0 +1,23 @@
+.tw { display:inline-block; width: 4ch; }
+
+
+.tw__text {
+  display:inline-block;
+  overflow:hidden;
+  white-space:nowrap;
+  border-right:2px solid #fff;        
+  width:0ch;
+  animation:
+    typing .75s steps(4) forwards,     
+    blink .6s step-end infinite;
+}
+
+@keyframes typing {
+  from { width:0ch; }
+  to   { width:4ch; }
+}
+
+@keyframes blink {
+  0%, 100% { border-color: transparent; }
+  50%      { border-color: #fff; }
+}
