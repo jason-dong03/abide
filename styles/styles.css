@@ -1,17 +1,18 @@
 html, body, #root { height: 100%; margin: 0; }
-body { overflow: hidden; }               /* no scrollbars */
+body { overflow: hidden; }              
 
-.hero {
-  position: fixed; inset: 0;             /* full-screen, full-bleed */
-  display: grid; place-items: center;    /* perfectly center content */
+.outer-container {
+  position: fixed; inset: 0;            
+  display: grid; place-items: center;    
   text-align: center;
 
+  background-image: url(../assets/background.jpg);
   background-position: center;
-  background-size: cover;                /* fill & crop, no repeat */
+  background-size: cover;           
   background-repeat: no-repeat;
 }
 
-/* footer overlay (optional) */
+
 .footer-overlay {
   position: absolute; left: 0; right: 0; bottom: 0;
   backdrop-filter: blur(10px);
