@@ -3,6 +3,7 @@
   --secondary-color: #D2B48C;
   --alternative-color: #d1b892;
   --bg-body: #F4E1C9;
+  --alt-primary-color: rgb(146, 101, 46);
 }
 
 body{
@@ -31,11 +32,61 @@ body{
 /* card tile styles */
 .tile {
   border-radius: 1rem;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
   box-shadow: 0 6px 12px rgba(0,0,0,0.05);
   transition: transform 0.15s ease, box-shadow 0.2s ease;
   position: relative; /* needed for stretched-link */
 }
-.tile:hover {
-  transform: scale(1.2);
+
+.tile-primary {
+  background-color: var(--alt-primary-color);
+  color: var(--bg-body);
+}
+
+#main .tile:hover {
+  background-color: transparent;
+  color: black;
+  border-color: black;
   box-shadow: 0 12px 18px rgba(0,0,0,0.1);
+}
+
+#main .tile-primary:hover {
+  background-color: var(--primary-color);
+  color: var(--bg-body);
+  box-shadow: 0 12px 18px rgba(0,0,0,0.1);
+}
+
+#late-readings {
+  color: darkred;
+}
+
+.analytic-data {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 0.25rem;
+  color: var(--primary-color);
+}
+
+.progress-bar {
+  background-color: var(--alt-primary-color);
+}
+
+.bg-brown {
+  background-color: var(--alt-primary-color);
+}
+
+#challenge > span {
+  font-size: 0.9rem;
+  color: var(--alt-primary-color);
+}
+
+#challenge:hover {
+  background-color: #fff5ea;
+  color: black;
+}
+
+.friend-link:hover {
+  background-color: #fff5ea;
+  color: black;
 }
