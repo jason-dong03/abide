@@ -61,4 +61,8 @@ body { overflow: hidden; }
 #profile-pic {
   max-width: 150px;
 }
-
+.outline-text{
+  color: white; 
+  -webkit-text-stroke-width: 0.6px;
+  -webkit-text-stroke-color: black; 
+}

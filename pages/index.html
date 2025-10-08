@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="../styles/typewriter.css">
 </head>
 <body> 
- <div id="main" class="d-none outer-container">
+ <div id="main" class="outer-container">
       <div class="blur-container p-4 d-flex flex-column h-100">
         <h1 class="display-4 fw-bold text-white mb-3">
         <span class="tw" aria-label="read">
@@ -24,9 +24,9 @@
         <a id ="login-btn" class="btn-container p-2 mt-auto w-50 mx-auto">Login</a>
       </div>
     </div>
-   <div id="register" class=" outer-container">
+   <div id="register" class="d-none outer-container">
     <div class="blur-container p-4 d-flex flex-column h-100 w-75">
-      <h2 class="">Create Account</h2>
+      <h2 class="outline-text">Create Account</h2>
       <form class="d-flex flex-column text-start gap-1">
         <div class="d-flex flex-row">
           <div class="me-4 d-flex flex-column align-items-center mt-3">
@@ -80,9 +80,10 @@
         <input type="text" name="username" id="username" required>
         <label for="pwd">Password</label>
         <input type="text" name="pwd" id="pwd" required>
-        <button class="btn-container mb-2 mt-2" type="submit">Login</button>
+        <button class="btn-container mb-2 mt-2 w-50 mx-auto" type="submit">Login</button>
+        <button class ="btn-container w-50 mx-auto" id="back-btn2">Back</button>
       </form>
-      <button class ="btn-container" id="back-btn2">Back</button>
+    
       </div>
     </div>
     <footer class="footer-overlay text-center">
@@ -101,19 +102,19 @@
     fileInput.click();
   });
 
-  fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        avatar.style.backgroundImage = `url(${event.target.result})`;
-        avatar.style.backgroundSize = 'cover';
-        avatar.style.backgroundPosition = 'center';
-        icon.style.display = 'none';
-      };
-      reader.readAsDataURL(file);
-    }
-  });
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      avatar.style.backgroundImage = `url(${event.target.result})`;
+      avatar.style.backgroundSize = 'cover';
+      avatar.style.backgroundPosition = 'center';
+      icon.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+});
 
   document.getElementById("register-btn").onclick = () => {
     document.getElementById("main").classList.add("d-none");
