@@ -81,7 +81,7 @@ body{
   color: var(--alt-primary-color);
 }
 
-#challenge:hover {
+.challenge:hover {
   background-color: #fff5ea;
   color: black;
 }
