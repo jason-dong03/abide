@@ -15,7 +15,7 @@
         <a href="dashboard.html" class="btn-container text-center p-2 ps-1">&larr; back to dashboard</a>
         <form class="search-wrap d-none d-md-flex ms-4 flex-grow-1" role="search">
           <span class="icon" aria-hidden="true">🔎</span>
-          <input class="form-control search-input" type="search" placeholder="Search challenges…"/>
+          <input class="form-control search-input" type="search" placeholder="Search challenges…" aria-label="Search Challenges">
         </form>
         <div class="ms-auto d-flex align-items-center gap-3">
           <div class="sort-select d-none d-md-flex align-items-center">
@@ -69,15 +69,16 @@
             <label class="form-check"><input class="form-check-input" type="checkbox"> <span>Advanced</span></label>
           </div>
           <div class="filter-block">
-            <p class="filter-title">Group Size</p>
-            <select class="form-select">
-              <option>Any size</option>
-              <option>Solo</option>
-              <option>Small (2–10)</option>
-              <option>Medium (11–50)</option>
-              <option>Large (51+)</option>
-            </select>
-          </div>
+  <label for="group-size" class="filter-title">Group Size</label>
+  <select id="group-size" class="form-select">
+    <option>Any size</option>
+    <option>Solo</option>
+    <option>Small (2–10)</option>
+    <option>Medium (11–50)</option>
+    <option>Large (51+)</option>
+  </select>
+</div>
+
         </div>
       </aside>
 
