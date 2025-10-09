@@ -23,25 +23,78 @@
         <h2>Create Your Reading Challenge!</h2>
         </div>
 
-        <form>
+        <form id="challenge-form" class="form-view" novalidate>
             <div class="row g-5 align-items-start flex-wrap">
                 <!-- left column: Form fields -->
-                <div class="col-md-8 col-12">
+                <div class="tile col-md-8 col-12">
                     <div class="mb-3">
                         <label for="title" class="form-label fw-semibold">Challenge Title</label>
-                        <input type="text" class="form-control" placeholder="Enter your challenge title" id="title" name="title"/>
+                        <input type="text" class="form-control" placeholder="Enter your challenge title" id="title" name="title" required/>
+                        <div class="invalid-feedback">Please enter a title for your challenge.</div>
                     </div>
 
                     <!-- description-->
                     <div class="mb-3">
                         <label for="description" class="form-label fw-semibold">Description</label>
-                        <textarea id="description" name="description" class="form-control" rows="4" placeholder="Describe your challenge"></textarea>
+                        <textarea id="description" name="description" class="form-control" rows="4" placeholder="Describe your challenge" required></textarea>
+                         <div class="invalid-feedback">Please add a description for your challenge.</div>
+                    </div>
+
+                    <!-- start/end dates-->
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-3">
+                            <label for="start-date" class="form-label fw-semibold">Start Date</label>
+                            <input type="date" id="start-date" name="start-date" class="form-control" required/>
+                             <div class="invalid-feedback">Please enter a start date for your challenge.</div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="end-date" class="form-label fw-semibold">End Date</label>
+                            <input type="date" id="end-date" name="end-date" class="form-control" required/>
+                            <div class="invalid-feedback">Please enter an end date for your challenge.</div>
+                        </div>
+                    </div>
+
+                    <!-- set plan -->
+                    <div class="row g-3 mt-4 col-8">
+                        <div class="g-3 mb-2">
+                            <label for="deadline" class="form-label fw-semibold">Set Challenge Check-ins</label><br>
+                            <label for="deadline">How frequently will reading progress be checked?</label><br>
+                            <!-- deadline selection -->
+                            <select id="deadlines" name="timeframe" class="form-select w-50" required>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+
+                        <!-- total length + goal type -->
+                        <div class="g-3 mb-4">
+                            <label for="total_length" class="form-label mt-3">How many pages/chapters will your challenge cover?</label>
+                            <div class="d-flex row g-3">
+                                <div class="col-4 align-items-center">
+                                    <input type="number" id="total_length" name="total_length" class="form-control" min="1" max="10000" placeholder="Enter number" required/>
+                                    <div class="invalid-feedback">Please enter a number.</div>
+                                </div>
+                                <div class="col-4">
+                                    <select id="goal" name="goal" class="form-select" required>
+                                        <option value="pages">Pages</option>
+                                        <option value="chapters">Chapters</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- privacy option -->
+                    <div class="form-check mt-4">
+                        <input type="checkbox" id="private" name="private" class="form-check-input"/>
+                        <label for="private">Optional: Private Challenge (invite only)</label>
                     </div>
                 </div>
                     
                 <!-- right column: Tips box -->
                 <div class="col-md-4 col-12 mb-4">
-                    <div class="tips-box p-4 shadow-sm rounded text-start">
+                    <div class="tile p-4 shadow-sm rounded text-start">
                         <span class="fw-semibold d-block mb-2">Tips</span>
                         <ul class="mb-0 ps-3">
                             <li>Choose a memorable name for your challenge</li>
@@ -51,29 +104,29 @@
                         </ul>
                     </div>
                 </div>
-            </div>
-
-            <!-- start/end dates-->
-            <div class="row g-3 mt-3">
-                <div class="col-md-3">
-                    <label for="start-date" class="form-label fw-semibold">Start Date</label>
-                    <input type="date" id="start-date" name="start-date" class="form-control" />
+                <div class="g-3 align-items-center text-center mt-3">
+                    <button type="submit" class="btn btn-brown px-4">Create Challenge</button>
                 </div>
-                <div class="col-md-3">
-                    <label for="end-date" class="form-label fw-semibold">End Date</label>
-                    <input type="date" id="end-date" name="end-date" class="form-control" />
-                </div>
-            </div>
-
-            <!-- privacy option -->
-            <div class="form-check mt-4">
-                <input type="checkbox" id="private" name="private" class="form-check-input" />
-                <label class="form-check-label" for="private">Optional: Private Challenge (invite only)</label>
             </div>
         </form>
     </div>
-    <div class="d-flex justify-content-center my-4">
-        <button type="submit" class="btn btn-brown px-4">Create Challenge</button>
-    </div>
 </body>
+
+<script>
+(() => {
+  'use strict'
+  const forms = document.querySelectorAll('form')
+
+  Array.from(forms).forEach(form => {
+    form.addEventListener('submit', event => {
+      if (!form.checkValidity()) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+      form.classList.add('was-validated')
+    }, false)
+  })
+})()
+</script>
+
 </html>
