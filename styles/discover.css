@@ -1,0 +1,117 @@
+:root{
+  --primary-color: rgb(124, 81, 28);
+  --secondary-color: #D2B48C;
+  --alternative-color: #d1b892;
+  --bg-body: #F4E1C9;
+  --alt-primary-color: rgb(146, 101, 46);
+}
+
+body{
+  background-color: var(--bg-body);
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: var(--primary-color);
+}
+
+.text-brown{ color: var(--primary-color); }
+
+.footer-overlay{
+  backdrop-filter: blur(6px);
+  background: rgba(255,255,255,.25);
+  border-top: 1px solid rgba(0,0,0,.06);
+  padding: .75rem 0;
+}
+
+.tile{
+  background:#fff;
+  border:1px solid #eadac5;
+  border-radius: 1rem;
+  box-shadow: 0 8px 12px rgba(0,0,0,.05);
+}
+
+.search-wrap{
+  position: relative;
+  width: min(520px, 100%);
+}
+.search-wrap .icon{
+  position: absolute;
+  left:.75rem; top:50%; transform: translateY(-50%);
+  font-size: 0.95rem; opacity:.6;
+}
+.search-wrap .search-input{
+  padding-left: 2rem;
+  border-radius: 999px;
+  border:1px solid #e7d6bf;
+}
+.search-wrap .search-input:focus{
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 .25rem rgba(124,81,28,.15);
+}
+
+.sort-select .form-select{
+  border-radius: 999px;
+  border:1px solid #e7d6bf;
+  padding-block: .25rem;
+  height: 32px;
+}
+
+.filters .filter-title{ font-weight: 700; color: var(--primary-color); margin-bottom:.25rem; }
+.filters .filter-block{ margin-bottom: 1rem; }
+.filters .form-check{ display:flex; align-items:center; gap:.5rem; margin:.35rem 0; }
+.filters .form-check-input{ border-radius: .35rem; border:1px solid #d9c6ad; }
+.filters .form-check-input:checked{ background-color: var(--primary-color); border-color: var(--primary-color); }
+/* themed Clear All button */
+.filters .btn-clear{
+  font-size: 0.8rem;
+  color: var(--primary-color);
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  border-radius: 6px;
+  padding: 2px 8px;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  line-height: 1.2;
+}
+.filters .btn-clear:hover{
+  background: var(--primary-color);
+  color: #fff2e4;
+  border-color: var(--primary-color);
+}
+
+.results-grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 1rem 1.25rem;
+}
+@media (max-width: 992px){ .results-grid{ grid-template-columns: 1fr; } }
+
+.challenge-card{ overflow: hidden; transition: transform .12s ease, box-shadow .2s ease; }
+.challenge-card:hover{ transform: translateY(-2px); box-shadow: 0 12px 18px rgba(0,0,0,.08); }
+.challenge-card .card-body{ padding: 1.25rem; }
+.challenge-card .title{ font-weight: 700; color: #3a2a12; }
+.challenge-card .subtitle{ font-size:.95rem; color:#7b6243; }
+
+.badges{ display:flex; flex-wrap: wrap; gap:.4rem; }
+.badge{
+  display:inline-flex; align-items:center; gap:.25rem;
+  padding:.25rem .5rem; border-radius: 999px;
+  background:#f1e8dc; color:#614a2c; font-size:.75rem; border:1px solid #eadac5;
+}
+.badge-topic{ background:#f8f5f1; color:#7a5a33; }
+.badge-status-active{ background:#e6f4ea; color:#196a2c; border-color:#cde7d5; }
+.badge-status-completed{ background:#ececec; color:#555; border-color:#dddddd; }
+.badge-status-upcoming{ background:#e7f0ff; color:#1d4ed8; border-color:#d3e0ff; }
+.badge-level-beginner{ background:#e7f0ff; color:#1d4ed8; border-color:#d3e0ff; }
+.badge-level-intermediate{ background:#fff4e0; color:#9a6700; border-color:#ffe1b5; }
+.badge-level-advanced{ background:#fde8e8; color:#b42318; border-color:#f7cdcd; }
+
+.meta{ display:flex; gap:1rem; font-size:.9rem; color:#6b5640; }
+
+.progress-wrap{ height: 8px; background:#eadac5; border-radius: 999px; overflow: hidden; }
+.progress-bar{ --p: 0%; height:100%; width: var(--p); background: var(--alt-primary-color); color:#fff; font-size:.7rem; line-height:8px; text-align:right; padding-right:.35rem; }
+
+.nav-icon-link img{ transition: transform .15s ease; }
+.nav-icon-link:hover img{ transform: scale(1.1); }
+
+.brand:hover{ text-decoration: underline; }
+
+.btn-container{ font-size: 14px; text-decoration: none; border-radius: 5px; color: var(--primary-color); padding: 5px; }
+.btn-container:hover{ background-color: #d3d3d3; }
