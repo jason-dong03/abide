@@ -58,10 +58,10 @@
           <!-- set plan -->
           <div class="row g-3 mt-4 col-8">
             <div class="g-3 mb-2">
-              <label for="deadline" class="form-label fw-semibold">Set Challenge Check-ins</label><br>
-              <label for="deadline">How frequently will reading progress be checked?</label><br>
+              <label for="checkin_setup" class="form-label fw-semibold">Set Challenge Check-ins</label><br>
+              <label for="checkin_deadlines">How frequently will reading progress be checked?</label><br>
               <!-- deadline selection -->
-              <select id="deadlines" name="timeframe" class="form-select w-50" required>
+              <select id="checkin_deadlines" name="timeframe" class="form-select w-50" aria-label="Select check-in interval" required></select>
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
@@ -79,7 +79,7 @@
                   <div class="invalid-feedback">Please enter a number.</div>
                 </div>
                 <div class="col-4">
-                  <select id="goal" name="goal" class="form-select" required>
+                  <select id="goal" name="goal" class="form-select" aria-label="Select goal type" required></select>
                     <option value="pages">Pages</option>
                     <option value="chapters">Chapters</option>
                   </select>
