@@ -42,27 +42,27 @@
             <label for="first-name">First Name</label>
             <input type="text" name="first-name" id="first-name" required>
             <label for="last-name">Last Name</label>
-            <input type="text" name="last-name" id="last-name" required>
+            <input type="text" name="last-name" id="last-name-register" aria-label="Register with last name" required>
           </div>
         </div>
         <div class="d-flex flex-row gap-1 text-white">
           <div class="d-flex flex-column w-50">
             <label for="email">Email</label>
-            <input type="text" name="email" id="email" required>
+            <input type="text" name="email" id="email" aria-label="Register with username" required>
           </div>
            <div class="d-flex flex-column w-50">
             <label for="last-name">Username</label>
-            <input type="text" name="username" id="username" required>
+            <input type="text" name="username" id="username" aria-label="Register with username" required>
           </div>
         </div>
         <div class="d-flex flex-row gap-1 mb-4 text-white">
           <div class="d-flex flex-column w-50">
             <label for="pwd">Password</label>
-            <input type="text" name="pwd" id="pwd" required>
+            <input type="text" name="pwd" id="pwd-register" aria-label="Register password" required>
           </div>
            <div class="d-flex flex-column w-50">
             <label for="pwd-repeat">Repeat Password</label>
-            <input type="password" name="pwd-repeat" id="pwd-repeat"required/>
+            <input type="password" name="pwd-repeat" id="pwd-repeat" aria-label="Repeat password" required/>
           </div>
         </div>  
         <div class="d-flex flex-row gap-2">
@@ -77,9 +77,9 @@
       <h2 class="text-black">Login</h2>
       <form class="d-flex flex-column text-start text-black gap-1">
         <label for="last-name">Username</label>
-        <input type="text" name="username" id="username" required>
+        <input type="text" name="username" id="username" aria-label="Enter username to login" required>
         <label for="pwd">Password</label>
-        <input type="text" name="pwd" id="pwd" required>
+        <input type="text" name="pwd" id="pwd" aria-label="Enter password to login" required>
         <button class="btn-container mb-2 mt-2 w-50 mx-auto" type="submit" onclick="window.location.href='dashboard.html'">Login</button>
         <button class ="btn-container w-50 mx-auto" id="back-btn2">Back</button>
       </form>
