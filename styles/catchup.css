@@ -73,7 +73,10 @@ body{
   padding-left: 12px;
   margin-bottom: 10px;
 }
-.section-header .title{ color: var(--ink); font-weight: 700; }
+.section-header .title{
+  color: var(--primary-color);
+  font-weight: 700;
+}
 
 /* Badges */
 .badge{
@@ -118,7 +121,10 @@ body{
   display:flex; align-items:center; justify-content:space-between;
   gap: 10px; margin-bottom: 2px;
 }
-.reading-card h6{ color: var(--ink); font-weight: 700; }
+.reading-card h6{
+  color: var(--primary-color);
+  font-weight: 700;
+}
 .ref{ color: var(--muted); font-size:.95rem; }
 .meta{ color: #a48764; font-size:.85rem; }
 
