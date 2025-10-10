@@ -118,16 +118,6 @@ button, .btn, .btn-container, a[role="button"] {
   box-shadow: 0 10px 26px rgba(146, 101, 46, 0.45);
 }
 
-.btn-variant2 {
-  background: rgba(255, 255, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  color: var(--primary);
-  padding: 0.4rem 0.9rem;
-}
-.btn-variant2:hover {
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-  color: #fff;
-}
 
 /* nav bar */
 .navbar {

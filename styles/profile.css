@@ -52,3 +52,5 @@
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
 }
+.bigger-text{ font-size: 0.95rem; font-weight: 500; color: var(--primary-color); }
+.small-text{ color: var(--secondary-color); font-size: 0.8rem; font-weight: 150; color: var(--alternatice-color); }
