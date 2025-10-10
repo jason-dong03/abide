@@ -11,11 +11,9 @@
 <body class="d-flex flex-column min-vh-100">
 
   <header>
-    <nav class="navbar px-4 py-2 shadow-sm">
-      <div class="container-fluid d-flex align-items-center justify-content-between">
-        <span class="navbar-text fw-bold">read</span>
-        <a href="dashboard.html" class="btn btn-container">&larr; Back</a>
-      </div>
+    <nav class="navbar px-3 py-3 shadow-sm">
+      <a href="dashboard.html" class="btn-container text-center p-2 ps-1">&larr; back to dashboard</a>
+      <span class="navbar-text ms-auto fw-bold pe-4">read</span>
     </nav>
   </header>
 
@@ -58,7 +56,7 @@
 
           <div class="filter-block">
             <p class="fw-semibold small mb-2">Group Size</p>
-            <select class="form-select form-select-sm">
+            <select class="form-select form-select-sm" aria-label="Select group size">
               <option>Any size</option>
               <option>Solo</option>
               <option>Small (2–10)</option>
@@ -73,7 +71,7 @@
       <section class="col-12 col-lg-9">
         <div class="d-flex align-items-center justify-content-between mb-3">
           <p class="text-white small mb-0">2 challenges found</p>
-          <select id="sort" class="form-select form-select-sm w-auto">
+          <select id="sort" class="form-select form-select-sm w-auto" aria-label="Sort challenges">
             <option>Best Match</option>
             <option>Newest</option>
             <option>Most Participants</option>
