@@ -60,10 +60,10 @@
 
           <div class="d-flex flex-column gap-2 w-100">
             <label for="first-name">First Name</label>
-            <input type="text" id="first-name" name="first-name" placeholder="First name" required />
+            <input type="text" id="first-name" name="first-name" placeholder="First name" aria-label="Register with first name" required />
 
             <label for="last-name">Last Name</label>
-            <input type="text" id="last-name" name="last-name" placeholder="Last name" required />
+            <input type="text" id="last-name" name="last-name" placeholder="Last name" aria-label="Register with last name" required />
           </div>
         </div>
 
@@ -71,11 +71,11 @@
         <div class="d-flex flex-row gap-2">
           <div class="d-flex flex-column w-50">
             <label for="email">Email</label>
-            <input type="text" name="email" id="email" required>
+            <input type="text" name="email" id="email" aria-label="Register with email" required>
           </div>
            <div class="d-flex flex-column w-50">
-            <label for="last-name">Username</label>
-            <input type="text" name="username" id="username" required>
+            <label for="username">Username</label>
+            <input type="text" name="username" id="set-username" aria-label="Set username for account" required>
           </div>
         </div>
 
@@ -83,11 +83,11 @@
         <div class="d-flex flex-row gap-2 mb-2">
           <div class="d-flex flex-column w-50">
             <label for="pwd">Password</label>
-            <input type="text" name="pwd" id="pwd" required>
+            <input type="text" name="pwd" id="pwd-registration" aria-label="Set password for account" required>
           </div>
            <div class="d-flex flex-column w-50">
             <label for="pwd-repeat">Repeat Password</label>
-            <input type="password" name="pwd-repeat" id="pwd-repeat"required/>
+            <input type="password" name="pwd-repeat" id="pwd-repeat" aria-label="Repeat password exactly" required/>
           </div>
         </div>
         <!-- Change button type to "submit" for next sprint-->
@@ -105,7 +105,7 @@
     <div class="blur-container p-4 d-flex flex-column h-100 w-50">
       <h2 class="text-black">Login</h2>
       <form class="d-flex flex-column text-start text-black gap-1">
-        <label for="last-name">Username</label>
+        <label for="username">Username</label>
         <input type="text" name="username" id="username" required>
         <label for="pwd">Password</label>
         <input type="text" name="pwd" id="pwd" required>
