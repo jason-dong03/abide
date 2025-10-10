@@ -26,7 +26,7 @@
       <div class="row g-5 align-items-start flex-wrap">
         <!-- left column: Form fields -->
         <div class="tile col-md-8 col-12">
-          <div class="mb-3">
+          <div class="mb-3 mt-4">
             <label for="title" class="form-label fw-semibold">Challenge Title</label>
             <input type="text" class="form-control" placeholder="Enter your challenge title" id="title" name="title"
               required />
@@ -61,7 +61,7 @@
               <label for="checkin_setup" class="form-label fw-semibold">Set Challenge Check-ins</label><br>
               <label for="checkin_deadlines">How frequently will reading progress be checked?</label><br>
               <!-- deadline selection -->
-              <select id="checkin_deadlines" name="timeframe" class="form-select w-50" aria-label="Select check-in interval" required></select>
+              <select id="checkin_deadlines" name="timeframe" class="form-select w-50" aria-label="Select check-in interval" required>
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
@@ -89,7 +89,7 @@
           </div>
 
           <!-- privacy option -->
-          <div class="form-check mt-4">
+          <div class="form-check mt-4 mb-4">
             <input type="checkbox" id="private" name="private" class="form-check-input" />
             <label for="private">Optional: Private Challenge (invite only)</label>
           </div>
@@ -108,13 +108,13 @@
           </div>
         </div>
         <div class="g-3 align-items-center text-center mt-3">
-          <button type="submit" class="btn btn-brown px-4">Create Challenge</button>
+          <button type="submit" class="btn btn-primary-glass px-4">Create Challenge</button>
         </div>
       </div>
     </form>
   </div>
   <footer class="footer-overlay text-center mt-auto">
-    <p class="text-black-50 small mb-0">© 2025 Jason, Eyuel, Gianna - University of Virginia</p>
+    <p class="text-white-50 small mb-0">© 2025 Jason, Eyuel, Gianna - University of Virginia</p>
   </footer>
 </body>
 
