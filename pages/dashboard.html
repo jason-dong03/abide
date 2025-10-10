@@ -1,39 +1,32 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content=" A reading website that helps you track your reading!">
-  <meta name="author" content="Jason D, Eyuel T, Gianna M">
-  <title>reading website</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <meta name="description" content="A reading website that helps you track your reading!">
+  <meta name="author" content="Gianna M">
+  <title>read | dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/theme.css">
   <link rel="stylesheet" href="../styles/dashboard.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
   <!-- Navbar -->
   <header>
-    <nav class="navbar navbar-light bg-light shadow-sm">
-      <div class="container-fluid px-5 py-2 d-flex align-items-center w-100">
-        <!-- Left side -->
+    <nav class="navbar navbar-light bg-light bg-opacity-75 shadow-sm backdrop-blur">
+      <div class="container-fluid px-5 py-2 d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-3">
-          <span class="navbar-text ms-auto fw-bold pe-4">read</span>
-          <span class="navbar-text">Welcome back, John Doe</span>
+          <span class="fw-bold pe-4">read</span>
         </div>
-
-        <!-- Right side: Profile + Logout -->
-        <div class="ms-auto d-flex align-items-center gap-5">
-          <!-- Profile Button -->
-          <a href="profile.html" class="d-flex align-items-center nav-icon-link" aria-label="Profile">
-            <img src="../assets/icons/user-brown.svg" alt="" width="24" height="24">
+        <div class="d-flex align-items-center gap-4">
+          <!-- Profile button with text on large screens -->
+          <a href="profile.html" class="nav-icon-link d-flex align-items-center gap-2" aria-label="Profile">
+            <img src="../assets/icons/profile_white.svg" width="24" height="24" alt="Profile Icon">
+            <span class="d-none d-lg-inline">Profile</span>
           </a>
-
-          <!-- Logout Button -->
-          <a href="index.html" class="d-flex align-items-center nav-icon-link" aria-label="Logout">
-            <img src="../assets/icons/logout-brown.svg" alt="" width="24" height="24" class="me-1">
+          <a href="index.html" class="nav-icon-link d-flex align-items-center gap-1" aria-label="Logout">
+            <img src="../assets/icons/logout_white.svg" alt="Logout Icon" width="20" height="20">
             <span>Logout</span>
           </a>
         </div>
@@ -41,235 +34,149 @@
     </nav>
   </header>
 
-  <!-- Main Content -->
-  <div id="main" class="container my-4">
-    <div class="row g-3">
-      <!-- Today's Reading Button -->
-      <div class="col-12 col-md-6">
-        <div class="card tile tile-primary p-3">
-          <div class="d-flex align-items-center gap-4">
-            <img src="../assets/icons/bookmark-bg.svg" alt="" width="24" height="24" />
-            <div class="d-flex flex-column">
-              <div class="eyebrow fw-semibold">Today's Reading</div>
-              <div class="subtitle">View your scheduled readings</div>
-            </div>
-          </div>
-          <a href="profile.html" class="stretched-link" aria-label="Access today's assigned readings"></a>
-        </div>
-      </div>
+  <!-- Main -->
+  <main class="container my-4">
 
-      <!-- Catch Up Readings Button -->
-      <div class="col-12 col-md-6">
-        <div class="card tile p-3">
-          <div class="d-flex align-items-center gap-4">
-            <img src="../assets/icons/warning-brown.svg" alt="" width="24" height="24" />
-            <div id="late-readings" class="d-flex flex-column">
-              <div class="eyebrow fw-semibold">Catch-Up Readings</div>
-              <div class="subtitle">Review missed readings</div>
-            </div>
-          </div>
-          <a href="catchup.html" class="stretched-link" aria-label="Catch up with late reading check-ins"></a>
-        </div>
+    <!-- Primary Actions -->
+   <div class="row g-3 mb-4">
+    <div class="col-md-8">
+      <div class="card glass-primary clickable-card p-4 position-relative">
+        <span class="fw-semibold mb-1">Continue Reading</span>
+        <p class="mb-0 subtitle">View your scheduled readings and stay on track</p>
+        <a href="today.html" class="stretched-link" aria-label="View your scheduled readings and check off progress" tabindex="0"></a>
       </div>
+    </div>
 
-      <!-- Create Challenge Button -->
-      <div class="col-12 col-md-6">
-        <div class="card tile p-3">
-          <div class="d-flex align-items-center gap-4">
-            <img src="../assets/icons/plus-brown.svg" alt="" width="24" height="24" />
-            <div class="d-flex flex-column">
-              <div class="eyebrow fw-semibold">Create Challenge</div>
-              <div class="subtitle">Start a new challenge</div>
-            </div>
-          </div>
-          <a href="challengecreation.html" class="stretched-link" aria-label="Create your own reading challenge"></a>
-        </div>
-      </div>
-
-      <!-- Find Challenge Button -->
-      <div class="col-12 col-md-6">
-        <div class="card tile p-3">
-          <div class="d-flex align-items-center gap-4">
-            <img src="../assets/icons/search-brown.svg" alt="" width="24" height="24" />
-            <div class="d-flex flex-column">
-              <div class="eyebrow fw-semibold">Find Challenges</div>
-              <div class="subtitle">Discover new reading plans</div>
-            </div>
-          </div>
-            <a href="discover.html" class="stretched-link" aria-label="Discover new reading challenges"></a>
-        </div>
+    <div class="col-md-4">
+      <div class="card glass-danger clickable-card p-4 position-relative">
+        <span class="catchup-label mb-1">Catch Up</span>
+        <p class="catchup-desc mb-0 subtitle">
+          You have <span class="emph">2 missed readings</span>
+        </p>
+        <a href="catchup.html" class="stretched-link" aria-label="Access and catch up with late readings" tabindex="0"></a>
       </div>
     </div>
   </div>
 
-  <!-- Analytics Section -->
-  <div class="container my-3">
-    <div class="row g-3">
-      <!-- Active Challenge card-->
-      <div class="col-6 col-md-3">
-        <div class="card tile p-4 text-center">
-          <div class="justify-content-center mb-3">
-            <img src="../assets/icons/clock.svg" alt="" width="30" height="30" />
-          </div>
-          <div class="justify-content-center">
-            <div class="subtitle">Active Challenges</div>
-            <div class="analytic-data">3</div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Completed Challenges card-->
-      <div class="col-6 col-md-3">
-        <div class="card tile p-4 text-center">
-          <div class="justify-content-center mb-3">
-            <img src="../assets/icons/badge.svg" alt="" width="30" height="30" />
-          </div>
-          <div class="justify-content-center">
-            <div class="subtitle">Completed</div>
-            <div class="analytic-data">2</div>
-          </div>
-        </div>
+    <!-- KPI Strip -->
+<div class="card glass-card kpi-strip mb-4">
+    <div class="kpi">
+      <img src="../assets/icons/clock.svg" width="18" height="18" alt="">
+      <div class="kpi-meta">
+        <span class="kpi-label">Active</span>
+        <span class="kpi-value">3</span>
       </div>
+    </div>
 
-      <!-- Friends card-->
-      <div class="col-6 col-md-3">
-        <div class="card tile p-4 text-center">
-          <div class="justify-content-center mb-3">
-            <img src="../assets/icons/friends-brown.svg" alt="" width="30" height="30" />
-          </div>
-          <div class="justify-content-center">
-            <div class="subtitle">Friends</div>
-            <div class="analytic-data">15</div>
-          </div>
-        </div>
+    <div class="kpi">
+      <img src="../assets/icons/check_brown.svg" width="18" height="18" alt="">
+      <div class="kpi-meta">
+        <span class="kpi-label">Completed</span>
+        <span class="kpi-value">2</span>
       </div>
+    </div>
 
-      <!-- Streaks card-->
-      <div class="col-6 col-md-3">
-        <div class="card tile p-4 text-center">
-          <div class="justify-content-center mb-3">
-            <img src="../assets/icons/calendar-brown.svg" alt="" width="30" height="30" />
-          </div>
-          <div class="justify-content-center">
-            <div class="subtitle">Days Streak</div>
-            <div class="analytic-data">33</div>
-          </div>
-        </div>
+    <div class="kpi">
+      <img src="../assets/icons/calendar-brown.svg" width="18" height="18" alt="">
+      <div class="kpi-meta">
+        <span class="kpi-label">Streaks</span>
+        <span class="kpi-value">33 🔥</span>
+      </div>
+    </div>
+
+
+    <div class="kpi">
+      <img src="../assets/icons/friends-brown.svg" width="18" height="18" alt="">
+      <div class="kpi-meta">
+        <span class="kpi-label">Friends</span>
+        <span class="kpi-value">15</span>
       </div>
     </div>
   </div>
 
-  <!-- Active Challenges -->
-  <div class="container my-5">
-    <div class="row g-4">
-      <div class="col-7">
-        <!-- Active Challenge outer -->
-        <div class="card tile p-4">
-          <div class="d-inline-flex align-items-center text-brown">
-            <img src="../assets/icons/bookmark-solid-brown.svg" alt="Book icon" width="20" height="20" class="me-2">
-            <span class="fw-semibold">Active Challenges</span>
+
+    <!-- challenges & freinds section -->
+    <div class="row g-4 align-items-stretch equal-panels">
+      <div class="col-lg-9">
+        <div class="card glass-card p-4 h-100">
+          <div class="d-flex align-items-center mb-3">
+            <img src="../assets/icons/bookmark-solid-brown.svg" width="20" height="20" class="me-2" alt="">
+            <span class="fw-semibold mb-0">Your Challenges</span>
+            <div class="ms-auto d-flex gap-2">
+              <a href="challengecreation.html" class="btn btn-create d-flex align-items-center gap-1">
+                <img src="../assets/icons/plus.svg" width="16" height="16" alt=""> <span>Create</span>
+              </a>
+              <a href="discover.html" class="btn btn-discover">Discover</a>
+            </div>
           </div>
 
-          <!-- Challenge 1 -->
-          <div class="card tile mt-3 p-3 challenge">
-            <div class="d-flex align-items-center mb-2">
-              <div class="fw-semibold">J.R.R Tolkien in 60 Days</div>
-              <span class="badge bg-brown ms-auto">Day 26</span>
-            </div>
-            <span>
-              A challenge to read all of J.R.R Tolkien's major works in 60 days.
-            </span>
-            <div class="progress mt-3" style="height: 15px;">
-              <div class="progress-bar" role="progressbar" style="width: 45%" aria-valuenow="45" aria-valuemin="0"
-                aria-valuemax="100">
-                45%
+          <div class="d-flex flex-column gap-3">
+            <div class="card glass-card p-3 position-relative challenge">
+              <div class="d-flex justify-content-between mb-2">
+                <strong>J.R.R Tolkien in 60 Days</strong><span class="badge bg-brown">Day 26</span>
               </div>
-            </div>
-            <div class="d-flex justify-content-between mt-2 py-2">
-              <span style="font-size: 0.8rem;">Ends October 31, 2025</span>
-              <div class="d-flex align-items-center gap-1">
-                <img src="../assets/icons/friends-brown.svg" alt="" width="16" height="16" />
-                <span style="font-size: 0.8rem;">89 participants</span>
+              <p class="mb-2 small">Read all of J.R.R Tolkien’s major works in 60 days.</p>
+              <div class="progress mb-2" style="height:10px;">
+                <div class="progress-bar" style="width:45%">45%</div>
               </div>
+              <div class="d-flex justify-content-between small text-muted">
+                <span>Ends Oct 31, 2025</span><span>89 participants</span>
+              </div>
+              <a href="today.html" class="stretched-link" aria-label="View challenge"></a>
             </div>
-            <a href="profile.html" class="stretched-link" aria-label="View challenge details"></a>
-          </div>
 
-          <!-- Challenge 2 -->
-          <div class="card tile mt-3 p-3 challenge">
-            <div class="d-flex align-items-center mb-2">
-              <div class="fw-semibold">Jane Austen Classics</div>
-              <span class="badge bg-brown ms-auto">Day 15</span>
-            </div>
-            <span>
-              A challenge to read all of Jane Austen's major works in 30 days.
-            </span>
-            <div class="progress mt-3" style="height: 15px;">
-              <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0"
-                aria-valuemax="100">
-                75%
+            <div class="card glass-card p-3 position-relative challenge">
+              <div class="d-flex justify-content-between mb-2">
+                <strong>Jane Austen Classics</strong><span class="badge bg-brown">Day 15</span>
               </div>
-            </div>
-            <div class="d-flex justify-content-between mt-2 py-2">
-              <span style="font-size: 0.8rem;">Ends November 15, 2025</span>
-              <div class="d-flex align-items-center gap-1">
-                <img src="../assets/icons/friends-brown.svg" alt="" width="16" height="16" />
-                <span style="font-size: 0.8rem;">120 participants</span>
+              <p class="mb-2 small">Read all of Jane Austen’s major works in 30 days.</p>
+              <div class="progress mb-2" style="height:10px;">
+                <div class="progress-bar" style="width:75%">75%</div>
               </div>
+              <div class="d-flex justify-content-between small text-muted">
+                <span>Ends Nov 15, 2025</span><span>120 participants</span>
+              </div>
+              <a href="today.html" class="stretched-link" aria-label="View challenge"></a>
             </div>
-            <a href="profile.html" class="stretched-link" aria-label="View challenge details"></a>
           </div>
         </div>
       </div>
 
-      <!-- Friends -->
-      <div class="col-5">
-        <div class="card tile p-4">
-          <div class="d-inline-flex align-items-center text-brown mb-3">
-            <img src="../assets/icons/friends-brown.svg" alt="Friends icon" width="20" height="20" class="me-2">
-            <span class="fw-semibold">Friends</span>
+      <!-- friens-->
+      <aside class="col-lg-3 friends-sidebar ms-auto">
+        <div class="card glass-card p-4 h-100 d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <img src="../assets/icons/friends-brown.svg" width="20" height="20" class="me-2" alt="">
+            <span class="fw-semibold mb-0">Friends</span>
             <button class="btn btn-link p-0 ms-auto" aria-label="Add Friend">
-              <img src="../assets/icons/plus-brown.svg" alt="" width="16" height="16" class="ms-auto" />
+              <img src="../assets/icons/plus-brown.svg" width="16" height="16" alt="">
             </button>
           </div>
 
-          <!-- Friends search bar -->
-          <div id="searchbar" class="search-bar mb-3">
-            <input type="text" class="form-control" placeholder="Search friends...">
-          </div>
+          <input type="text" class="form-control form-control-sm mb-3" placeholder="Search…" aria-label="Search friends">
 
-          <!-- Friends list -->
-          <div class="d-flex flex-column gap-3">
-            <!-- Friend 1 -->
-            <div class="d-flex align-items-center gap-3">
-              <img src="../assets/icons/profile-pic.svg" alt="" width="40" height="40">
-              <div class="d-flex flex-column">
-                <span class="fw-semibold">Alice Johnson</span>
-              </div>
+          <div class="friends-list d-flex flex-column gap-1">
+            <div class="d-flex align-items-center gap-2 friend-item">
+              <img src="../assets/icons/profile-pic.svg" width="32" height="32" alt=""><span class="small">Alice Johnson</span>
             </div>
-
-            <!-- Friend 2 -->
-            <div class="d-flex align-items-center gap-3">
-              <img src="../assets/icons/profile-pic.svg" alt="" width="40" height="40">
-              <div class="d-flex flex-column">
-                <span class="fw-semibold">John Doe</span>
-              </div>
+            <div class="d-flex align-items-center gap-2 friend-item">
+              <img src="../assets/icons/profile-pic.svg" width="32" height="32" alt=""><span class="small">John Doe</span>
             </div>
-
-            <!-- Friend 3 -->
-            <div class="d-flex align-items-center gap-3">
-              <img src="../assets/icons/profile-pic.svg" alt="" width="40" height="40">
-              <div class="d-flex flex-column">
-                <span class="fw-semibold">Isaac Newton</span>
-              </div>
+            <div class="d-flex align-items-center gap-2 friend-item">
+              <img src="../assets/icons/profile-pic.svg" width="32" height="32" alt=""><span class="small">Isaac Newton</span>
             </div>
           </div>
-          <a class="tile btn btn-brown w-100 mt-4" role="button">Invite Friends</a>
+
+          <a class="btn btn-discover mt-auto w-100" role="button" href="today.html">Invite</a>
         </div>
-      </div>
+      </aside>
     </div>
-  </div>
-  <footer class="footer-overlay text-center mt-auto">
-    <p class="text-black-50 small mb-0">© 2025 Jason, Eyuel, Gianna - University of Virginia</p>
+
+  </main>
+
+  <footer class="text-center mt-auto py-3 small text-white">
+    © 2025 Jason, Eyuel, Gianna – University of Virginia
   </footer>
 </body>
+</html>

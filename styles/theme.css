@@ -1,0 +1,141 @@
+/* Author: Jason D */
+:root {
+  /* colors */
+  --primary: rgb(124, 81, 28);
+  --primary-rgb: 146, 101, 46;
+  --accent-1: #92652e;
+  --accent-2: #a56b33;
+  --bg-gradient: linear-gradient(135deg, #F3904F 0%, #3B4371 100%);
+
+  /* text colors */
+  --ink: #2a2a2a;
+  --ink-muted: rgba(0, 0, 0, 0.6);
+  --ink-inverse: #f5f7fb;
+
+
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-brd: rgba(255, 255, 255, 0.55);
+  --glass-radius: 1rem;
+  --divider: rgba(0, 0, 0, 0.06);
+}
+
+
+body {
+  font-family: "Inter", sans-serif;
+  color: var(--ink);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+/* glass pane container */
+.glass-pane {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-brd);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-radius: var(--glass-radius);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.12),
+    inset 0 1px rgba(255, 255, 255, 0.45);
+  color: var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
+}
+.glass-pane:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.18),
+    inset 0 1px rgba(255, 255, 255, 0.5);
+}
+
+
+
+/* Buttons */
+button, .btn, .btn-container, a[role="button"] {
+  font-family: inherit;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.btn-primary-glass {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff !important;
+  padding: 0.55rem 1.1rem;
+  box-shadow: 0 6px 16px rgba(146, 101, 46, 0.25);
+}
+.btn-primary-glass:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(146, 101, 46, 0.35);
+  filter: brightness(1.05);
+}
+
+.btn-secondary-glass {
+  background: rgba(255, 255, 255, 0.25);
+  color: var(--primary) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  padding: 0.55rem 1.1rem;
+}
+.btn-secondary-glass:hover {
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+
+.btn-outline-glass {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: var(--ink);
+}
+.btn-outline-glass:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: var(--primary);
+}
+
+
+.btn img, .btn-container img {
+  margin-right: 0.35rem;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+.btn:hover img, .btn-container:hover img {
+  opacity: 1;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff !important;
+  padding: 0.55rem 1.2rem;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(146, 101, 46, 0.35);
+}
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(146, 101, 46, 0.45);
+}
+
+
+/* nav bar */
+.navbar {
+  background: rgba(60, 60, 60, 0.35) !important;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  border-radius: 0 0 16px 16px;
+}
+.navbar * {
+  color: var(--ink-inverse) !important;
+}
+
+
+.footer-overlay {
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 3rem;
+  padding-bottom: 1rem;
+}
