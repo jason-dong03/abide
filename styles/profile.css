@@ -1,6 +1,6 @@
 /* Author: Jason D */
 @import url('../styles/theme.css');
-/* Apply glass background to profile panels */
+
 #profileTabsContent,
 .nav-tabs,
 .section-box,
@@ -15,20 +15,20 @@
     inset 0 1px rgba(255, 255, 255, 0.45);
 }
 
-/* Keep tab list look cohesive */
+
 .nav-tabs {
   background: rgba(255, 255, 255, 0.4);
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.55);
 }
 
-/* Tab content panel spacing */
+
 #profileTabsContent {
   padding: 2rem;
 }
 
-/* Avatar badge tweak */
-.avatar {
+
+.profile {
   width: 90px;
   height: 90px;
   border: 2px solid rgba(255, 255, 255, 0.6);
@@ -43,7 +43,7 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
-.avatar-badge {
+.profile-badge {
   background: rgba(0, 0, 0, 0.55);
   border-radius: 10px;
   width: 30px;
@@ -53,5 +53,5 @@
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
 }
-.bigger-text{ font-size: 0.95rem; font-weight: 500; color: var(--primary-color); }
-.small-text{ color: var(--secondary-color); font-size: 0.8rem; font-weight: 150; color: var(--alternatice-color); }
+.bigger-text{ font-size: 0.95rem; font-weight: 500; color: black; }
+.small-text{ font-size: 0.8rem; font-weight: 150; color: black; }
