@@ -40,7 +40,7 @@ CREATE TABLE users (
     last_name       TEXT NOT NULL,
     email           CITEXT UNIQUE NOT NULL,
     phone_number    TEXT UNIQUE,
-    password        TEXT NOT NULL,
+    password_hash   TEXT NOT NULL,
 
     login_days_count INTEGER NOT NULL DEFAULT 0,
     last_login_at TIMESTAMPTZ,
@@ -51,7 +51,7 @@ CREATE TABLE users (
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-)
+);
 
 -- login events to track streak
 CREATE TABLE login_events (
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS badges (
 -- records which badges which users have earned
 CREATE TABLE IF NOT EXISTS user_badges (
     user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    badge_id INTEGER NOT NULL REFERENCES badges(badge_id),
+    badge_id INTEGER NOT NULL REFERENCES badges(badge_id) ON DELETE CASCADE,
     awarded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (user_id, badge_id)
 );
@@ -85,26 +85,26 @@ CREATE TABLE IF NOT EXISTS user_badges (
 -- friend requests + friendship status
 CREATE TABLE IF NOT EXISTS friend_links (
     friend_request_id SERIAL PRIMARY KEY, 
-    requester_id NOT NULL REFERENCES users(user_id) ON DELETE CASCADE, 
-    addressee_id NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    requester_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE, 
+    addressee_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     status friend_status NOT NULL DEFAULT 'pending',
-    is_friend BOOLEAN NOT NULL DEFAULT FALSE,
     requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     responded_at TIMESTAMPTZ, 
+    CHECK (requester_id <> addressee_id)
 );
 
 -- CHALLENGES
 -- master list of challenges
 CREATE TABLE IF NOT EXISTS challenges (
     challenge_id SERIAL PRIMARY KEY,
-    creator_id NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    creator_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     description TEXT,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     frequency checkin_frequency NOT NULL,
     goal_unit TEXT NOT NULL CHECK (goal_unit IN ('pages', 'chapters')),
-    target_amount INTEGER NOT NULL (target_amount > 0),
+    target_amount INTEGER NOT NULL CHECK (target_amount > 0),
     visibility challenge_visibility NOT NULL DEFAULT 'public',
     invite_code TEXT UNIQUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
