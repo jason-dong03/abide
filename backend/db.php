@@ -4,7 +4,7 @@
 
         public static function pdo(): PDO {
             if (!self::$pdo) {
-            $dsn = "pgsql:host=localhost;port=5432;dbname=mum8ky";
+            $dsn = "pgsql:host=localhost;port=5432;dbname=read";
             self::$pdo = new PDO($dsn, "mum8ky", "-6lQ2HRQKTqJ", [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_EMULATE_PREPARES => false,
@@ -23,12 +23,12 @@
                 ':ln' => $last_name, 
                 ':e' => $email,
                 ':pn' => $phone_number,
-                ':p' => $hash,
+                ':ph' => $hash,
             ]);
         }
         public static function find_user(string $email): ?array {
             $pdo = Db::pdo();
-            $sql = 'SELECT user_id, first_name, last_name, email, created_at
+            $sql = 'SELECT user_id, first_name, last_name, email, password_hash, created_at
                                 FROM users
                                 WHERE email = :e LIMIT 1';
             $stmt = $pdo->prepare($sql);
@@ -49,12 +49,20 @@
             if(!$user){
                 return false;
             }
-            return password_verify($password, $user['password']);
+            return password_verify($password, $user['password_hash']);
         }
 
         public static function record_login_event(int $user_id): void {
-        self::pdo()->prepare('INSERT INTO login_events (user_id) VALUES (:u)')
-            ->execute([':u' => $user_id]);
+            $sql = "
+                INSERT INTO login_events (user_id)
+                SELECT :u
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM login_events
+                    WHERE user_id = :u
+                    AND date_trunc('day', logged_in_at) = date_trunc('day', now())
+                )";
+            self::pdo()->prepare($sql)->execute([':u' => $user_id]);
         }
     }
 ?>
