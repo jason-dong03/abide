@@ -207,7 +207,7 @@ unset($_SESSION['form']);
             show("main"); hide("register"); hide("login");
             };
 
-            // --- build "name" field for anagram welcome logic on registration submit ---
+            // --- handle registration form submission ---
             document.querySelector('#register form')?.addEventListener('submit', (e) => {
             const first = (document.getElementById('first-name')?.value || '').trim();
             const last  = (document.getElementById('last-name')?.value || '').trim();
@@ -222,7 +222,7 @@ unset($_SESSION['form']);
             document.getElementById('reg-fullname-hidden').value = full || (first || last);
             });
 
-            // --- focus behavior similar to your original page ---
+            // --- focus first field on page load ---
             window.addEventListener('DOMContentLoaded', () => {
             const el = document.getElementById('login-pwd') || document.getElementById('login-email') || document.getElementById('first-name');
             if (el) el.focus();
