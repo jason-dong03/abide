@@ -38,6 +38,7 @@ CREATE TABLE users (
     last_name             TEXT NOT NULL,
     email                 CITEXT UNIQUE NOT NULL,
     phone_number          TEXT UNIQUE,
+    username              TEXT NOT NULL,
     password_hash         TEXT NOT NULL,
 
     login_days_count      INTEGER NOT NULL DEFAULT 0,

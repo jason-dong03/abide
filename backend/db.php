@@ -4,31 +4,31 @@
 
         public static function pdo(): PDO {
             if (!self::$pdo) {
-            $dsn = "pgsql:host=localhost;port=5432;dbname=read";
-            self::$pdo = new PDO($dsn, "mum8ky", "-6lQ2HRQKTqJ", [
+            $dsn = "pgsql:host=host.docker.internal;port=5432;dbname=read_db";
+            self::$pdo = new PDO($dsn, "jasondong", "", [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_EMULATE_PREPARES => false,
             ]);
             }
             return self::$pdo;
         }
-        public static function add_user(string $first_name, string $last_name, string $email, string $phone_number, string $password){
+        public static function add_user(string $first_name, string $last_name, string $email, string $username, string $password){
             $pdo = self::pdo();
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            $sql = 'INSERT INTO users (first_name, last_name, email, phone_number, password_hash) VALUES (:fn, :ln, :e, :pn, :ph)';
+            $sql = 'INSERT INTO users (first_name, last_name, email, username, password_hash) VALUES (:fn, :ln, :e, :u, :ph)';
 
             $stmt = $pdo -> prepare($sql);
             $stmt -> execute([
                 ':fn' => $first_name,
                 ':ln' => $last_name, 
                 ':e' => $email,
-                ':pn' => $phone_number,
+                ':u' => $username,
                 ':ph' => $hash,
             ]);
         }
-        public static function find_user(string $email): ?array {
+        public static function find_user_by_email(string $email): ?array {
             $pdo = Db::pdo();
-            $sql = 'SELECT user_id, first_name, last_name, email, password_hash, created_at
+            $sql = 'SELECT user_id, first_name, last_name, email, username, password_hash, created_at
                                 FROM users
                                 WHERE email = :e LIMIT 1';
             $stmt = $pdo->prepare($sql);
@@ -45,7 +45,7 @@
         }
 
         public static function verify_password(string $email, string $password){
-            $user = Db::find_user($email);
+            $user = Db::find_user_by_email($email);
             if(!$user){
                 return false;
             }
