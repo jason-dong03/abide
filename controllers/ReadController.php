@@ -8,10 +8,21 @@ final class ReadController {
         require __DIR__ . '/../pages/welcome.php';
     }
     public function showDashboard(): void {
+        
+        $challenges = Db::get_challenges_for_user($_SESSION['user']['user_id']);
+        $_SESSION['challenges'] = $challenges;
         require __DIR__ . '/../pages/dashboard.php';
     }
     
+    public function showCreateChallenge(): void{
+        require __DIR__ . '/../pages/challengecreation.php';
+    }
 
+    public function showDiscoverChallenges(): void{
+        $all_challenges = Db::get_all_challenges();
+        $_SESSION['all_challenges'] = $all_challenges;
+        require __DIR__ . '/../pages/discover.php';
+    }
     public function authUser($mode): void{
          if (!isset($_POST['csrf']) || $_POST['csrf'] !== ($_SESSION['csrf'] ?? '')) {
             http_response_code(400);
@@ -78,34 +89,34 @@ final class ReadController {
             }
         }
     }
-    public function create_challenge(): void {
-        $challenge_name = trim($_POST['cname'] ?? '');
-        $desc = trim($_POST['desc'] ?? '');
-        $startDate = trim($_POST['sdate'] ?? '');
-        $endDate = trim($_POST['edate'] ?? '');
-        $freq = trim($_POST['freq'] ?? '');
+    public function createChallenge(): void {
+        $challenge_name = trim($_POST['title'] ?? '');
+        $desc = trim($_POST['description'] ?? '');
+        $startDate = trim($_POST['start-date'] ?? '');
+        $endDate = trim($_POST['end-date'] ?? '');
+        $freq = trim($_POST['timeframe'] ?? '');
         $goal_num = trim($_POST['goal_num'] ?? '');
         $goal_type = trim($_POST['goal_type'] ?? '');
-        $is_private = trim($_POST['private'] ?? '');
+        $is_private = isset($_POST['private']);
 
-        if ($challenge_name == '' || $desc == '' ||
-        $startDate =='' || $endDate == '' || $freq == ''||
-        $goal_num == '' || $goal_type == ''){
+        if ($challenge_name === '' || $desc === '' ||
+        $startDate ==='' || $endDate == '' || $freq === ''||
+        $goal_num === '' || $goal_type === ''){
             $_SESSION['error'] = 'One or more field has not been filled in, please try again.';
             session_write_close();
-            header('Location: challengecreation.php');
+            header('Location: index.php?action=start_create_challenge');
             exit;
         } 
-        $add_challenge = db::add_challenge($creator_id, $challenge_name, 
-                                            $desc, $startDate, $endDate, 
-                                            $freq, $goal_num, $goal_type,
-                                            $is_private);
-                                            //returns boolean success
-        if($add_challenge){
-            //redirect to dashboard
-        }else{
-            //send error 
+        $add_challenge = db::add_challenge($_SESSION['user']['user_id'], $challenge_name, 
+        $desc, $startDate, $endDate, 
+        $freq, $goal_num, $goal_type,
+        $is_private);
+        if(!$add_challenge){
+            $_SESSION['error']= "Something went wrong, challenge could not be created. Try again later!";
+            session_write_close();
         }
+        header('Location: index.php?action=dashboard');
+        exit;
     }
     public function logout(){
         session_unset();

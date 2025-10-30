@@ -10,10 +10,6 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
-  CREATE TYPE challenge_visibility AS ENUM ('public','private');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
   CREATE TYPE participant_role AS ENUM ('owner','participant');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
@@ -101,7 +97,7 @@ CREATE TABLE IF NOT EXISTS challenges (
     frequency      checkin_frequency NOT NULL,
     goal_unit      TEXT NOT NULL CHECK (goal_unit IN ('pages', 'chapters')),
     target_amount  INTEGER NOT NULL CHECK (target_amount > 0),
-    visibility     challenge_visibility NOT NULL DEFAULT 'public',
+    is_private     BOOLEAN NOT NULL DEFAULT FALSE,
     invite_code    TEXT UNIQUE,
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     CHECK (end_date >= start_date)

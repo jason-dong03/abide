@@ -16,6 +16,28 @@ unset($_SESSION['error']);
 function h(string $s): string {
   return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
+
+
+
+$challenges = $_SESSION['challenges'] ?? [];
+$today = new DateTimeImmutable('today');
+
+function pct_progress(string $start, string $end, DateTimeImmutable $today): int {
+    $s = new DateTimeImmutable($start);
+    $e = new DateTimeImmutable($end);
+    $total = max(1, (int)$e->diff($s)->days + 1);
+    $elapsed = (int)$today->diff($s)->invert ? min($total, (int)$today->diff($s)->days + 1) : 0;
+    return (int)round(100 * $elapsed / $total);
+}
+
+function day_number(string $start, string $end, DateTimeImmutable $today): int {
+    $s = new DateTimeImmutable($start);
+    $e = new DateTimeImmutable($end);
+    if ($today < $s) return 1;
+    $total = max(1, (int)$e->diff($s)->days + 1);
+    $elapsed = min($total, (int)$today->diff($s)->days + 1);
+    return max(1, $elapsed);
+}
 ?>
 
 <!DOCTYPE html>
@@ -119,50 +141,62 @@ function h(string $s): string {
 
     <!-- challenges & freinds section -->
     <div class="row g-4 align-items-stretch equal-panels">
-      <div class="col-lg-9">
-        <div class="card glass-card p-4 h-100">
-          <div class="d-flex align-items-center mb-3">
-            <img src="assets/icons/bookmark-solid-brown.svg" width="20" height="20" class="me-2" alt="">
-            <span class="fw-semibold mb-0">Your Challenges</span>
-            <div class="ms-auto d-flex gap-2">
-              <a href="challengecreation.html" class="btn btn-create d-flex align-items-center gap-1">
-                <img src="assets/icons/plus.svg" width="16" height="16" alt=""> <span>Create</span>
-              </a>
-              <a href="discover.html" class="btn btn-discover">Discover</a>
-            </div>
-          </div>
-
-          <div class="d-flex flex-column gap-3">
-            <div class="card glass-card p-3 position-relative challenge">
-              <div class="d-flex justify-content-between mb-2">
-                <strong>J.R.R Tolkien in 60 Days</strong><span class="badge bg-brown">Day 26</span>
+      <div class="row g-4 align-items-stretch equal-panels">
+        <?php $isEmpty = empty($challenges); ?>
+        <div class="col-lg-9">
+          <div class="card glass-card p-4 <?= $isEmpty ? '' : 'h-100' ?>">
+            <div class="d-flex align-items-center mb-3">
+              <img src="assets/icons/bookmark-solid-brown.svg" width="20" height="20" class="me-2" alt="">
+              <span class="fw-semibold mb-0">Your Challenges</span>
+              <div class="ms-auto d-flex gap-2">
+                <a href="index.php?action=start_create_challenge" class="btn btn-create d-flex align-items-center gap-1">
+                  <img src="assets/icons/plus.svg" width="16" height="16" alt=""> <span>Create</span>
+                </a>
+                <a href="index.php?action=discover_challenges" class="btn btn-discover">Discover</a>
               </div>
-              <p class="mb-2 small">Read all of J.R.R Tolkien’s major works in 60 days.</p>
-              <div class="progress mb-2" style="height:10px;">
-                <div class="progress-bar" style="width:45%">45%</div>
-              </div>
-              <div class="d-flex justify-content-between small text-muted">
-                <span>Ends Oct 31, 2025</span><span>89 participants</span>
-              </div>
-              <a href="today.html" class="stretched-link" aria-label="View challenge"></a>
             </div>
 
-            <div class="card glass-card p-3 position-relative challenge">
-              <div class="d-flex justify-content-between mb-2">
-                <strong>Jane Austen Classics</strong><span class="badge bg-brown">Day 15</span>
+            <?php if ($isEmpty): ?>
+              <p class="text-muted small mb-0">No challenges yet.</p>
+            <?php else: ?>
+              <div class="challenge-list d-flex flex-column gap-3">
+                <?php foreach ($challenges as $ch): 
+                      $title = $ch['title'] ?? 'Untitled';
+                      $desc  = $ch['description'] ?? '';
+                      $end   = $ch['end_date'];
+                      $start = $ch['start_date'];
+                      $pct   = pct_progress($start, $end, $today);
+                      $day   = day_number($start, $end, $today);
+                      $endsPretty = date('M j, Y', strtotime($end));
+                      $participants = (int)($ch['participants'] ?? 0);
+                      $cid = (int)$ch['challenge_id'];
+                ?>
+                  <div class="card glass-card p-3 position-relative challenge">
+                    <div class="d-flex justify-content-between mb-2">
+                      <strong><?= h($title) ?></strong>
+                      <span class="badge bg-brown">Day <?= $day ?></span>
+                    </div>
+
+                    <?php if ($desc !== ''): ?>
+                      <p class="mb-2 small"><?= h($desc) ?></p>
+                    <?php endif; ?>
+
+                    <div class="progress mb-2" style="height:10px;">
+                      <div class="progress-bar" style="width:<?= $pct ?>%"><?= $pct ?>%</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between small text-muted">
+                      <span>Ends <?= h($endsPretty) ?></span>
+                      <span><?= $participants ?> participants</span>
+                    </div>
+
+                    <a href="/abide/index.php?action=challenge&cid=<?= $cid ?>" class="stretched-link" aria-label="View challenge"></a>
+                  </div>
+                <?php endforeach; ?>
               </div>
-              <p class="mb-2 small">Read all of Jane Austen’s major works in 30 days.</p>
-              <div class="progress mb-2" style="height:10px;">
-                <div class="progress-bar" style="width:75%">75%</div>
-              </div>
-              <div class="d-flex justify-content-between small text-muted">
-                <span>Ends Nov 15, 2025</span><span>120 participants</span>
-              </div>
-              <a href="today.html" class="stretched-link" aria-label="View challenge"></a>
-            </div>
+            <?php endif; ?>
           </div>
         </div>
-      </div>
 
       <!-- friens-->
       <aside class="col-lg-3 friends-sidebar ms-auto">

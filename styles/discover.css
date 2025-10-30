@@ -1,7 +1,6 @@
 /* Author: Eyuel T */
 @import url('../styles/theme.css');
 
-
 .results-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -24,7 +23,9 @@
 }
 
 .challenge-card {
-  transition: transform 0.15s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.25s ease;
 }
 .challenge-card:hover {
   transform: translateY(-3px);
@@ -59,11 +60,11 @@
   background: rgba(146, 101, 46, 0.2);
   color: var(--accent-1);
 }
-.badge-level-beginner {
-  background: rgba(173, 216, 230, 0.3);
-  color: #225a7c;
+.badge-public {
+  background: rgba(28, 207, 28, 0.4);
+  color: #fff;
 }
-.badge-level-advanced {
+.badge-private {
   background: rgba(255, 99, 71, 0.25);
   color: #a2301f;
 }

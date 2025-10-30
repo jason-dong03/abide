@@ -24,9 +24,14 @@ switch ($action) {
   case 'auth':
     $controller -> authUser($mode);
     break;
-  
   case 'dashboard':
     $controller -> showDashboard();
+    break;
+  case 'start_create_challenge':
+    $controller -> showCreateChallenge();
+    break;
+  case 'discover_challenges':
+    $controller -> showDiscoverChallenges();
     break;
   case 'create_challenge':
     $controller->createChallenge();

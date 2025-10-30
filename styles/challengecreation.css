@@ -1,9 +1,8 @@
 /* Author: Gianna M */
 @import url('../styles/theme.css');
 
-
 body {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   color: var(--ink);
   background: var(--bg-gradient);
   background-attachment: fixed;
@@ -24,7 +23,6 @@ body {
 .navbar a {
   color: var(--ink-inverse) !important;
 }
-
 
 .container {
   max-width: 1100px;
@@ -48,7 +46,9 @@ body {
     0 6px 18px rgba(0, 0, 0, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.45);
   color: var(--ink);
-  transition: transform 0.15s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.25s ease;
 }
 .tile:hover {
   transform: translateY(-3px);
@@ -76,8 +76,9 @@ textarea:focus,
 select:focus {
   background: rgba(255, 255, 255, 0.3);
   border-color: rgba(var(--primary-rgb), 0.65);
-  box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.18),
-              inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 0 0 4px rgba(var(--primary-rgb), 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
   outline: none;
 }
 
@@ -85,7 +86,6 @@ select:focus {
   color: var(--ink-inverse);
   opacity: 0.9;
 }
-
 
 .btn-brown {
   background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
@@ -109,10 +109,6 @@ select:focus {
   margin-bottom: 0.4rem;
   opacity: 0.9;
 }
-
-
-
-
 
 @media (max-width: 992px) {
   .container {
