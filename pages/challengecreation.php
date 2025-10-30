@@ -1,3 +1,28 @@
+<?php
+declare(strict_types=1);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start([
+      'cookie_httponly' => true,
+      'cookie_samesite' => 'Lax',
+      'cookie_secure'   => isset($_SERVER['HTTPS']),
+    ]);
+}
+function h(string $s): string {
+  return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+if (empty($_SESSION['csrf'])) {
+  $_SESSION['csrf'] = bin2hex(random_bytes(32));
+}
+$csrf = $_SESSION['csrf'];
+
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['error']); 
+
+$name  = $_SESSION['form']['name']  ?? ($_POST['name']  ?? '');
+$email = $_SESSION['form']['email'] ?? ($_POST['email'] ?? '');
+unset($_SESSION['form']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -23,7 +48,7 @@
       <h2>Create Your Reading Challenge!</h2>
     </div>
 
-    <form id="challenge-form" class="form-view" novalidate>
+    <form id="challenge-form" class="form-view" method="post" action="index.php?action=create_challenge">
       <div class="row g-5 align-items-start flex-wrap">
         <!-- left column: Form fields -->
         <div class="tile col-md-8 col-12">
@@ -77,12 +102,12 @@
                 cover?</label>
               <div class="d-flex row g-3">
                 <div class="col-4 align-items-center">
-                  <input type="number" id="total_length" name="total_length" class="form-control" min="1" max="10000"
+                  <input id = "goal_num" type="number" id="total_length" name="total_length" class="form-control" min="1" max="10000"
                     placeholder="Enter number" required>
                   <div class="invalid-feedback">Please enter a number.</div>
                 </div>
                 <div class="col-4">
-                  <select id="goal" name="goal" class="form-select" aria-label="Select goal type" required>
+                  <select id="goal_type" name="goal" class="form-select" aria-label="Select goal type" required>
                     <option value="" disabled selected>Select</option>
                     <option value="pages">Pages</option>
                     <option value="chapters">Chapters</option>
