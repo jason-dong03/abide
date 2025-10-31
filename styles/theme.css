@@ -1,21 +1,22 @@
 /* Author: Jason D */
 :root {
-  /* colors */
-  --primary: rgb(124, 81, 28);
-  --primary-rgb: 146, 101, 46;
-  --accent-1: #92652e;
-  --accent-2: #a56b33;
-  --bg-gradient: linear-gradient(135deg, #f3904f 0%, #3b4371 100%);
+  /* Base Palette */
+  --primary: #3d3413;
+  --primary-rgb: 90, 127, 163;   
+  --accent-1: #6fa9c9;
+  --accent-2: #3e5c78;
+  --bg-gradient: linear-gradient(135deg, #e7f3f4 0%, #b2d1e3 40%, #8fb7d1 100%);
 
-  /* text colors */
-  --ink: #2a2a2a;
-  --ink-muted: rgba(0, 0, 0, 0.6);
-  --ink-inverse: #f5f7fb;
+  /* Text */
+  --ink: #1e1e1e;
+  --ink-muted: rgba(0, 0, 0, 0.65);
+  --ink-inverse: #2b3745;
 
-  --glass-bg: rgba(255, 255, 255, 0.45);
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.35);
   --glass-brd: rgba(255, 255, 255, 0.55);
   --glass-radius: 1rem;
-  --divider: rgba(0, 0, 0, 0.06);
+  --divider: rgba(0, 0, 0, 0.08);
 }
 
 body {
@@ -28,7 +29,8 @@ body {
   min-height: 100vh;
 }
 
-/* glass pane container */
+/* shared glass surface helper (optional) */
+.glass,
 .glass-pane {
   background: var(--glass-bg);
   border: 1px solid var(--glass-brd);
@@ -39,16 +41,16 @@ body {
     0 6px 18px rgba(0, 0, 0, 0.12),
     inset 0 1px rgba(255, 255, 255, 0.45);
   color: var(--ink);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.25s ease;
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
 }
+.glass:hover,
 .glass-pane:hover {
   transform: translateY(-2px);
   box-shadow:
     0 10px 26px rgba(0, 0, 0, 0.18),
     inset 0 1px rgba(255, 255, 255, 0.5);
 }
+
 /* Buttons */
 button,
 .btn,
@@ -61,18 +63,23 @@ a[role='button'] {
   font-weight: 500;
   text-align: center;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
 }
+
 .btn-primary-glass {
   background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
   color: #fff !important;
   padding: 0.55rem 1.1rem;
-  box-shadow: 0 6px 16px rgba(146, 101, 46, 0.25);
+  box-shadow: 0 6px 16px rgba(var(--primary-rgb), 0.25);
 }
 .btn-primary-glass:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(146, 101, 46, 0.35);
   filter: brightness(1.05);
+  box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.35);
+}
+.btn-primary-glass:focus-visible {
+  outline: 3px solid rgba(var(--primary-rgb), 0.35);
+  outline-offset: 2px;
 }
 
 .btn-secondary-glass {
@@ -85,6 +92,11 @@ a[role='button'] {
   background: rgba(255, 255, 255, 0.35);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
+.btn-secondary-glass:focus-visible {
+  outline: 3px solid rgba(var(--primary-rgb), 0.35);
+  outline-offset: 2px;
+}
+
 .btn-outline-glass {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.4);
@@ -93,6 +105,10 @@ a[role='button'] {
 .btn-outline-glass:hover {
   background: rgba(255, 255, 255, 0.25);
   color: var(--primary);
+}
+.btn-outline-glass:focus-visible {
+  outline: 3px solid rgba(var(--primary-rgb), 0.35);
+  outline-offset: 2px;
 }
 
 .btn img,
@@ -111,16 +127,16 @@ a[role='button'] {
   color: #fff !important;
   padding: 0.55rem 1.2rem;
   border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(146, 101, 46, 0.35);
+  box-shadow: 0 8px 20px rgba(var(--primary-rgb), 0.30);
 }
 .btn-save:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(146, 101, 46, 0.45);
+  box-shadow: 0 10px 26px rgba(var(--primary-rgb), 0.40);
 }
 
 /* nav bar */
 .navbar {
-  background: rgba(60, 60, 60, 0.35) !important;
+  background: rgba(46, 64, 86, 0.28) !important; /* slight blue tint instead of gray */
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
@@ -131,8 +147,14 @@ a[role='button'] {
   color: var(--ink-inverse) !important;
 }
 
+/* Footer */
 .footer-overlay {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   margin-top: 3rem;
   padding-bottom: 1rem;
+}
+
+/* a11y: reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
 }

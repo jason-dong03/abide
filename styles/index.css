@@ -104,7 +104,7 @@ body::after {
   padding-left: 1.8rem;
   margin: 0.25rem 0;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: #111 !important;
   transition: color 0.3s ease, transform 0.2s ease;
 }
 
@@ -113,7 +113,7 @@ body::after {
   position: absolute;
   left: 0;
   top: 0;
-  color: #ff6b6b;
+  color: #e74c3c; /* softer red tone that still pops */
   font-weight: bold;
   transition: all 0.3s ease;
   transform: scale(1);
@@ -121,15 +121,17 @@ body::after {
 
 /* When valid */
 .password-rules li.valid {
-  color: #a2f5b5;
   transform: translateX(4px);
+  color: #0b6121; 
 }
 
 .password-rules li.valid::before {
   content: "✓";
-  color: #76f589;
+  color: #0b6121;
   transform: scale(1.2);
 }
+
+
 
 
 form { width: 100%; }
