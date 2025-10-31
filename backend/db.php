@@ -2,16 +2,22 @@
     final class Db {
         private static ?PDO $pdo = null;
 
-        public static function pdo(): PDO {
-            if (!self::$pdo) {
-            $dsn = "pgsql:host=host.docker.internal;port=5432;dbname=read_db";
-            self::$pdo = new PDO($dsn, "jasondong", "", [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_EMULATE_PREPARES => false,
-            ]);
-            }
-            return self::$pdo;
-        }
+        private static function pdo() {
+    if (self::$pdo !== null) {
+        return self::$pdo;
+    }
+
+    $dsn = "pgsql:host=localhost;port=5432;dbname=read"; // your database name is 'read'
+    $user = "postgres";   // your correct DB username
+    $pass = "admin123";   // the password you set
+
+    self::$pdo = new PDO($dsn, $user, $pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    ]);
+
+    return self::$pdo;
+}
+
         public static function add_user(string $first_name, string $last_name, string $email, string $username, string $password){
             $pdo = Db::pdo();
             $hash = password_hash($password, PASSWORD_DEFAULT);
@@ -116,5 +122,46 @@
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
+        public static function get_friends(int $user_id): array {
+    $pdo = self::pdo();
+    $sql = "
+        SELECT u.user_id, u.first_name, u.last_name, u.email
+        FROM friends f
+        JOIN users u ON f.friend_id = u.user_id
+        WHERE f.user_id = :uid
+        ORDER BY u.first_name ASC;
+    ";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['uid' => $user_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public static function get_non_friends(int $user_id): array {
+    $pdo = self::pdo();
+    $sql = "
+        SELECT user_id, first_name, last_name, email
+        FROM users
+        WHERE user_id != :uid
+        AND user_id NOT IN (
+            SELECT friend_id FROM friends WHERE user_id = :uid
+        )
+        ORDER BY first_name ASC;
+    ";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['uid' => $user_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public static function add_friend(int $user_id, int $friend_id): bool {
+    $pdo = self::pdo();
+    $sql = "
+        INSERT INTO friends (user_id, friend_id)
+        VALUES (:u, :f)
+        ON CONFLICT DO NOTHING;
+    ";
+    $stmt = $pdo->prepare($sql);
+    return $stmt->execute(['u' => $user_id, 'f' => $friend_id]);
+}
+
     }
 ?>
