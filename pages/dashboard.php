@@ -65,11 +65,11 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
         <div class="d-flex align-items-center gap-4">
           <!-- Profile button with text on large screens -->
           <a href="index.php?action=profile" class="nav-icon-link d-flex align-items-center gap-2" aria-label="Profile">
-            <img src="assets/icons/profile_white.svg" width="24" height="24" alt="Profile Icon">
+            <img src="assets/icons/dark-user-circle.svg" width="24" height="24" alt="Profile Icon">
             <span class="d-none d-lg-inline">Profile</span>
           </a>
           <a href="index.php?action=logout" class="nav-icon-link d-flex align-items-center gap-1" aria-label="Logout">
-            <img src="assets/icons/logout_white.svg" alt="Logout Icon" width="20" height="20">
+            <img src="assets/icons/dark-logout.svg" alt="Logout Icon" width="20" height="20">
             <span>Logout</span>
           </a>
         </div>
@@ -106,7 +106,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     <!-- KPI Strip -->
 <div class="card glass-card kpi-strip mb-4">
     <div class="kpi">
-      <img src="assets/icons/clock.svg" width="18" height="18" alt="">
+      <img src="assets/icons/dark-clock.svg" width="18" height="18" alt="">
       <div class="kpi-meta">
         <span class="kpi-label">Active</span>
         <span class="kpi-value">3</span>
@@ -114,7 +114,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     </div>
 
     <div class="kpi">
-      <img src="assets/icons/check_brown.svg" width="18" height="18" alt="">
+      <img src="assets/icons/dark-check.svg" width="18" height="18" alt="">
       <div class="kpi-meta">
         <span class="kpi-label">Completed</span>
         <span class="kpi-value">2</span>
@@ -122,7 +122,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     </div>
 
     <div class="kpi">
-      <img src="assets/icons/calendar-brown.svg" width="18" height="18" alt="">
+      <img src="assets/icons/dark-calendar.svg" width="18" height="18" alt="">
       <div class="kpi-meta">
         <span class="kpi-label">Streaks</span>
         <span class="kpi-value">33 🔥</span>
@@ -131,7 +131,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
 
 
     <div class="kpi">
-      <img src="assets/icons/friends-brown.svg" width="18" height="18" alt="">
+      <img src="assets/icons/dark-friends.svg" width="18" height="18" alt="">
       <div class="kpi-meta">
         <span class="kpi-label">Friends</span>
         <span class="kpi-value">15</span>
@@ -147,7 +147,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
         <div class="col-lg-9">
           <div class="card glass-card p-4 <?= $isEmpty ? '' : 'h-100' ?>">
             <div class="d-flex align-items-center mb-3">
-              <img src="assets/icons/bookmark-solid-brown.svg" width="20" height="20" class="me-2" alt="">
+              <img src="assets/icons/dark-bookmark.svg" width="20" height="20" class="me-2" alt="">
               <span class="fw-semibold mb-0">Your Challenges</span>
               <div class="ms-auto d-flex gap-2">
                 <a href="index.php?action=start_create_challenge" class="btn btn-create d-flex align-items-center gap-1">
@@ -203,7 +203,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
       <aside class="col-lg-3 friends-sidebar ms-auto">
         <div class="card glass-card p-4 h-100 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
-            <img src="assets/icons/friends-brown.svg" width="20" height="20" class="me-2" alt="">
+            <img src="assets/icons/dark-friends.svg" width="20" height="20" class="me-2" alt="">
             <span class="fw-semibold mb-0">Friends</span>
             <button class="btn btn-link p-0 ms-auto" aria-label="Add Friend">
               <img src="assets/icons/plus-brown.svg" width="16" height="16" alt="">
@@ -214,13 +214,13 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
 
           <div class="friends-list d-flex flex-column gap-1">
             <div class="d-flex align-items-center gap-2 friend-item">
-              <img src="assets/icons/profile-pic.svg" width="32" height="32" alt=""><span class="small">Alice Johnson</span>
+              <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt=""><span class="small">Alice Johnson</span>
             </div>
             <div class="d-flex align-items-center gap-2 friend-item">
-              <img src="assets/icons/profile-pic.svg" width="32" height="32" alt=""><span class="small">John Doe</span>
+              <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt=""><span class="small">John Doe</span>
             </div>
             <div class="d-flex align-items-center gap-2 friend-item">
-              <img src="assets/icons/profile-pic.svg" width="32" height="32" alt=""><span class="small">Isaac Newton</span>
+              <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt=""><span class="small">Isaac Newton</span>
             </div>
           </div>
 
@@ -231,7 +231,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
 
   </main>
 
-  <footer class="text-center mt-auto py-3 small text-white">
+  <footer class="text-center mt-auto py-3 small text-black">
     © 2025 Jason, Eyuel, Gianna – University of Virginia
   </footer>
 </body>

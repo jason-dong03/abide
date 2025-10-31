@@ -264,7 +264,7 @@ unset($_SESSION['form']);
     </div>
 
     <footer class="footer-overlay text-center">
-      <p class="text-white-50 small mb-0">
+      <p class="text-black-50 small mb-0">
         © 2025 Jason, Eyuel, Gianna — University of Virginia
       </p>
     </footer>

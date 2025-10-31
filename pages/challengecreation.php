@@ -135,7 +135,7 @@
     </form>
   </div>
   <footer class="footer-overlay text-center mt-auto">
-    <p class="text-white-50 small mb-0">© 2025 Jason, Eyuel, Gianna - University of Virginia</p>
+    <p class="text-black-50 small mb-0">© 2025 Jason, Eyuel, Gianna - University of Virginia</p>
   </footer>
   <script>
   (() => {
