@@ -1,19 +1,42 @@
+<?php
+declare(strict_types=1);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start([
+      'cookie_httponly' => true,
+      'cookie_samesite' => 'Lax',
+      'cookie_secure'   => isset($_SERVER['HTTPS']),
+    ]);
+}
+
+$user = $_SESSION['user'] ?? null;
+
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['error']); 
+
+function h(string $s): string {
+  return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head> 
+  <base href="/abide/">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>read | profile</title>
   <meta name="author" content="Jason D">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/theme.css">
-  <link rel="stylesheet" href="../styles/profile.css">
+  <link rel="stylesheet" href="styles/theme.css">
+  <link rel="stylesheet" href="styles/profile.css">
 </head>
 <body class="d-flex flex-column min-vh-100"> 
 
 <header>
   <nav class="navbar px-3 py-3 shadow-sm">
-    <a href="dashboard.html" class="btn-container text-center p-2 ps-1">&larr; back to dashboard</a>
+    <a href="index.php?action=dashboard" class="btn-container text-center p-2 ps-1">&larr; back to dashboard</a>
     <span class="navbar-text ms-auto fw-bold pe-4">read</span>
   </nav>
 </header>
@@ -21,25 +44,25 @@
 <ul class="nav nav-tabs nav-fill w-75 glass-pane rounded-4 overflow-hidden mt-5 mx-auto" id="profileTabs" role="tablist">
   <li class="nav-item" role="presentation">
     <button class="nav-link active nav-link-skinny text-black" id="tab-profile" data-bs-toggle="tab" data-bs-target="#pane-profile" type="button" role="tab" aria-controls="pane-profile" aria-selected="true">
-      <img src="../assets/icons/user.svg" alt="" width="18" height="18">
+      <img src="assets/icons/user.svg" alt="" width="18" height="18">
       <span class="d-none d-md-inline">Profile</span>
     </button>
   </li>
   <li class="nav-item" role="presentation">
     <button class="nav-link nav-link-skinny text-black" id="tab-badges" data-bs-toggle="tab" data-bs-target="#pane-achievements" type="button" role="tab" aria-controls="pane-achievements" aria-selected="false">
-      <img src="../assets/icons/badge.svg" alt="" width="18" height="18">
+      <img src="assets/icons/badge.svg" alt="" width="18" height="18">
       <span class="d-none d-md-inline">Achievements</span>
     </button>
   </li>
   <li class="nav-item" role="presentation">
     <button class="nav-link nav-link-skinny text-black" id="tab-alerts" data-bs-toggle="tab" data-bs-target="#pane-alerts" type="button" role="tab" aria-controls="pane-alerts" aria-selected="false">
-      <img src="../assets/icons/alert.svg" alt="" width="18" height="18">
+      <img src="assets/icons/alert.svg" alt="" width="18" height="18">
       <span class="d-none d-md-inline">Alerts</span>
     </button>
   </li>
   <li class="nav-item" role="presentation">
     <button class="nav-link nav-link-skinny text-black" id="tab-settings" data-bs-toggle="tab" data-bs-target="#pane-settings" type="button" role="tab" aria-controls="pane-settings" aria-selected="false">
-      <img src="../assets/icons/setting.svg" alt="" width="18" height="18">
+      <img src="assets/icons/setting.svg" alt="" width="18" height="18">
       <span class="d-none d-md-inline">Settings</span>
     </button>
   </li>
@@ -49,7 +72,7 @@
     <div class="tab-pane show active fade" id="pane-profile" role="tabpanel">
     <div class="d-flex flex-column align-items-start">
       <div class="d-flex align-items-center gap-2 mb-2">
-        <img src="../assets/icons/user.svg" alt="Profile Icon" width="18" height="18">
+        <img src="assets/icons/user.svg" alt="Profile Icon" width="18" height="18">
         <h5 class="mb-0 bigger-text">Profile Information</h5>
       </div>
 
@@ -57,7 +80,7 @@
         <div class="position-relative">
           <div class="rounded-circle d-flex align-items-center justify-content-center profile">J</div>
           <div class="position-absolute bottom-0 end-0 profile-badge">
-            <a href="#"><img src="../assets/icons/camera-white.svg" alt="Change" width="20" height="20"></a>
+            <a href="#"><img src="assets/icons/camera-white.svg" alt="Change" width="20" height="20"></a>
           </div>
         </div>
 
@@ -74,43 +97,35 @@
     <div class="d-flex flex-column gap-4 w-100">
 
       <div>
-        <label class="form-label mb-1 label-brown">First Name</label>
+        <label class="form-label mb-1 label-brown">Name</label>
         <div class="input-group">
-          <input type="text" class="form-control rounded-8" value="John Doe" aria-label="User's first name">
+          <input type="text" class="form-control rounded-8" value="<?= h($user['name'])?> " aria-label="User's name">
           <span class="input-group-text input-icon">
-            <img src="../assets/icons/edit.svg" alt="Edit" width="16" height="16">
+            <img src="assets/icons/edit.svg" alt="Edit" width="16" height="16">
           </span>
         </div>
       </div>
 
       <div>
         <label class="form-label mb-1 label-brown">
-          <img src="../assets/icons/email.svg" alt="Email" width="16" height="16" class="me-1">Email Address
+          <img src="assets/icons/email.svg" alt="Email" width="16" height="16" class="me-1">Email Address
         </label>
-        <input type="email" class="form-control rounded-8" value="johndoe@gmail.com" readonly aria-label="User's email address">
+        <input type="email" class="form-control rounded-8" value="<?= h($user['email'])?> " readonly aria-label="User's email address">
         <small class="text-muted">Used for login and notifications</small>
       </div>
 
       <div>
         <label class="form-label mb-1 label-brown">
-          <img src="../assets/icons/call.svg" alt="Phone" width="16" height="16" class="me-1">Phone Number
+          <img src="assets/icons/call.svg" alt="Phone" width="16" height="16" class="me-1">Phone Number
         </label>
         <div class="input-group">
           <input type="text" class="form-control rounded-8" placeholder="Add phone number">
           <span class="input-group-text input-icon">
-            <img src="../assets/icons/edit.svg" alt="Edit" width="16" height="16">
+            <img src="assets/icons/edit.svg" alt="Edit" width="16" height="16">
           </span>
         </div>
         <small class="text-muted">Optional: For SMS notifications and account recovery</small>
-      </div>
-
-      <div>
-        <label class="form-label mb-1 label-brown">Password</label>
-        <div class="input-group gap-2">
-          <input type="password" class="form-control rounded-8" value="password" aria-label="Reset password">
-          <button class="btn btn-secondary-glass rounded-8 d-flex align-items-center gap-2">Reset Password</button>
-        </div>
-      </div>
+      </div>   
     </div>
     </div>
     <div class="tab-pane fade" id="pane-achievements" role="tabpanel">
@@ -137,18 +152,18 @@
         </div>
 
 
-        <section class="section-box mb-3">
+        <section class="section-box mb-3 w-75 mx-auto">
         <div class="section-header d-flex align-items-center gap-2 ps-2">
-            <img src="../assets/icons/badge.svg" width="18" height="18" alt="">
+            <img src="assets/icons/badge.svg" width="18" height="18" alt="">
             <h6 class="section-title mb-0">Earned Badges</h6>
         </div>
         <div class="section-body"></div>
         </section>
 
 
-        <section class="section-box mb-3">
+        <section class="section-box mb-3 w-75 mx-auto">
         <div class="section-header d-flex align-items-center gap-2 ps-2">
-            <img src="../assets/icons/badge.svg" width="18" height="18" alt="">
+            <img src="assets/icons/badge.svg" width="18" height="18" alt="">
             <h6 class="section-title mb-0">In Progress</h6>
         </div>
         <div class="section-body"></div>
@@ -159,13 +174,13 @@
         <div class="d-flex flex-column align-items-start">        
             <h6 class="mb-0">Notification Preferences</h6> 
              <div class="d-flex align-items-center gap-1 mb-2 mt-4">
-                <img src="../assets/icons/msg.svg" alt="Notif Icon" width="18" height="18">
+                <img src="assets/icons/msg.svg" alt="Notif Icon" width="18" height="18">
                 <h5 class="mb-0 small fw-bold">How would you like to recieve notifications?</h5>
             </div>
             <!-- Email switch -->
             <div class="section-box d-flex justify-content-between align-items-center w-100 mb-3">
               <div class="d-flex align-items-center gap-3">
-                <img src="../assets/icons/email.svg" alt="Email Icon" width="18" height="18">
+                <img src="assets/icons/email.svg" alt="Email Icon" width="18" height="18">
                 <label class="form-check-label mb-0" for="notifEmail">Email</label>
               </div>
               <div class="form-check form-switch m-0">
@@ -176,7 +191,7 @@
             <!-- SMS switch -->
             <div class="section-box d-flex justify-content-between align-items-center w-100 mb-3">
               <div class="d-flex align-items-center gap-3">
-                <img src="../assets/icons/call.svg" alt="Phone Icon" width="18" height="18">
+                <img src="assets/icons/call.svg" alt="Phone Icon" width="18" height="18">
                 <label class="form-check-label mb-0" for="notifSMS">SMS</label>
               </div>
               <div class="form-check form-switch m-0">
@@ -187,7 +202,7 @@
             <!-- Push Notifications switch -->
             <div class="section-box d-flex justify-content-between align-items-center w-100 mb-2">
               <div class="d-flex align-items-center gap-3">
-                <img src="../assets/icons/alert-brown.svg" alt="Bell Icon" width="18" height="18">
+                <img src="assets/icons/alert-brown.svg" alt="Bell Icon" width="18" height="18">
                 <label class="form-check-label mb-0" for="notifPush">Push</label>
               </div>
               <div class="form-check form-switch m-0">
@@ -217,7 +232,7 @@
             <div class="d-flex justify-content-between align-items-center w-100 ">
               <div class="d-flex flex-column align-items-start">
                 <div class="d-flex flex-row align-items-start gap-3">
-                  <img src="../assets/icons/clock.svg" alt="Clock Icon" width="18" height="18">
+                  <img src="assets/icons/clock.svg" alt="Clock Icon" width="18" height="18">
                   <h6 class="bigger-text">Late Reading Alerts</h6>
                 </div>
                 <p class="small-text mb-0">Get reminded when you miss your daily reading</p>
@@ -288,10 +303,11 @@
     </div>
 </div>
 
-<div class="d-flex justify-content-center w-75 mx-auto mb-4 mt-4">
+<div class="d-flex justify-content-center w-75 mx-auto mb-4 mt-4 gap-2">
   <button class="btn btn-save rounded-3 px-3 py-1">
-    <img src="../assets/icons/save.svg" alt="Save" width="16" height="16" class="me-1">Save Profile
+    <img src="assets/icons/save.svg" alt="Save" width="16" height="16" class="me-1">Save Profile
   </button>
+   <button class="btn btn-secondary-glass rounded-8 d-flex align-items-center text-white">Reset Password</button>
 </div>
 
 <footer class="footer-overlay text-center mt-auto">
