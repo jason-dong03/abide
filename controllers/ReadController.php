@@ -53,6 +53,13 @@ final class ReadController {
                 header('Location: index.php?action=welcome');
                 exit;
             }
+            // regex pattern for strong password (https://uibakery.io/regex-library/password-regex-php)
+            $password_regex = '/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/';
+            if (!preg_match($password_regex, $password)) {
+                $_SESSION['error'] = 'Password must be at least 8 chars and include uppercase, lowercase, a number, and a special character.';
+                header('Location: index.php?action=welcome'); exit;
+            }
+
             $_SESSION['user'] = [ 
             'name' => $fname . " ". $lname,
             'email' => $email,
