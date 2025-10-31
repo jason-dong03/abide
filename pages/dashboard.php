@@ -169,13 +169,22 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
                       $pct   = pct_progress($start, $end, $today);
                       $day   = day_number($start, $end, $today);
                       $endsPretty = date('M j, Y', strtotime($end));
-                      $participants = (int)($ch['participants'] ?? 0);
                       $cid = (int)$ch['challenge_id'];
+                      $participants = Db::count_participants($cid);
+                      $isOwner = ($user['user_id'] && $cid === $user['user_id']);
+                     
                 ?>
                   <div class="card glass-card p-3 position-relative challenge">
-                    <div class="d-flex justify-content-between mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
                       <strong><?= h($title) ?></strong>
-                      <span class="badge bg-brown text-center">Day <?= $day ?></span>
+                      <div class="d-flex gap-2">
+                        <?php if($isOwner): ?>
+                          <span class="badge badge-owner text-center">Owner</span>
+                        <?php else: ?>
+                          <span class="badge badge-member text-center">Member</span>
+                        <?php endif; ?>
+                        <span class="badge bg-brown text-center">Day <?= $day ?></span>
+                      </div>
                     </div>
 
                     <?php if ($desc !== ''): ?>

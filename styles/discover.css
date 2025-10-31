@@ -23,6 +23,7 @@
 }
 
 .challenge-card {
+  cursor: pointer;
   transition:
     transform 0.15s ease,
     box-shadow 0.25s ease;
@@ -53,7 +54,7 @@
   background: rgba(255, 255, 255, 0.25);
 }
 .badge-status-active {
-  background: rgba(124, 190, 94, 0.2);
+  background: #7cbe5e33;
   color: #2b6c27;
 }
 .badge-status-completed {
@@ -232,4 +233,104 @@
     font-size: 0.9rem;
     padding: 0.75rem 2.5rem 0.75rem 1rem;
   }
+}
+
+.modal-backdrop-custom {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1040;
+  display: none;
+}
+.modal-backdrop-custom.show {
+  display: block;
+}
+.modal-custom {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1050;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: none;
+}
+.modal-custom.show {
+  display: block;
+}
+.modal-content-custom {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-brd);
+  border-radius: var(--glass-radius);
+  padding: 2rem;
+  color: white;
+}
+.modal-header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1.5rem;
+}
+.modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.modal-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+.btn-join {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  flex: 1;
+}
+.btn-join:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+.btn-delete {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  flex: 1;
+}
+.btn-delete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
 }

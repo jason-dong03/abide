@@ -14,6 +14,7 @@ require_once __DIR__ . '/controllers/ReadController.php';
 
 $action = $_GET['action'] ?? $_GET['actiontype'] ?? 'welcome';
 $mode = $_GET['mode'] ?? '';
+$cid = $_GET['cid'] ?? null;
 $controller = new ReadController();
 
 switch ($action) {
@@ -32,6 +33,11 @@ switch ($action) {
   case 'discover_challenges':
     $controller -> showDiscoverChallenges();
     break;
+  case 'join_challenge':
+    $controller -> joinChallenge($cid);
+    break;
+  case 'delete_challenge':
+    $controller -> deleteChallenge($cid);
   case 'create_challenge':
     $controller->createChallenge();
     break;

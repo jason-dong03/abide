@@ -9,23 +9,15 @@ DO $$ BEGIN
   CREATE TYPE checkin_frequency AS ENUM ('daily','weekly','monthly');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-DO $$ BEGIN
-  CREATE TYPE participant_role AS ENUM ('owner','participant');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-  CREATE TYPE participant_status AS ENUM ('active','left','completed');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
 -- drop tables (order doesn't matter due to CASCADE)
 DROP TABLE IF EXISTS checkins CASCADE;
 DROP TABLE IF EXISTS challenge_participants CASCADE;
 DROP TABLE IF EXISTS challenges CASCADE;
-DROP TABLE IF EXISTS friend_links CASCADE;
 DROP TABLE IF EXISTS user_badges CASCADE;
 DROP TABLE IF EXISTS badges CASCADE;
 DROP TABLE IF EXISTS login_events CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS friends CASCADE;
 
 -- USER + AUTH
 CREATE TABLE users (
@@ -96,11 +88,9 @@ CREATE TABLE IF NOT EXISTS challenges (
 
 -- PARTICIPANTS
 CREATE TABLE IF NOT EXISTS challenge_participants(
-    participant_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     challenge_id   INTEGER NOT NULL REFERENCES challenges(challenge_id) ON DELETE CASCADE,
     user_id        INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    role           participant_role NOT NULL DEFAULT 'participant', 
-    status         participant_status NOT NULL DEFAULT 'active', 
     joined_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (challenge_id, user_id)
 );
@@ -108,7 +98,7 @@ CREATE TABLE IF NOT EXISTS challenge_participants(
 -- CHECKINS
 CREATE TABLE IF NOT EXISTS checkins (
     checkin_id     SERIAL PRIMARY KEY, 
-    participant_id INTEGER NOT NULL REFERENCES challenge_participants(participant_id) ON DELETE CASCADE,
+    participant_id INTEGER NOT NULL REFERENCES challenge_participants(id) ON DELETE CASCADE,
     checkin_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     amount_done    INTEGER NOT NULL CHECK (amount_done >= 0) -- numeric progress amount
 );

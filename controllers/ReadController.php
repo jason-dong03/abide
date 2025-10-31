@@ -8,13 +8,9 @@ final class ReadController {
         require __DIR__ . '/../pages/welcome.php';
     }
     public function showDashboard(): void {
-
         $challenges = Db::get_challenges_for_user($_SESSION['user']['user_id']);
-        $badges =
         $_SESSION['challenges'] = $challenges;
         require __DIR__ . '/../pages/dashboard.php';
-        
-
     }
     
     public function showCreateChallenge(): void{
@@ -37,7 +33,8 @@ final class ReadController {
     public function authUser($mode): void{
          if (!isset($_POST['csrf']) || $_POST['csrf'] !== ($_SESSION['csrf'] ?? '')) {
             http_response_code(400);
-            exit('Invalid CSRF');
+            header('Location: index.php?action=welcome');
+            exit;
         }
         if ($mode === "register"){
             $fname = trim($_POST['first_name'] ?? '');
@@ -88,8 +85,8 @@ final class ReadController {
             }else{
                 Db::add_user($fname, $lname, $email, $username, $password);
                 $user = Db::find_user_by_email($email);
-                session_write_close();
                 $_SESSION['user']['user_id'] = $user['user_id'];
+                session_write_close();
                 header('Location: index.php?action=dashboard');
                 exit;     
             }
@@ -139,16 +136,42 @@ final class ReadController {
             header('Location: index.php?action=start_create_challenge');
             exit;
         } 
-        $add_challenge = db::add_challenge($_SESSION['user']['user_id'], $challenge_name, 
+        $uid = $_SESSION['user']['user_id'];
+        $cid = db::add_challenge($uid, $challenge_name, 
         $desc, $startDate, $endDate, 
         $freq, $goal_num, $goal_type,
         $is_private);
-        if(!$add_challenge){
+        $add_challenge_partcipiant = Db::add_challenge_participant($uid, $cid);
+        if(!$cid || !$add_challenge_partcipiant){
             $_SESSION['error']= "Something went wrong, challenge could not be created. Try again later!";
             session_write_close();
         }
         header('Location: index.php?action=dashboard');
         exit;
+    }
+    public function joinChallenge($cid){
+        $uid = $_SESSION['user']['user_id'];
+        $add_challenge_partcipiant = Db::add_challenge_participant($uid, $cid);
+        if($add_challenge_partcipiant){
+            $_SESSION['sucess'] = "Successfully joined the challenge! Happy Reading!";
+        } else{
+            $_SESSION['error'] = "Something went wrong joining the challenge, try again.";
+        }
+        session_write_close();
+        header('Location: index.php?action=dashboard');
+        exit;
+    }
+    public function deleteChallenge($cid){
+        $uid = $_SESSION['user']['user_id'];
+        $delete_challenge = Db::delete_challenge($uid, $cid);
+        if($delete_challenge){
+            $_SESSION['sucess'] = "Successfully deleted the challenge!";
+        } else{
+            $_SESSION['error'] = "Something went wrong deleting the challenge, try again.";
+        }
+        session_write_close();
+        header('Location: index.php?action=dashboard');
+        exit; 
     }
     public function logout(){
         session_unset();

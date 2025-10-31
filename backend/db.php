@@ -7,11 +7,8 @@
         return self::$pdo;
     }
 
-    $dsn = "pgsql:host=localhost;port=5432;dbname=read"; // your database name is 'read'
-    $user = "postgres";   // your correct DB username
-    $pass = "admin123";   // the password you set
-
-    self::$pdo = new PDO($dsn, $user, $pass, [
+    $dsn = "pgsql:host=host.docker.internal;port=5432;dbname=read_db";
+        self::$pdo = new PDO($dsn, "jasondong", "", [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
 
@@ -71,7 +68,7 @@
             self::pdo()->prepare($sql)->execute([':u' => $user_id]);
         }
 
-        public static function add_challenge($creator_id, $challenge_name, $desc, $startDate, $endDate, $freq, $goal_num, $goal_type, $is_private): void{
+        public static function add_challenge($creator_id, $challenge_name, $desc, $startDate, $endDate, $freq, $goal_num, $goal_type, $is_private){
             $pdo = Db::pdo();
             $sql = "INSERT INTO challenges (creator_id, title, 
             description, start_date, end_date,frequency, target_amount,
@@ -98,16 +95,23 @@
             $stmt->bindValue(':goal_type',      $goal_type,      PDO::PARAM_STR);  
             $stmt->bindValue(':is_private',     $is_private,     PDO::PARAM_BOOL);  
             $stmt->execute();
+
+            return (int) $pdo->lastInsertId();
         }
         public static function get_challenges_for_user($uid){
             $pdo = Db::pdo();
-            $sql = 'SELECT * FROM challenges WHERE creator_id = :u ORDER BY challenge_id ASC';
-            
+           $sql = 'SELECT DISTINCT c.*, 
+                   CASE WHEN c.creator_id = :u THEN 1 ELSE 0 END as is_creator
+            FROM challenges c
+            LEFT JOIN challenge_participants cp ON c.challenge_id = cp.challenge_id
+            WHERE c.creator_id = :u OR cp.user_id = :u
+            ORDER BY c.challenge_id ASC';
+
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':u' => $uid]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
-         public static function get_all_challenges(){
+        public static function get_all_challenges(){
             $pdo = Db::pdo();
             $sql = '
                 SELECT 
@@ -123,45 +127,109 @@
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         public static function get_friends(int $user_id): array {
-    $pdo = self::pdo();
-    $sql = "
-        SELECT u.user_id, u.first_name, u.last_name, u.email
-        FROM friends f
-        JOIN users u ON f.friend_id = u.user_id
-        WHERE f.user_id = :uid
-        ORDER BY u.first_name ASC;
-    ";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['uid' => $user_id]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+            $pdo = Db::pdo();
+            $sql = "
+                SELECT u.user_id, u.first_name, u.last_name, u.email
+                FROM friends f
+                JOIN users u ON f.friend_id = u.user_id
+                WHERE f.user_id = :uid
+                ORDER BY u.first_name ASC;
+            ";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':uid' => $user_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
 
-public static function get_non_friends(int $user_id): array {
-    $pdo = self::pdo();
-    $sql = "
-        SELECT user_id, first_name, last_name, email
-        FROM users
-        WHERE user_id != :uid
-        AND user_id NOT IN (
-            SELECT friend_id FROM friends WHERE user_id = :uid
-        )
-        ORDER BY first_name ASC;
-    ";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['uid' => $user_id]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+        public static function get_non_friends(int $user_id): array {
+            $pdo = Db::pdo();
+            $sql = "
+                SELECT user_id, first_name, last_name, email
+                FROM users
+                WHERE user_id != :uid
+                AND user_id NOT IN (
+                    SELECT friend_id FROM friends WHERE user_id = :uid
+                )
+                ORDER BY first_name ASC;
+            ";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':uid' => $user_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
 
-public static function add_friend(int $user_id, int $friend_id): bool {
-    $pdo = self::pdo();
-    $sql = "
-        INSERT INTO friends (user_id, friend_id)
-        VALUES (:u, :f)
-        ON CONFLICT DO NOTHING;
-    ";
-    $stmt = $pdo->prepare($sql);
-    return $stmt->execute(['u' => $user_id, 'f' => $friend_id]);
-}
+        public static function add_friend(int $user_id, int $friend_id): bool {
+            $pdo = Db::pdo();
+            $sql = "
+                INSERT INTO friends (user_id, friend_id)
+                VALUES (:u, :f)
+                ON CONFLICT DO NOTHING;
+            ";
+            $stmt = $pdo->prepare($sql);
+            return $stmt->execute([':u' => $user_id, ':f' => $friend_id]);
+        }
+    
+        public static function add_challenge_participant($uid, $cid){
+            $pdo = Db::pdo();
+            $sql = "INSERT INTO challenge_participants (user_id, challenge_id) VALUES (:u, :c)";
+            $stmt = $pdo -> prepare($sql);
+            $stmt->execute([':u' => $uid, ':c'=> $cid]);
+        }
+        public static function is_participant(int $challenge_id, int $user_id): bool {
+            $pdo = Db::pdo();
+            $sql = "SELECT COUNT(*) FROM challenge_participants 
+                    WHERE challenge_id = :cid AND user_id = :uid";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':cid', $challenge_id, PDO::PARAM_INT);
+            $stmt->bindValue(':uid', $user_id, PDO::PARAM_INT);
+            $stmt->execute();
+            return (int)$stmt->fetchColumn() > 0;
+        }
+        public static function delete_challenge(int $user_id,int $challenge_id): bool {
+            $pdo = Db::pdo();
+            
+            try {
+                            
+                $sql = "SELECT creator_id FROM challenges WHERE challenge_id = :challenge_id";
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindValue(':challenge_id', $challenge_id, PDO::PARAM_INT);
+                $stmt->execute();
+                $creator_id = $stmt->fetchColumn();
+                
+             
+                if (!$creator_id || $creator_id != $user_id) {
+                    return false;
+                }
+                
+             
+           
+                $sql = "DELETE FROM challenge_participants WHERE challenge_id = :challenge_id";
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindValue(':challenge_id', $challenge_id, PDO::PARAM_INT);
+                $stmt->execute();
+                
+              
+                $sql = "DELETE FROM challenges WHERE challenge_id = :challenge_id";
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindValue(':challenge_id', $challenge_id, PDO::PARAM_INT);
+                $stmt->execute();
+                
+                $pdo->commit();
+                return true;
+            } catch (Exception $e) {
+                return false;
+            }
+        }
 
+        public static function count_participants(int $cid): int {
+            $pdo = Db::pdo();
+            $sql = "SELECT COUNT(*) 
+                    FROM challenge_participants 
+                    WHERE challenge_id = :challenge_id";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':challenge_id', $cid, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return (int) $stmt->fetchColumn();
+        }
     }
 ?>
