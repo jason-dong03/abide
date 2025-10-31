@@ -45,13 +45,17 @@ unset($_SESSION['form']);
   </head>
 
   <body>
+    <!-- error alert -->
+    <?php if (!empty($error)): ?>
+      <div class="position-fixed top-0 start-50 translate-middle-x mt-3 p-3" style="z-index:1080;">
+        <div class="alert alert-danger alert-dismissible text-center fade show shadow" role="alert" style="min-width:320px;max-width:640px;">
+          <?= h($error) ?>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      </div>
+    <?php endif; ?>
     <!-- main container -->
     <div id="main" class="outer-container">
-      <?php if ($error): ?>
-        <div class="alert alert-danger text-center w-50 mx-auto mb-0">
-          <?= h($error) ?>
-        </div>
-      <?php endif; ?>
       <div
         class="blur-container d-flex flex-column align-items-center justify-content-center text-center p-5"
       >
@@ -164,14 +168,13 @@ unset($_SESSION['form']);
                 placeholder="Create a password"
                 required
                 minlength="8"
-                pattern="^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$"
                 autocomplete="new-password"
               />
               <div class="password-rules mt-2">
                 <p class="fw-semibold mb-1">Your password must:</p>
                 <ul class="rules-list list-unstyled">
                   <li id="rule-length" class="invalid">be at least 8 characters long</li>
-                  <li id="rule-number" class="invalid">include at least one number (0–9)</li>
+                  <li id="rule-number" class="invalid">include at least one number (0–9), one lowercase (a-z), one uppercase (A-Z)</li>
                   <li id="rule-special" class="invalid">include at least one special character (!@#$%^&*)</li>
                 </ul>
               </div>
@@ -182,6 +185,7 @@ unset($_SESSION['form']);
               <input
                 type="password"
                 id="password-repeat"
+                name="password_confirm"
                 placeholder="Repeat password"
                 required
               />
@@ -237,7 +241,7 @@ unset($_SESSION['form']);
               name="password"
               placeholder="password"
               required
-              minlength="5"
+              minlength="8"
               autocomplete="current-password"
             />
           </div>
@@ -339,6 +343,17 @@ unset($_SESSION['form']);
         for (const [key, el] of Object.entries(rules)) {
           el.classList.toggle('valid', checks[key]);
           el.classList.toggle('invalid', !checks[key]);
+        }
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const alertNode = document.querySelector(".alert");
+        if (alertNode) {
+          const alert = bootstrap.Alert.getOrCreateInstance(alertNode);
+          setTimeout(() => {
+            alert.close();
+          }, 5000); // close after 5 seconds
         }
       });
     </script>

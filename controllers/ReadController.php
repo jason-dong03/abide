@@ -45,7 +45,7 @@ final class ReadController {
             $email = trim($_POST['email'] ?? '');
             $username = trim($_POST['username'] ?? '');
             $password = trim($_POST['password'] ?? '');
-
+            $password_confirm = trim($_POST['password_confirm'] ?? '');
 
             if ($fname === '' || $lname === '' || $email === '' || $username === '' || $password === '') {
                 $_SESSION['error'] = "All fields must be filled out!";
@@ -58,6 +58,20 @@ final class ReadController {
             if (!preg_match($password_regex, $password)) {
                 $_SESSION['error'] = 'Password must be at least 8 chars and include uppercase, lowercase, a number, and a special character.';
                 header('Location: index.php?action=welcome'); exit;
+            }
+
+            if (!hash_equals($password, $password_confirm)) {
+                $_SESSION['error'] = 'Passwords do not match.';
+                header('Location: index.php?action=welcome'); exit;
+            }
+
+            //email validation regex (https://emailregex.com/index.html)
+            $email_regex = '/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/';
+            if (!preg_match($email_regex, $email)) {
+                $_SESSION['error'] = "Please enter a valid email address (e.g., name@example.com).";
+                session_write_close();
+                header('Location: index.php?action=welcome');
+                exit;
             }
 
             $_SESSION['user'] = [ 
