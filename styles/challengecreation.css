@@ -11,17 +11,18 @@ body {
   min-height: 100vh;
 }
 
+/* Navbar → glass + dark text for contrast */
 .navbar {
-  background: rgba(60, 60, 60, 0.35) !important;
+  background: var(--glass-bg) !important;
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid var(--glass-brd);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   border-radius: 0 0 16px 16px;
 }
 .navbar span,
 .navbar a {
-  color: var(--ink-inverse) !important;
+  color: var(--ink) !important;
 }
 
 .container {
@@ -29,11 +30,12 @@ body {
   padding: 2rem;
 }
 
+/* Headline: use dark ink for readability on light glass */
 .reading-challenge-header h2 {
-  color: var(--ink-inverse);
+  color: var(--ink);
   font-weight: 700;
   letter-spacing: 0.5px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .tile {
@@ -56,7 +58,7 @@ body {
 }
 
 .form-label {
-  color: var(--ink-inverse);
+  color: var(--ink);
   font-weight: 500;
 }
 
@@ -82,11 +84,13 @@ select:focus {
   outline: none;
 }
 
+/* Checkbox label: use dark ink, slightly muted */
 .form-check-label {
-  color: var(--ink-inverse);
+  color: var(--ink);
   opacity: 0.9;
 }
 
+/* Keep the gradient button, neutralize shadow hue via primary-rgb from theme */
 .btn-brown {
   background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
   color: #fff !important;

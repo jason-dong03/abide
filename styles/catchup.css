@@ -1,7 +1,6 @@
 /* Author: Eyuel T */
 @import url('../styles/theme.css');
 
-
 body {
   font-family: "Inter", sans-serif;
   color: var(--ink);
@@ -16,11 +15,21 @@ body {
   text-decoration: none;
 }
 
-
 .container {
   max-width: 1100px;
   padding: 2rem;
 }
+
+.pending-count {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-brd);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-radius: var(--glass-radius);
+  padding: 1.5rem;
+}
+
+/* Section header → glass, higher contrast */
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -28,8 +37,11 @@ body {
   padding: 0.85rem 1.25rem;
   margin-bottom: 1.25rem;
   border-radius: 0.75rem;
-  background: rgba(146, 101, 46, 0.12); /* warm brown tint, subtle */
-  color: var(--ink-high);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-brd);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  color: var(--ink);
 }
 
 .section-header h5 {
@@ -38,14 +50,16 @@ body {
 }
 
 .section-header .badge-status-pending {
-  background: rgba(255, 255, 255, 0.4);
-  color: black;
+  background: rgba(255, 255, 255, 0.45);
+  color: #000;
   padding: 0.35rem 0.6rem;
   border-radius: 8px;
   font-size: 0.75rem;
   font-weight: 500;
+  border: 1px solid var(--glass-brd);
 }
-/*reading cards*/
+
+/* reading cards → unify glass look */
 .reading-card {
   position: relative;
   display: flex;
@@ -54,8 +68,9 @@ body {
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
   border-radius: var(--glass-radius);
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(10px);
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
   border: 1px solid var(--glass-brd);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   transition: transform 0.15s ease, box-shadow 0.25s ease;
@@ -71,7 +86,7 @@ body {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--accent-1);
+  background: var(--accent-2);
 }
 
 /* text area */
@@ -89,9 +104,7 @@ body {
   color: var(--ink-muted);
 }
 
-/* =======================
-   Badge: Overdue / Due Soon — positioned top right
-======================= */
+/* badges */
 .badge-overdue,
 .badge-due-soon {
   position: absolute;
@@ -104,28 +117,25 @@ body {
 }
 
 .badge-overdue {
-  background: rgba(230, 80, 62, 0.2);
-  color: #a32418;
+  background: rgba(230, 80, 62, 0.18);
+  color: #8f2319;
   border: 1px solid rgba(230, 80, 62, 0.35);
 }
 
 .badge-due-soon {
-  background: rgba(255, 195, 60, 0.18);
-  color: #916a00;
+  background: rgba(255, 195, 60, 0.16);
+  color: #7a5c00;
   border: 1px solid rgba(255, 195, 60, 0.4);
 }
-/* =======================
-   Footer
-======================= */
+
+/* footer → darker for contrast on light bg */
 footer {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(0, 0, 0, 0.7);
   margin-top: 3rem;
   text-align: center;
 }
 
-/* =======================
-   Responsive
-======================= */
+/* responsive */
 @media (max-width: 768px) {
   .section-header {
     flex-direction: column;
