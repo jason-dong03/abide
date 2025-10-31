@@ -64,6 +64,7 @@ function get_duration_days(string $start, string $end): int {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="styles/theme.css">
   <link rel="stylesheet" href="styles/discover.css">
+   
 </head>
 <body class="d-flex flex-column min-vh-100">
 
@@ -75,67 +76,83 @@ function get_duration_days(string $start, string $end): int {
   </header>
 
   <main class="container-xxl my-4">
-    <div class="row gx-4 gy-4">
-      <aside class="col-12 col-lg-3">
-        <div class="glass-pane p-4 d-flex flex-column">
-          <div class="d-flex align-items-center mb-2">
-            <h6 class="fw-semibold mb-0">Filters</h6>
-            <button class="btn-outline-glass ms-auto px-2 py-1 small">Clear</button>
+    <div class="row">
+      <!-- Sidebar: Search & Filters -->
+      <aside class="col-12 col-lg-3 mb-4">
+        <div class="glass-pane p-4">
+          <!-- Search Bar -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold mb-2">Search</label>
+            <div class="search-input-wrapper">
+              <input 
+                type="text" 
+                class="search-input" 
+                id="searchInput" 
+                placeholder="Search by name..."
+                autocomplete="off"
+              >
+              <span class="search-icon">🔍</span>
+            </div>
           </div>
+
           <hr class="my-3">
 
-          <div class="filter-block">
-            <p class="fw-semibold small mb-2">Duration</p>
-            <label class="form-check small"><input class="form-check-input" type="checkbox"> Short (≤30 days)</label>
-            <label class="form-check small"><input class="form-check-input" type="checkbox"> Medium (31–60 days)</label>
-            <label class="form-check small"><input class="form-check-input" type="checkbox"> Long (60+ days)</label>
-          </div>
-
-          <div class="filter-block">
-            <p class="fw-semibold small mb-2">Status</p>
-            <label class="form-check small"><input class="form-check-input" type="checkbox"> Active</label>
-            <label class="form-check small"><input class="form-check-input" type="checkbox"> Starting Soon</label>
-            <label class="form-check small"><input class="form-check-input" type="checkbox"> Completed</label>
-          </div>
-
-          <div class="filter-block">
-            <p class="fw-semibold small mb-2">Privacy</p>
-            <label class="form-check small"><input class="form-check-input" type="checkbox"> Public</label>
-            <label class="form-check small"><input class="form-check-input" type="checkbox"> Private</label>
-          </div>
-
-          <div class="filter-block">
-            <p class="fw-semibold small mb-2">Difficulty</p>
-            <label class="form-check small"><input class="form-check-input" type="checkbox"> Beginner</label>
-            <label class="form-check small"><input class="form-check-input" type="checkbox"> Intermediate</label>
-            <label class="form-check small"><input class="form-check-input" type="checkbox"> Advanced</label>
-          </div>
-
-          <div class="filter-block">
-            <p class="fw-semibold small mb-2">Group Size</p>
-            <select class="form-select form-select-sm" aria-label="Select group size">
-              <option>Any size</option>
-              <option>Solo</option>
-              <option>Small (2–10)</option>
-              <option>Medium (11–50)</option>
-              <option>Large (51+)</option>
+          <!-- Sort -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold mb-2">Sort By</label>
+            <select id="sortSelect" class="form-select" aria-label="Sort challenges">
+              <option value="newest">Newest First</option>
+              <option value="participants">Most Participants</option>
+              <option value="duration-asc">Duration (Short→Long)</option>
+              <option value="duration-desc">Duration (Long→Short)</option>
             </select>
+          </div>
+
+          <hr class="my-3">
+
+          <!-- Filter Chips -->
+          <div class="filters-section">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <label class="form-label fw-semibold mb-0">Filters</label>
+              <button class="btn-outline-glass px-2 py-1 small" id="clearFilters">Clear</button>
+            </div>
+
+            <div class="mb-3">
+              <p class="small fw-semibold mb-2">Status</p>
+              <div class="d-flex flex-wrap gap-2">
+                <div class="filter-chip" data-filter="status" data-value="active">Active</div>
+                <div class="filter-chip" data-filter="status" data-value="starting">Starting Soon</div>
+                <div class="filter-chip" data-filter="status" data-value="completed">Completed</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <p class="small fw-semibold mb-2">Duration</p>
+              <div class="d-flex flex-wrap gap-2">
+                <div class="filter-chip" data-filter="duration" data-value="short">≤30d</div>
+                <div class="filter-chip" data-filter="duration" data-value="medium">31-60d</div>
+                <div class="filter-chip" data-filter="duration" data-value="long">60+d</div>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <p class="small fw-semibold mb-2">Privacy</p>
+              <div class="d-flex flex-wrap gap-2">
+                <div class="filter-chip" data-filter="privacy" data-value="public">Public</div>
+                <div class="filter-chip" data-filter="privacy" data-value="private">Private</div>
+              </div>
+            </div>
           </div>
         </div>
       </aside>
 
+      <!-- Main Content: Results -->
       <div class="col-12 col-lg-9">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <p class="text-white small mb-0"><?= count($challenges) ?> challenges found</p>
-          <select id="sort" class="form-select form-select-sm w-auto" aria-label="Sort challenges">
-            <option>Best Match</option>
-            <option>Newest</option>
-            <option>Most Participants</option>
-            <option>Duration (Short→Long)</option>
-          </select>
-        </div>
 
-        <div class="results-grid">
+        <!-- Results Container -->
+        <div class="results-container">
+          <p class="text-white mb-3"><span id="resultCount"><?= count($challenges) ?></span> challenges found</p>
+          <div class="results-grid" id="resultsGrid">
           <?php foreach ($challenges as $ch): 
             $title = $ch['title'] ?? 'Untitled';
             $desc  = $ch['description'] ?? '';
@@ -148,51 +165,196 @@ function get_duration_days(string $start, string $end): int {
             $participants = (int)($ch['participants'] ?? 0);
             $cid = (int)$ch['challenge_id'];
             $creator_name = h($ch['creator_first_name'] ?? 'Unknown') . ' ' . h($ch['creator_last_name'] ?? '');
-            $is_private = false;
+            $is_private = (bool)($ch['is_private'] ?? false);
+            
+            $statusClass = strtolower(str_replace(' ', '-', $status));
+            $privacyValue = $is_private ? 'private' : 'public';
+            $durationCategory = $duration <= 30 ? 'short' : ($duration <= 60 ? 'medium' : 'long');
           ?>
-            <article class="challenge-card glass-pane p-4">
-              <h5 class="fw-semibold mb-2"><?= h($title) ?></h5>
-              
-              <div class="badges mb-3">
-                <?php if ($status === 'Active'): ?>
-                  <span class="badge badge-status-active">Active</span>
-                <?php elseif ($status === 'Completed'): ?>
-                  <span class="badge badge-status-completed">Completed</span>
-                <?php else: ?>
-                  <span class="badge" style="background: rgba(255, 193, 7, 0.2); color: #856404;">Starting Soon</span>
-                <?php endif; ?>
-                
-                <span class="badge"><?= $duration ?> days</span>
-                <?php if ($is_private === true): ?>
-                    <span class="badge badge-private">Private</span>
-                  <?php else: ?>
-                     <span class="badge badge-public">Public</span>
-                <?php endif; ?>
-              </div>
-
-              <?php if ($desc !== ''): ?>
-                <p class="small text-muted mb-3"><?= h(substr($desc, 0, 100)) ?><?= strlen($desc) > 100 ? '...' : '' ?></p>
+          <article 
+            class="challenge-card glass-pane p-4" 
+            data-title="<?= h(strtolower($title)) ?>"
+            data-status="<?= $statusClass ?>"
+            data-duration="<?= $durationCategory ?>"
+            data-privacy="<?= $privacyValue ?>"
+            data-participants="<?= $participants ?>"
+            data-duration-days="<?= $duration ?>"
+            data-created="<?= h($ch['created_at'] ?? '') ?>"
+          >
+            <h5 class="fw-semibold mb-2"><?= h($title) ?></h5>
+            
+            <div class="badges mb-3">
+              <?php if ($status === 'Active'): ?>
+                <span class="badge badge-status-active">Active</span>
+              <?php elseif ($status === 'Completed'): ?>
+                <span class="badge badge-status-completed">Completed</span>
+              <?php else: ?>
+                <span class="badge" style="background: rgba(255, 193, 7, 0.2); color: #856404;">Starting Soon</span>
               <?php endif; ?>
+              <?php if ($is_private): ?>
+                <span class="badge badge-private">Private</span>
+              <?php else: ?>
+                <span class="badge badge-public">Public</span>
+              <?php endif; ?>
+              <span class="badge badge-duration fw-normal"><?= $duration ?> days</span>
+            </div>
 
-              <div class="meta small mb-3">
-                <span>👤 <?= $creator_name ?></span> • <span>👥 <?= $participants ?></span>
-              </div>
+            <?php if ($desc !== ''): ?>
+              <p class="small text-muted mb-3"><?= h(substr($desc, 0, 100)) ?><?= strlen($desc) > 100 ? '...' : '' ?></p>
+            <?php endif; ?>
 
-              <div class="progress-wrap">
-                <div class="progress-bar" style="width:<?= $pct ?>%"></div>
-              </div>
+            <div class="meta small mb-3">
+              <span>👤 <?= $creator_name ?></span> • <span>👥 <?= $participants ?></span>
+            </div>
 
-              <a href="index.php?action=challenge&cid=<?= $cid ?>" class="stretched-link" aria-label="View <?= h($title) ?>"></a>
-            </article>
-          <?php endforeach; ?>
-        </div>
+            <div class="progress-wrap">
+              <div class="progress-bar" style="width:<?= $pct ?>%"></div>
+            </div>
+
+            <a href="index.php?action=challenge&cid=<?= $cid ?>" class="stretched-link" aria-label="View <?= h($title) ?>"></a>
+          </article>
+        <?php endforeach; ?>
       </div>
-    </div>
-  </main>
 
-  <footer class="footer-overlay text-center mt-auto">
-    <p class="small mb-0">© 2025 Jason, Eyuel, Gianna - University of Virginia</p>
-  </footer>
+      <div class="no-results" id="noResults" style="display: none;">
+        <h3>No challenges found</h3>
+        <p>Try adjusting your search or filters</p>
+      </div>
+    </main>
 
+    <footer class="footer-overlay text-center mt-auto">
+      <p class="small mb-0">© 2025 Jason, Eyuel, Gianna - University of Virginia</p>
+    </footer>
+
+    <script>
+      const searchInput = document.getElementById('searchInput');
+      const filterChips = document.querySelectorAll('.filter-chip');
+      const clearFiltersBtn = document.getElementById('clearFilters');
+      const sortSelect = document.getElementById('sortSelect');
+      const resultsGrid = document.getElementById('resultsGrid');
+      const resultCount = document.getElementById('resultCount');
+      const noResults = document.getElementById('noResults');
+      
+      let activeFilters = {
+        status: new Set(),
+        duration: new Set(),
+        privacy: new Set()
+      };
+    
+   
+      searchInput.addEventListener('input', function() {
+        filterChallenges();
+      });
+      
+
+      filterChips.forEach(chip => {
+        chip.addEventListener('click', function() {
+          const filterType = this.dataset.filter;
+          const filterValue = this.dataset.value;
+          
+          if (this.classList.contains('active')) {
+            this.classList.remove('active');
+            activeFilters[filterType].delete(filterValue);
+          } else {
+            this.classList.add('active');
+            activeFilters[filterType].add(filterValue);
+          }
+          
+          filterChallenges();
+        });
+      });
+      
+
+    clearFiltersBtn.addEventListener('click', function() {
+      searchInput.value = '';
+      filterChips.forEach(chip => chip.classList.remove('active'));
+      activeFilters = {
+        status: new Set(),
+        duration: new Set(),
+        privacy: new Set()
+      };
+      filterChallenges();
+    });
+    
+ 
+    sortSelect.addEventListener('change', function() {
+      sortChallenges(this.value);
+    });
+    
+    function filterChallenges() {
+      const searchTerm = searchInput.value.toLowerCase().trim();
+      const cards = Array.from(resultsGrid.querySelectorAll('.challenge-card'));
+      let visibleCount = 0;
+      
+      cards.forEach(card => {
+        let show = true;
+        
+
+        if (searchTerm) {
+          const title = card.dataset.title;
+          try {
+            const regex = new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+            if (!regex.test(title)) {
+              show = false;
+            }
+          } catch {
+            if (!title.includes(searchTerm)) {
+              show = false;
+            }
+          }
+        }
+        
+
+        if (activeFilters.status.size > 0) {
+          const cardStatus = card.dataset.status;
+          const statusMatch = Array.from(activeFilters.status).some(status => {
+            if (status === 'starting') return cardStatus === 'starting-soon';
+            return cardStatus === status;
+          });
+          if (!statusMatch) show = false;
+        }
+        
+        if (activeFilters.duration.size > 0) {
+          if (!activeFilters.duration.has(card.dataset.duration)) {
+            show = false;
+          }
+        }
+        
+        if (activeFilters.privacy.size > 0) {
+          if (!activeFilters.privacy.has(card.dataset.privacy)) {
+            show = false;
+          }
+        }
+        
+        card.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+      });
+      
+      resultCount.textContent = visibleCount;
+      noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+      resultsGrid.style.display = visibleCount === 0 ? 'none' : '';
+    }
+    
+    function sortChallenges(sortType) {
+      const cards = Array.from(resultsGrid.querySelectorAll('.challenge-card'));
+      
+      cards.sort((a, b) => {
+        switch(sortType) {
+          case 'newest':
+            return new Date(b.dataset.created) - new Date(a.dataset.created);
+          case 'participants':
+            return parseInt(b.dataset.participants) - parseInt(a.dataset.participants);
+          case 'duration-asc':
+            return parseInt(a.dataset.durationDays) - parseInt(b.dataset.durationDays);
+          case 'duration-desc':
+            return parseInt(b.dataset.durationDays) - parseInt(a.dataset.durationDays);
+          default:
+            return 0;
+        }
+      });
+      
+      cards.forEach(card => resultsGrid.appendChild(card));
+    }
+  </script>
 </body>
 </html>

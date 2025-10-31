@@ -64,7 +64,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
         </div>
         <div class="d-flex align-items-center gap-4">
           <!-- Profile button with text on large screens -->
-          <a href="profile.html" class="nav-icon-link d-flex align-items-center gap-2" aria-label="Profile">
+          <a href="index.php?action=profile" class="nav-icon-link d-flex align-items-center gap-2" aria-label="Profile">
             <img src="assets/icons/profile_white.svg" width="24" height="24" alt="Profile Icon">
             <span class="d-none d-lg-inline">Profile</span>
           </a>
@@ -82,9 +82,10 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
 
     <!-- Primary Actions -->
    <div class="row g-3 mb-4">
+     <?php $isEmpty = empty($challenges); ?>
     <div class="col-md-8">
       <div class="card glass-primary clickable-card p-4 position-relative">
-        <span class="fw-semibold mb-1">Continue Reading, <?= h($user['name'])?></span>
+        <span class="fw-semibold mb-1"><?= $isEmpty ? 'Start reading something, '. h($user['name']) : 'Continue Reading, ' . h($user['name']) ?></span>
         <p class="mb-0 subtitle">View your scheduled readings and stay on track</p>
         <a href="today.html" class="stretched-link" aria-label="View your scheduled readings and check off progress" tabindex="0"></a>
       </div>
@@ -174,15 +175,15 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
                   <div class="card glass-card p-3 position-relative challenge">
                     <div class="d-flex justify-content-between mb-2">
                       <strong><?= h($title) ?></strong>
-                      <span class="badge bg-brown">Day <?= $day ?></span>
+                      <span class="badge bg-brown text-center">Day <?= $day ?></span>
                     </div>
 
                     <?php if ($desc !== ''): ?>
                       <p class="mb-2 small"><?= h($desc) ?></p>
                     <?php endif; ?>
 
-                    <div class="progress mb-2" style="height:10px;">
-                      <div class="progress-bar" style="width:<?= $pct ?>%"><?= $pct ?>%</div>
+                    <div class="progress mb-2" style="height:20px;">
+                      <div class="progress-bar" style="width:<?= $pct ?>%"></div>
                     </div>
 
                     <div class="d-flex justify-content-between small text-muted">
