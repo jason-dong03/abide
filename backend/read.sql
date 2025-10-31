@@ -75,16 +75,7 @@ CREATE TABLE IF NOT EXISTS user_badges (
     PRIMARY KEY (user_id, badge_id)
 );
 
--- FRIENDS
-CREATE TABLE IF NOT EXISTS friend_links (
-    friend_request_id SERIAL PRIMARY KEY, 
-    requester_id      INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE, 
-    addressee_id      INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    status            friend_status NOT NULL DEFAULT 'pending',
-    requested_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
-    responded_at      TIMESTAMPTZ, 
-    CHECK (requester_id <> addressee_id)
-);
+
 
 -- CHALLENGES
 CREATE TABLE IF NOT EXISTS challenges (
@@ -120,4 +111,9 @@ CREATE TABLE IF NOT EXISTS checkins (
     participant_id INTEGER NOT NULL REFERENCES challenge_participants(participant_id) ON DELETE CASCADE,
     checkin_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     amount_done    INTEGER NOT NULL CHECK (amount_done >= 0) -- numeric progress amount
+);
+CREATE TABLE friends (
+    user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
+    friend_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, friend_id)
 );

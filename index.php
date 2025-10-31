@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -13,7 +12,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/backend/db.php';
 require_once __DIR__ . '/controllers/ReadController.php';
 
-$action = $_GET['action'] ?? 'welcome';
+$action = $_GET['action'] ?? $_GET['actiontype'] ?? 'welcome';
 $mode = $_GET['mode'] ?? '';
 $controller = new ReadController();
 
@@ -38,6 +37,14 @@ switch ($action) {
     break;
   case 'logout':
     $controller -> logout();
+    break;
+  case 'friends':
+    $controller->showFriends();
+    break;
+  case 'add_friend':
+    $controller->addFriend();
+    break;
+
   default:
     $controller->showWelcome();
     break;
