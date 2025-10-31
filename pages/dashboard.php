@@ -97,7 +97,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
         <p class="catchup-desc mb-0 subtitle">
           You have <span class="emph">2 missed readings</span>
         </p>
-        <a href="catchup.html" class="stretched-link" aria-label="Access and catch up with late readings" tabindex="0"></a>
+        <a href="/abide/index.php?action=catchup" class="stretched-link" aria-label="Access and catch up with late readings" tabindex="0"></a>
       </div>
     </div>
   </div>

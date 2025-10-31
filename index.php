@@ -41,6 +41,10 @@ switch ($action) {
     break;
   case 'logout':
     $controller -> logout();
+    break;
+  case 'catchup':
+    $controller -> showCatchup();
+    break;
   default:
     $controller->showWelcome();
     break;

@@ -28,6 +28,10 @@ final class ReadController {
     public function showProfile(): void{
         require __DIR__ . '/../pages/profile.php';
     }
+
+    public function showCatchup(): void{
+        require __DIR__ . '/../pages/catchup.php';
+    }
     public function authUser($mode): void{
          if (!isset($_POST['csrf']) || $_POST['csrf'] !== ($_SESSION['csrf'] ?? '')) {
             http_response_code(400);

@@ -1,3 +1,63 @@
+<?php
+declare(strict_types=1);
+
+if (session_status() === PHP_SESSION_NONE) {
+  session_start([
+    'cookie_httponly' => true,
+    'cookie_samesite' => 'Lax',
+    'cookie_secure'   => isset($_SERVER['HTTPS']),
+  ]);
+}
+
+function h(string $s): string {
+  return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+$user = $_SESSION['user'] ?? null;
+if (!$user) {
+  header('Location: /abide/index.php?action=welcome');
+  exit;
+}
+
+$plans = [
+  [
+    'title'   => 'Warriors: Into The Wild',
+    'pending' => 2,
+    'items'   => [
+      [
+        'title'      => 'Book One',
+        'badge'      => 'overdue',
+        'badge_text' => '3 days overdue',
+        'ref'        => 'Pages 290 – 320',
+        'meta'       => 'Originally due: January 10, 2025',
+      ],
+      [
+        'title'      => 'Book Two',
+        'badge'      => 'overdue',
+        'badge_text' => '2 days overdue',
+        'ref'        => 'Pages 1 – 60',
+        'meta'       => 'Originally due: January 14, 2025',
+      ],
+    ],
+  ],
+  [
+    'title'   => 'Percy Jackson: The Lightning Thief',
+    'pending' => 1,
+    'items'   => [
+      [
+        'title'      => 'Chapter 1: I Accidentally Vaporize My Pre-Algebra Teacher',
+        'badge'      => 'due-soon',
+        'badge_text' => '1 day overdue',
+        'ref'        => 'Pages 28 – 45',
+        'meta'       => 'Originally due: January 12, 2025',
+      ],
+    ],
+  ],
+];
+
+$pendingTotal = array_reduce($plans, fn($c, $p) => $c + (int)$p['pending'], 0);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +69,8 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="../styles/theme.css">
-<link rel="stylesheet" href="../styles/catchup.css">
+  <link rel="stylesheet" href="styles/theme.css">
+  <link rel="stylesheet" href="styles/catchup.css">
 </head>
 <body class="d-flex flex-column min-vh-100">
 
