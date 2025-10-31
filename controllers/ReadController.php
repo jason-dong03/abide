@@ -10,6 +10,7 @@ final class ReadController {
     public function showDashboard(): void {
 
         $challenges = Db::get_challenges_for_user($_SESSION['user']['user_id']);
+        $badges =
         $_SESSION['challenges'] = $challenges;
         require __DIR__ . '/../pages/dashboard.php';
         
@@ -24,6 +25,10 @@ final class ReadController {
         $all_challenges = Db::get_all_challenges();
         $_SESSION['all_challenges'] = $all_challenges;
         require __DIR__ . '/../pages/discover.php';
+    }
+
+    public function showProfile(): void{
+        require __DIR__ . '/../pages/profile.php';
     }
     public function authUser($mode): void{
          if (!isset($_POST['csrf']) || $_POST['csrf'] !== ($_SESSION['csrf'] ?? '')) {

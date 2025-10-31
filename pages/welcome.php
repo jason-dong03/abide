@@ -163,10 +163,20 @@ unset($_SESSION['form']);
                 name="password"
                 placeholder="Create a password"
                 required
-                minlength="5"
+                minlength="8"
+                pattern="^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$"
                 autocomplete="new-password"
               />
+              <div class="password-rules mt-2">
+                <p class="fw-semibold mb-1">Your password must:</p>
+                <ul class="rules-list list-unstyled">
+                  <li id="rule-length" class="invalid">be at least 8 characters long</li>
+                  <li id="rule-number" class="invalid">include at least one number (0–9)</li>
+                  <li id="rule-special" class="invalid">include at least one special character (!@#$%^&*)</li>
+                </ul>
+              </div>
             </div>
+
             <div class="col-12 col-md-6">
               <label for="password-repeat">Repeat Password</label>
               <input
@@ -308,6 +318,28 @@ unset($_SESSION['form']);
           document.getElementById("login-email") ||
           document.getElementById("first_name");
         if (el) el.focus();
+      });
+    </script>
+    <script>
+      const passwordInput = document.getElementById('password');
+      const rules = {
+        length: document.getElementById('rule-length'),
+        number: document.getElementById('rule-number'),
+        special: document.getElementById('rule-special')
+      };
+
+      passwordInput?.addEventListener('input', () => {
+        const val = passwordInput.value;
+        const checks = {
+          length: val.length >= 8,
+          number: /\d/.test(val),
+          special: /[!@#$%^&*]/.test(val)
+        };
+
+        for (const [key, el] of Object.entries(rules)) {
+          el.classList.toggle('valid', checks[key]);
+          el.classList.toggle('invalid', !checks[key]);
+        }
       });
     </script>
   </body>

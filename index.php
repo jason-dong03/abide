@@ -35,6 +35,9 @@ switch ($action) {
   case 'create_challenge':
     $controller->createChallenge();
     break;
+  case 'profile':
+    $controller ->showProfile();
+    break;
   case 'logout':
     $controller -> logout();
     break;

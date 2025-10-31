@@ -99,6 +99,39 @@ body::after {
   text-shadow: 0 1px 0 rgba(0,0,0,.18);
 }
 
+.password-rules li {
+  position: relative;
+  padding-left: 1.8rem;
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.password-rules li::before {
+  content: "✗";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #ff6b6b;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+/* When valid */
+.password-rules li.valid {
+  color: #a2f5b5;
+  transform: translateX(4px);
+}
+
+.password-rules li.valid::before {
+  content: "✓";
+  color: #76f589;
+  transform: scale(1.2);
+}
+
+
 form { width: 100%; }
 label {
   font-size: .9rem;

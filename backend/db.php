@@ -76,22 +76,22 @@
             :start_date,
             :end_date,
             :frequency,
-            :target_amount,
-            :goal_unit,
-            :is_private )";
+            :goal_num,
+            :goal_type,
+            :is_private::boolean)";
 
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':creator_id'       => $creator_id,
-                ':challenge_name'=> $challenge_name,
-                ':description'   => $desc,
-                ':start_date'    => $startDate,
-                ':end_date'      => $endDate,
-                ':frequency'     => $freq,
-                ':target_amount' => $goal_num,
-                ':goal_unit'     => $goal_type,
-                ':is_private'    => $is_private,
-            ]);
+          
+            $stmt->bindValue(':creator_id',     $creator_id,     PDO::PARAM_INT);
+            $stmt->bindValue(':challenge_name', $challenge_name, PDO::PARAM_STR);
+            $stmt->bindValue(':description',    $desc,           PDO::PARAM_STR);
+            $stmt->bindValue(':start_date',     $startDate,      PDO::PARAM_STR);
+            $stmt->bindValue(':end_date',       $endDate,        PDO::PARAM_STR);
+            $stmt->bindValue(':frequency',      $freq,           PDO::PARAM_STR);  
+            $stmt->bindValue(':goal_num',       $goal_num,      PDO::PARAM_INT);
+            $stmt->bindValue(':goal_type',      $goal_type,      PDO::PARAM_STR);  
+            $stmt->bindValue(':is_private',     $is_private,     PDO::PARAM_BOOL);  
+            $stmt->execute();
         }
         public static function get_challenges_for_user($uid){
             $pdo = Db::pdo();
