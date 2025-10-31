@@ -173,6 +173,18 @@
             $stmt = $pdo -> prepare($sql);
             $stmt->execute([':u' => $uid, ':c'=> $cid]);
         }
+        public static function is_challenge_owner(int $uid, int $cid): bool {
+            $pdo = Db::pdo();
+            $sql = 'SELECT COUNT(*) FROM challenges 
+                    WHERE challenge_id = :cid AND creator_id = :uid';
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':cid', $cid, PDO::PARAM_INT);
+            $stmt->bindValue(':uid', $uid, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return (int)$stmt->fetchColumn() > 0;
+        }
         public static function is_participant(int $challenge_id, int $user_id): bool {
             $pdo = Db::pdo();
             $sql = "SELECT COUNT(*) FROM challenge_participants 

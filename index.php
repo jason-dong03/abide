@@ -17,6 +17,13 @@ $mode = $_GET['mode'] ?? '';
 $cid = $_GET['cid'] ?? null;
 $controller = new ReadController();
 
+function json_response($data, int $status = 200): void {
+    http_response_code($status);
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit;
+}
+
 switch ($action) {
   case "welcome":
     $controller -> showWelcome();
@@ -34,7 +41,13 @@ switch ($action) {
     $controller -> showDiscoverChallenges();
     break;
   case 'join_challenge':
+    $cid = (int)($_GET['cid'] ?? 0);
+    $uid = $_SESSION['user']['user_id'] ?? null;
+    if (!$uid) {
+        json_response(['success' => false, 'error' => 'Not logged in'], 401);
+    }
     $controller -> joinChallenge($cid);
+    json_response(['success' => $result, 'message' => 'Joined successfully']);
     break;
   case 'delete_challenge':
     $controller -> deleteChallenge($cid);

@@ -171,7 +171,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
                       $endsPretty = date('M j, Y', strtotime($end));
                       $cid = (int)$ch['challenge_id'];
                       $participants = Db::count_participants($cid);
-                      $isOwner = ($user['user_id'] && $cid === $user['user_id']);
+                      $isOwner = Db::is_challenge_owner($user['user_id'], $cid);
                      
                 ?>
                   <div class="card glass-card p-3 position-relative challenge">

@@ -247,7 +247,7 @@ function get_duration_days(string $start, string $end): int {
       </div>
       
       <div class="modal-body">
-        <p id="modalDescription" class="mb-3 fw-light text-muted"></p>
+        <p id="modalDescription" class="mb-3 fw-light"></p>
         
         <div class="mb-3">
           <p>Creator: <span class ="text-muted" id="modalCreator"></span></p>
