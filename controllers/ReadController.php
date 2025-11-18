@@ -14,11 +14,20 @@ final class ReadController {
     public function showCreateChallenge(): void{
         require __DIR__ . '/../pages/challengecreation.php';
     }
-    public function editChallenge($cid): void{
-        $_SESSION['cid'] = $cid;
-        require __DIR__ . '/../pages/edit_challenge.php';
+   public function handleEditChallenge($uid,$cid,$title,$description, $end_date, $frequency, $target_amount, $goal_unit): bool {
+        if (!Db::is_challenge_owner($uid, $cid)) {
+            return false;
+        }
+        return Db::update_challenge_full(
+            $cid,
+            $title,
+            $description,
+            $end_date,
+            $frequency,
+            $target_amount,
+            $goal_unit
+        );
     }
-
     public function showDiscoverChallenges(): void{
         $all_challenges = Db::get_all_challenges();
         $_SESSION['all_challenges'] = $all_challenges;
@@ -42,7 +51,7 @@ final class ReadController {
         require __DIR__ . '/../pages/catchup.php';
     }
     public function authUser($mode): void{
-            if (!isset($_POST['csrf']) || $_POST['csrf'] !== ($_SESSION['csrf'] ?? '')) {
+        if (!isset($_POST['csrf']) || $_POST['csrf'] !== ($_SESSION['csrf'] ?? '')) {
             http_response_code(400);
             header('Location: index.php?action=welcome');
             exit;
@@ -253,7 +262,20 @@ final class ReadController {
         }
         return (int)$reading_id;
     }
+    public function handleEditReading($uid){
+        $challenge_id = intval($_POST['challenge_id'] ?? 0);
+        $title = trim($_POST['edit_title'] ?? '');
+        $description = trim($_POST['edit_description'] ?? '');
+        $reading_id = trim($_POST['reading_id'] ?? 0);
 
+        $is_owner = Db::is_challenge_owner($uid, $challenge_id);
+
+        if (!$title || !$is_owner) {
+            return false;
+        }
+        Db::update_reading($reading_id, $title, $description);
+        return true;
+    }
 
     public function handleDeleteReading($uid, $challenge_id, $readingID){
         $is_owner = Db::is_challenge_owner($uid, $challenge_id);

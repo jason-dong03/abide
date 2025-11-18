@@ -314,6 +314,12 @@
             ':o' => $order_num]);
             return $stmt->fetch()['reading_id'];
         }
+        public static function update_reading($reading_id, $title, $description){
+            $pdo = Db::pdo();
+            $sql = "UPDATE challenge_readings SET title = :t, description = :d WHERE reading_id = :r";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':t'=>$title, ':d'=> $description,':r' =>$reading_id]);
+        }
         public static function delete_reading($reading_id){
             $pdo = Db::pdo();
             $sql = "DELETE FROM challenge_readings WHERE reading_id = :r";
@@ -346,6 +352,30 @@
             $sql = "DELETE FROM challenge_participants WHERE participant_id = :p";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':p' => $pid]);
+        }
+
+        public static function update_challenge_full($cid,$title,$description,$end_date,$frequency,$target_amount,$goal_unit): bool {
+            $pdo = Db::pdo();
+            $sql = "
+                UPDATE challenges
+                SET title= :t,
+                    description= :d,
+                    end_date= :end_date,
+                    frequency= :freq,
+                    target_amount = :target,
+                    goal_unit = :unit
+                WHERE challenge_id = :cid
+            ";
+            $stmt = $pdo->prepare($sql);
+            return $stmt->execute([
+                ':t'=> $title,
+                ':d'=> $description,
+                ':end_date' => $end_date, 
+                ':freq'=> $frequency,
+                ':target'=> $target_amount,
+                ':unit'=> $goal_unit,
+                ':cid'=> $cid,
+            ]);
         }
     }
 ?>

@@ -90,7 +90,7 @@ function isPast($date): bool {
                             <button onclick="showEditChallenge()" class="btn-primary-glass">
                                 Edit
                             </button>
-                            <button onclick="showDeleteConfirm()" style="background: rgba(172, 40, 53, 0.85); color: #fff; padding: 0.55rem 1.1rem; border: none; border-radius: 10px; cursor: pointer; font-weight: 500;">
+                            <button onclick="showDeleteConfirm()" class ="delete-btn">
                                 Delete
                             </button>
                         </div>
@@ -147,7 +147,7 @@ function isPast($date): bool {
             </div>
             <div class="readings-section">
                 <div class="section-header">
-                    <h2 class="section-title">📚 Reading Schedule</h2>
+                    <h2 class="section-title">Reading Schedule</h2>
                     <?php if ($is_owner): ?>
                         <button onclick="showAddReading()" class="btn-primary-glass">
                             Add Reading
@@ -170,8 +170,14 @@ function isPast($date): bool {
                             $is_past = isPast($reading['due_date']);
                             $is_completed = !empty($reading['is_completed']);
                         ?>
-                            <div class="reading-item <?= $is_completed ? 'completed' : '' ?>" 
-                                 data-reading-id="<?= $reading['reading_id'] ?>">
+                           <div class="reading-item <?= $is_completed ? 'completed' : '' ?>" 
+                                data-reading-id="<?= (int)$reading['reading_id'] ?>"
+                                data-title="<?= h($reading['title']) ?>"
+                                data-description="<?= h($reading['description']) ?>"
+                                data-due-date="<?= h($reading['due_date']) ?>"
+                                data-start-page="<?= (int)($reading['start_page'] ?? 0) ?>"
+                                data-end-page="<?= (int)($reading['end_page'] ?? 0) ?>"
+                            >
                                 <div class="reading-content">
                                     <div class="reading-checkbox <?= $is_completed ? 'checked' : '' ?>"
                                          onclick="toggleReading(<?= (int)$reading['reading_id'] ?>, <?= $is_completed ? 'true' : 'false' ?>)">
@@ -193,7 +199,10 @@ function isPast($date): bool {
                                     </div>
 
                                     <?php if ($is_owner): ?>
-                                        <button class="delete-reading-btn" onclick="deleteReading(<?= (int)$reading['reading_id'] ?>)">
+                                        <button class="btn-primary-glass" type="button" onclick="openEditReading(this)">
+                                            Edit
+                                        </button>
+                                        <button class="delete-btn" onclick="deleteReading(<?= (int)$reading['reading_id'] ?>)">
                                             Remove
                                         </button>
                                     <?php endif; ?>
@@ -252,6 +261,113 @@ function isPast($date): bool {
             </form>
         </div>
     </div>
+    <div id="editReadingModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-title">Edit Reading:</h2>
+            <form id="editReadingForm" onsubmit="handleEditReading(event)">
+                <input type="hidden" name="reading_id" id="edit-reading-id">
+
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" name="edit_title" id="edit-title" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <input type="text" name="edit_description" id="edit-description" class="form-input">
+                </div>
+              
+                <div class="modal-actions">
+                    <button type="button" onclick="closeModal('editReadingModal')" class="btn-secondary-glass">Cancel</button>
+                    <button type="submit" class="btn-primary-glass">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="editChallengeModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-title">Edit Challenge</h2>
+            <form id="editChallengeForm" onsubmit="handleEditChallenge(event)">
+            <div class="form-group">
+                <label class="form-label">Title</label>
+                <input
+                type="text"
+                name="ch_title"
+                id="ch_title"
+                class="form-input"
+                required
+                value="<?= h($challenge['title'] ?? '') ?>"
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <input
+                type="text"
+                name="ch_description"
+                id="ch_description"
+                class="form-input"
+                value="<?= h($challenge['description'] ?? '') ?>"
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">End Date</label>
+                <input
+                type="date"
+                name="ch_end_date"
+                id="ch_end_date"
+                class="form-input"
+                required
+                value="<?= h($challenge['end_date'] ?? '') ?>"  <!-- should already be Y-m-d from DB -->
+                >
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                <label class="form-label">Frequency</label>
+                <select name="ch_frequency" id="ch_frequency" class="form-input" required>
+                    <option value="daily"   <?= ($challenge['frequency'] ?? '') === 'daily'   ? 'selected' : '' ?>>Daily</option>
+                    <option value="weekly"  <?= ($challenge['frequency'] ?? '') === 'weekly'  ? 'selected' : '' ?>>Weekly</option>
+                    <option value="monthly" <?= ($challenge['frequency'] ?? '') === 'monthly' ? 'selected' : '' ?>>Monthly</option>
+                </select>
+                </div>
+
+                <div class="form-group">
+                <label class="form-label">Goal</label>
+                <div style="display:flex; gap:.5rem;">
+                    <input
+                    type="number"
+                    name="ch_target_amount"
+                    id="ch_target_amount"
+                    class="form-input"
+                    min="1"
+                    required
+                    value="<?= (int)($challenge['target_amount'] ?? 0) ?>"
+                    style="max-width: 100px;"
+                    >
+                    <select name="ch_goal_unit" id="ch_goal_unit" class="form-input" required>
+                    <option value="pages"<?= ($challenge['goal_unit'] ?? '') === 'pages'    ? 'selected' : '' ?>>pages</option>
+                    <option value="chapters" <?= ($challenge['goal_unit'] ?? '') === 'chapters' ? 'selected' : '' ?>>chapters</option>
+                    </select>
+                </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button
+                type="button"
+                onclick="closeModal('editChallengeModal')"
+                class="btn-secondary-glass"
+                >
+                Cancel
+                </button>
+                <button type="submit" class="btn-primary-glass">
+                Save Changes
+                </button>
+            </div>
+            </form>
+        </div>
+        </div>
 
     <div id="deleteModal" class="modal-overlay">
         <div class="modal-content">
@@ -260,8 +376,8 @@ function isPast($date): bool {
                 Are you sure you want to delete this challenge? This action cannot be undone.
             </p>
             <div class="modal-actions">
-                <button onclick="handleDeleteChallenge()" style="background: #dc3545; color: white; flex: 1; padding: 0.75rem; border: none; border-radius: 10px; cursor: pointer; font-weight: 500; font-size: 1rem;">Delete</button>
                 <button onclick="closeModal('deleteModal')" class="btn-secondary-glass">Cancel</button>
+                <button onclick="handleDeleteChallenge()" style="background: #dc3545; color: white; flex: 1; padding: 0.75rem; border: none; border-radius: 10px; cursor: pointer; font-weight: 500; font-size: 1rem;">Delete</button>
             </div>
         </div>
     </div>
@@ -272,26 +388,24 @@ function isPast($date): bool {
             <p style="color: var(--ink-muted); margin-bottom: 1.5rem;">
                 Are you sure you want to leave this challenge? Your progress will be lost.
             </p>
-            <div class="modal-actions">
-                <button onclick="handleLeaveChallenge()" style="background: #ff9800; color: white; flex: 1; padding: 0.75rem; border: none; border-radius: 10px; cursor: pointer; font-weight: 500; font-size: 1rem;">Leave</button>
+            <div class="modal-actions">               
                 <button onclick="closeModal('leaveModal')" class="btn-secondary-glass">Cancel</button>
+                <button onclick="handleLeaveChallenge()" style="background: #ff9800; color: white; flex: 1; padding: 0.75rem; border: none; border-radius: 10px; cursor: pointer; font-weight: 500; font-size: 1rem;">Leave</button>
             </div>
         </div>
     </div>
-
     <script>
         const challengeId = <?= (int)$challenge_id ?>;
         const participantId = <?= $participant_id ? (int)$participant_id : 'null' ?>;
 
         const userId = <?= (int)$user_id ?>;
 
-        console.log(`uid : ${userId}, pid: ${participantId}, cid: ${challengeId}`);
+        //console.log(`uid : ${userId}, pid: ${participantId}, cid: ${challengeId}`);
         function toggleReading(readingId, isCompleted) {
             if (!participantId) {
                 alert('You must be a participant to complete readings');
                 return;
             }
-
             const action = isCompleted ? 'uncomplete' : 'complete';
             
             fetch(`index.php?action=${action}_reading`, {
@@ -308,6 +422,7 @@ function isPast($date): bool {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    console.log()
                     location.reload();
                 } else {
                     alert(data.message || 'Error updating reading');
@@ -323,6 +438,10 @@ function isPast($date): bool {
             document.getElementById('addReadingModal').classList.add('active');
         }
 
+        function showEditReading() {
+            document.getElementById('editReadingModal').classList.add('active');
+        }
+
         function showDeleteConfirm() {
             document.getElementById('deleteModal').classList.add('active');
         }
@@ -331,8 +450,19 @@ function isPast($date): bool {
             document.getElementById('leaveModal').classList.add('active');
         }
 
-        function showEditChallenge() {
-            window.location.href = `index.php?action=edit_challenge&id=${challengeId}`;
+       function openEditReading(button) {
+            const item = button.closest('.reading-item');
+            if (!item) return;
+
+            const id = item.dataset.readingId;
+            const title = item.dataset.title || '';
+            const description = item.dataset.description || '';
+        
+            document.getElementById('editReadingModal').classList.add('active');
+
+            document.getElementById('edit-reading-id').value = id;
+            document.getElementById('edit-title').value = title;
+            document.getElementById('edit-description').value = description;           
         }
 
         function closeModal(modalId) {
@@ -355,6 +485,29 @@ function isPast($date): bool {
                     location.reload();
                 } else {
                     alert(data.message || 'Error adding reading');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding reading');
+            });
+        }
+        function handleEditReading(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            formData.append('challenge_id', challengeId);
+
+            fetch('index.php?action=edit_reading', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'Error editing reading');
                 }
             })
             .catch(error => {
@@ -433,6 +586,32 @@ function isPast($date): bool {
             .catch(error => {
                 console.error('Error:', error);
                 alert('Error leaving challenge');
+            });
+        }
+        function showEditChallenge() {
+            document.getElementById('editChallengeModal').classList.add('active');
+        }
+        function handleEditChallenge(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            formData.append('challenge_id', challengeId);
+
+            fetch('index.php?action=edit_challenge', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'Error editing challenge');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error editing challenge');
             });
         }
 

@@ -76,10 +76,47 @@ switch ($action) {
   case 'challenge':
     $controller->showChallenge($cid);
     break;
-  case 'edit_challenge':
-    $cid = (int)($_GET['challenge_id'] ?? 0);
-    $controller ->editChallenge($cid);
+  case 'edit_challenge': {
+    $uid = $_SESSION['user']['user_id'] ?? null;
+    if (!$uid) {
+        json_response(['success' => false, 'message' => 'Not logged in'], 401);
+    }
+
+    $cid = (int)($_POST['challenge_id'] ?? 0);
+    $title = trim($_POST['ch_title'] ?? '');
+    $desc = trim($_POST['ch_description'] ?? '');
+    $end_date = trim($_POST['ch_end_date'] ?? '');
+    $frequency = trim($_POST['ch_frequency'] ?? '');
+    $target_amount = (int)($_POST['ch_target_amount'] ?? 0);
+    $goal_unit = trim($_POST['ch_goal_unit'] ?? '');
+
+    if (!$cid || $title === '' || $end_date === '' || $target_amount <= 0 || $goal_unit === '' || $frequency === '') {
+        json_response(['success' => false, 'message' => 'Missing or invalid fields'], 400);
+    }
+
+    $allowedFreq = ['daily','weekly','monthly'];
+    $allowedUnits = ['pages','chapters'];
+    if (!in_array($frequency, $allowedFreq, true) || !in_array($goal_unit, $allowedUnits, true)) {
+        json_response(['success' => false, 'message' => 'Invalid frequency or goal unit'], 400);
+    }
+
+    $ok = $controller->handleEditChallenge(
+        $uid,
+        $cid,
+        $title,
+        $desc,
+        $end_date,
+        $frequency,
+        $target_amount,
+        $goal_unit
+    );
+
+    json_response([
+        'success' => (bool)$ok,
+        'message' => $ok ? 'Challenge updated' : 'Failed to update challenge',
+    ]);
     break;
+}
 
   /* JSON API CALLS*/
    case 'join_challenge':
@@ -109,6 +146,18 @@ switch ($action) {
           'reading_id'=> $readingId,
       ]);
       break;
+  case 'edit_reading':
+      $uid = $_SESSION['user']['user_id'] ?? null;
+
+      if (!$uid) {
+          json_response(['success' => false, 'message' => 'Not logged in'], 401);
+      }
+      $ok = $controller->handleEditReading($uid);
+      json_response([
+          'success'=> (bool)($ok),
+          'message'=> $ok ? 'Reading edited successfully' :"Failed to edit reading",
+      ]);
+    break;
   case 'delete_reading': 
       $uid = $_SESSION['user']['user_id'] ?? null;
       $readingID = (int)($_POST['reading_id'] ?? 0);
@@ -120,7 +169,7 @@ switch ($action) {
 
       json_response([
           'success' => $ok,
-          'message' => $ok ? "Reading deleted" : "Failed to delete reading"
+          'message' => $ok ? "Reading deleted" : "Failed to delete reading",
       ]);
       break;
   case 'complete_reading': {
