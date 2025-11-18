@@ -353,7 +353,31 @@
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':p' => $pid]);
         }
+        public static function missed_readings($uid){
+            $pdo = Db::pdo();
+            $sql = "SELECT c.challenge_id,
+                c.title AS challenge_title,
+                cr.reading_id,
+                cr.start_page AS reading_start_page,
+                cr.end_page AS reading_end_page,
+                cr.title AS reading_title,
+                cr.due_date as reading_due_date,
+                cp.participant_id
+            FROM challenge_participants AS cp
+            JOIN challenges AS c  ON cp.challenge_id = c.challenge_id
+            JOIN challenge_readings AS cr ON cr.challenge_id = c.challenge_id
+            LEFT JOIN reading_completions AS rc 
+            ON rc.participant_id = cp.participant_id
+            AND rc.reading_id = cr.reading_id
+            WHERE cp.user_id = :u       
+            AND cr.due_date < CURRENT_DATE 
+            AND rc.reading_id IS NULL     
+            ORDER BY c.challenge_id, cr.due_date;";
 
+            $stmt = $pdo -> prepare($sql);
+            $stmt -> execute([':u' => $uid]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
         public static function update_challenge_full($cid,$title,$description,$end_date,$frequency,$target_amount,$goal_unit): bool {
             $pdo = Db::pdo();
             $sql = "

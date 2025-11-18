@@ -6,8 +6,10 @@ final class ReadController {
         require __DIR__ . '/../pages/welcome.php';
     }
     public function showDashboard(): void {
-        $challenges = Db::get_challenges_for_user($_SESSION['user']['user_id']);
+        $uid = $_SESSION['user']['user_id'];
+        $challenges = Db::get_challenges_for_user($uid);
         $_SESSION['challenges'] = $challenges;
+        $_SESSION['missed_readings'] = Db::missed_readings($uid);
         require __DIR__ . '/../pages/dashboard.php';
     }
 
@@ -48,6 +50,8 @@ final class ReadController {
     }
 
     public function showCatchup(): void{
+        $uid = $_SESSION['user']['user_id'];
+        $_SESSION['missed_readings'] = Db::missed_readings($uid);
         require __DIR__ . '/../pages/catchup.php';
     }
     public function authUser($mode): void{

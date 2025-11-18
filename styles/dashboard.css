@@ -36,6 +36,7 @@ body {
 
 .glass-card,
 .glass-primary,
+.glass-success,
 .glass-danger {
   background: var(--glass-bg);
   border: 1px solid var(--glass-brd);
@@ -53,6 +54,7 @@ body {
 }
 .glass-card:hover,
 .glass-primary:hover,
+.glass-success:hover,
 .glass-danger:hover {
   transform: translateY(-2px);
   box-shadow:
@@ -76,6 +78,14 @@ body {
     inset 0 1px rgba(255, 255, 255, 0.45);
   color: var(--ink);
 }
+.glass-success {
+  border-color: rgba(var(--primary-rgb), 0.45);
+  box-shadow:
+    0 6px 20px rgba(96, 230, 62, 0.12),
+    inset 0 1px rgba(255, 255, 255, 0.45);
+  color: var(--ink);
+}
+
 
 .catchup-label {
   color: #000;

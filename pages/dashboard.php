@@ -10,6 +10,15 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $user = $_SESSION['user'] ?? null;
 
+if (!$user) {
+  header('Location: /abide/index.php?action=welcome');
+  exit;
+}
+
+if (empty($_SESSION['csrf'])) {
+   $_SESSION['csrf'] = bin2hex(random_bytes(32)); 
+}
+$csrf = $_SESSION['csrf'];
 $error = $_SESSION['error'] ?? null;
 unset($_SESSION['error']); 
 
@@ -20,6 +29,7 @@ function h(string $s): string {
 
 
 $challenges = $_SESSION['challenges'] ?? [];
+$missed_readings = $_SESSION['missed_readings'] ?? [];
 $today = new DateTimeImmutable('today');
 
 function pct_progress(string $start, string $end, DateTimeImmutable $today): int {
@@ -92,10 +102,10 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     </div>
 
     <div class="col-md-4">
-      <div class="card glass-danger clickable-card p-4 position-relative">
+      <div class="card <?= count($missed_readings) >0?"glass-danger ": "glass-success"?> clickable-card p-4 position-relative">
         <span class="catchup-label mb-1">Catch Up</span>
         <p class="catchup-desc mb-0 subtitle">
-          You have <span class="emph">2 missed readings</span>
+          You have <span class="<?= count($missed_readings) >0?"emph ": "text-success"?> "> <?= count($missed_readings)?> missed readings</span>
         </p>
         <a href="index.php?action=catchup" class="stretched-link" aria-label="Access and catch up with late readings" tabindex="0"></a>
       </div>

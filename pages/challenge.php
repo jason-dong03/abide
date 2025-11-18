@@ -33,6 +33,16 @@ if (!$challenge) {
     header('Location: index.php?action=dashboard');
     exit;
 }
+$user = $_SESSION['user'] ?? null;
+if (!$user) {
+  header('Location: /abide/index.php?action=welcome');
+  exit;
+}
+
+if (empty($_SESSION['csrf'])) {
+   $_SESSION['csrf'] = bin2hex(random_bytes(32)); 
+}
+$csrf = $_SESSION['csrf'];
 
 $is_owner= !empty($challenge['is_owner']);
 $is_participant = !empty($participant_id);

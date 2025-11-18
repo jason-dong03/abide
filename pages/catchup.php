@@ -11,130 +11,43 @@ if (session_status() === PHP_SESSION_NONE) {
 
 function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
 
-// --- Auth gate ---
 $user = $_SESSION['user'] ?? null;
 if (!$user) {
   header('Location: /abide/index.php?action=welcome');
   exit;
 }
 
-// --- CSRF token ---
-if (empty($_SESSION['csrf'])) { $_SESSION['csrf'] = bin2hex(random_bytes(32)); }
+if (empty($_SESSION['csrf'])) {
+   $_SESSION['csrf'] = bin2hex(random_bytes(32)); 
+}
 $csrf = $_SESSION['csrf'];
 
-// --- Demo data (static) ---
-$plans = [
-  [
-    'title' => 'Warriors: Into The Wild',
-    'items' => [
-      [
-        'title'      => 'Book One',
-        'badge'      => 'overdue',
-        'badge_text' => '3 days overdue',
-        'ref'        => 'Pages 290 – 320',
-        'meta'       => 'Originally due: January 10, 2025',
-      ],
-      [
-        'title'      => 'Book Two',
-        'badge'      => 'overdue',
-        'badge_text' => '2 days overdue',
-        'ref'        => 'Pages 1 – 60',
-        'meta'       => 'Originally due: January 14, 2025',
-      ],
-    ],
-  ],
-  [
-    'title' => 'Percy Jackson: The Lightning Thief',
-    'items' => [
-      [
-        'title'      => 'Chapter 1: I Accidentally Vaporize My Pre-Algebra Teacher',
-        'badge'      => 'due-soon',
-        'badge_text' => '1 day overdue',
-        'ref'        => 'Pages 28 – 45',
-        'meta'       => 'Originally due: January 12, 2025',
-      ],
-    ],
-  ],
-];
+$missed_readings = $_SESSION['missed_readings'] ?? [];
 
-// --- Session-backed set of completed item ids like "planIndex-itemIndex" ---
-if (!isset($_SESSION['completed_readings']) || !is_array($_SESSION['completed_readings'])) {
-  $_SESSION['completed_readings'] = [];
-}
-$completed = &$_SESSION['completed_readings'];
+$missedByChallenge = [];
 
-// --- Handle POST (PRG pattern so it updates immediately) ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
-    http_response_code(400);
-    exit('Invalid CSRF');
-  }
+foreach ($missed_readings as $row) {
+    $cid = $row['challenge_id'];
 
-  $action = $_POST['action'] ?? '';
-
-  switch ($action) {
-    case 'complete_selected': {
-      $selected = $_POST['done'] ?? [];
-      $count = 0;
-      if (is_array($selected)) {
-        foreach ($selected as $id) {
-          $completed[$id] = true;
-          $count++;
-        }
-      }
-      $_SESSION['flash'] = [
-        'type' => $count ? 'info' : 'secondary',
-        'msg'  => $count ? "Marked {$count} reading(s) as complete." : "No readings selected."
-      ];
-      header('Location: ' . $_SERVER['REQUEST_URI']);
-      exit;
+    if (!isset($missedByChallenge[$cid])) {
+        $missedByChallenge[$cid] = [
+            'challenge_id'    => $cid,
+            'challenge_title' => $row['challenge_title'],
+            'readings'        => []
+        ];
     }
-    case 'complete_all': {
-      $count = 0;
-      foreach ($plans as $pIdx => $plan) {
-        foreach ($plan['items'] as $iIdx => $_) {
-          $id = "{$pIdx}-{$iIdx}";
-          if (empty($completed[$id])) {
-            $completed[$id] = true;
-            $count++;
-          }
-        }
-      }
-      $_SESSION['flash'] = [
-        'type' => 'success',
-        'msg'  => $count ? "YAY, you finished everything! 🎉" : "Already all caught up!"
-      ];
-      header('Location: ' . $_SERVER['REQUEST_URI']);
-      exit;
-    }
-    case 'reset_demo': {
-      $_SESSION['completed_readings'] = [];
-      $_SESSION['flash'] = ['type' => 'secondary', 'msg' => 'Demo progress reset.'];
-      header('Location: ' . $_SERVER['REQUEST_URI']);
-      exit;
-    }
-  }
+
+    $missedByChallenge[$cid]['readings'][] = [
+        'reading_id'=> $row['reading_id'],
+        'reading_title'=> $row['reading_title'],
+        'reading_due_date'=> $row['reading_due_date'],
+        'reading_start_page' => $row['reading_start_page'],
+        'reading_end_page' => $row['reading_end_page'],
+        'participant_id' => $row['participant_id'],
+    ];
 }
 
-// --- Flash message (after PRG redirect) ---
-$flash = $_SESSION['flash'] ?? null;
-unset($_SESSION['flash']);
-
-// --- Compute pending totals based on $completed ---
-$pendingTotal = 0;
-$remainingByPlan = [];
-foreach ($plans as $pIdx => $plan) {
-  $remain = 0;
-  foreach ($plan['items'] as $iIdx => $_) {
-    if (empty($completed["$pIdx-$iIdx"])) $remain++;
-  }
-  $remainingByPlan[$pIdx] = $remain;
-  $pendingTotal += $remain;
-}
-$allDone = ($pendingTotal === 0);
-if ($allDone && !$flash) {
-  $flash = ['type' => 'success', 'msg' => 'YAY, you finished everything! 🎉'];
-}
+//PLAN: load all challenges with catchup, filter out data for only challenges with overdue readings
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -148,7 +61,6 @@ if ($allDone && !$flash) {
   <link rel="stylesheet" href="styles/theme.css" />
   <link rel="stylesheet" href="styles/catchup.css" />
   <style>
-    /* Small local tweaks to align with your theme */
     .summary-row { gap: 1rem; }
     .summary-chip {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -171,7 +83,7 @@ if ($allDone && !$flash) {
     .btn-reset:hover { background: rgba(255,255,255,.28); }
 
     .section-header {
-      background: rgba(0,0,0,.12);               /* darker strip for contrast */
+      background: rgba(0,0,0,.12);           
       border-color: rgba(255,255,255,.18);
       color: #0d1117;
     }
@@ -189,7 +101,6 @@ if ($allDone && !$flash) {
     </div>
   <?php endif; ?>
 
-  <!-- Header -->
   <header>
     <nav class="navbar navbar-light bg-light px-3 py-3 shadow-sm">
       <a href="index.php?action=dashboard" class="btn-container text-center p-2 ps-1">&larr; back to dashboard</a>
@@ -198,8 +109,6 @@ if ($allDone && !$flash) {
   </header>
 
   <main class="container-xxl my-4">
-
-    <!-- Summary -->
     <div class="tile p-3 p-md-4 mb-4">
       <div class="d-flex align-items-start justify-content-between summary-row">
         <div>
@@ -209,68 +118,70 @@ if ($allDone && !$flash) {
 
         <div class="d-flex flex-column align-items-end">
           <div class="summary-chip">
-            <div class="count"><?= (int)$pendingTotal ?></div>
+            <div class="count"><?= count($missed_readings)?></div>
             <div class="label">Pending</div>
           </div>
-          <form method="post" class="mt-2 reset-holder">
-            <input type="hidden" name="csrf" value="<?= h($csrf) ?>" />
-            <input type="hidden" name="action" value="reset_demo" />
-            <button class="btn btn-reset">🔄 Reset Demo</button>
-          </form>
         </div>
       </div>
+     
 
-      <!-- One aligned action bar with BOTH buttons -->
-      <div class="action-bar mt-3 d-flex align-items-center gap-2">
-
-        <!-- Submit the checkbox form from here -->
-        <button type="submit"
-                class="btn-primary-glass"
-                form="selectForm"
-                <?= $allDone ? 'disabled' : '' ?>>
-          Mark as Complete
-        </button>
-      </div>
-    </div>
-
-    <!-- List with checkboxes (note id="selectForm") -->
-    <form method="post" id="selectForm">
+    <form method="post" id="selectForm" class="mt-3">
       <input type="hidden" name="csrf" value="<?= h($csrf) ?>" />
-      <input type="hidden" name="action" value="complete_selected" />
-
-      <?php foreach ($plans as $pIdx => $plan): ?>
-        <?php if ($remainingByPlan[$pIdx] === 0) continue; ?>
+      <?php foreach ($missedByChallenge as $challenge):?>
         <div class="plan-section mb-4">
           <div class="section-header">
-            <div class="title"><?= h($plan['title']) ?></div>
-            <span class="badge badge-status-pending"><?= (int)$remainingByPlan[$pIdx] ?> pending</span>
+            <div class="title"><?= h($challenge['challenge_title']) ?></div>
+            <span class="badge badge-status-pending"><?= count($challenge['readings']) ?> pending</span>
           </div>
 
-          <?php foreach ($plan['items'] as $iIdx => $item): ?>
-            <?php if (!empty($completed["$pIdx-$iIdx"])) continue; ?>
-            <article class="reading-card tile d-flex align-items-center">
-              <div class="form-check me-3">
-                <input class="form-check-input" type="checkbox" name="done[]" value="<?= $pIdx . '-' . $iIdx ?>" id="r-<?= $pIdx . '-' . $iIdx ?>" />
-              </div>
+          <?php foreach ($challenge['readings'] as $reading): 
+            $due = new DateTime($reading['reading_due_date']);
+            $now = new DateTime('today');
 
-              <label class="body w-100" for="r-<?= $pIdx . '-' . $iIdx ?>">
+            $daysLate = $now->diff($due)->days;
+            $isLate = $now > $due;
+
+            $badge = null;
+            $badge_text = '';
+
+            if ($isLate) {
+                if ($daysLate >= 4) {
+                    $badge = 'overdue';      
+                    $badge_text = "Overdue {$daysLate} days";
+                } elseif ($daysLate >= 1) {
+                    $badge = 'due-soon';       
+                    $badge_text = "Missed {$daysLate} days ago";
+                }
+            }      
+            ?>
+           <article class="reading-card tile d-flex align-items-center"
+                    data-reading-id="<?= (int)$reading['reading_id'] ?>"
+                    data-participant-id="<?= (int)$reading['participant_id'] ?>">
+              <div class="form-check me-3">
+                <input
+                  class="form-check-input catchup-checkbox"
+                  type="checkbox"
+                  name="done[]"
+                />
+              </div>
+              <label class="body w-100">
                 <div class="title-row d-flex justify-content-between">
-                  <h6 class="mb-0"><?= h($item['title']) ?></h6>
-                  <?php if ($item['badge'] === 'overdue'): ?>
-                    <span class="badge badge-overdue"><?= h($item['badge_text']) ?></span>
-                  <?php elseif ($item['badge'] === 'due-soon'): ?>
-                    <span class="badge badge-due-soon"><?= h($item['badge_text']) ?></span>
+                  <h6 class="mb-0"><?= h($reading['reading_title']) ?></h6>
+                  <?php if ($badge === 'overdue'): ?>
+                    <span class="badge badge-overdue"><?= h($badge_text) ?></span>
+                  <?php elseif ($badge === 'due-soon'): ?>
+                    <span class="badge badge-due-soon"><?= h($badge_text) ?></span>
                   <?php endif; ?>
                 </div>
-                <p class="ref mb-0"><?= h($item['ref']) ?></p>
-                <p class="meta mb-0"><?= h($item['meta']) ?></p>
+                <p class="ref mb-0">Pages <?= $reading['reading_start_page']?> - <?= $reading['reading_end_page']?></p>
+                <p class="meta mb-0">Originally due: <?= h($reading['reading_due_date']) ?></p>
               </label>
             </article>
           <?php endforeach; ?>
         </div>
       <?php endforeach; ?>
 
-      <?php if ($allDone): ?>
+      <?php if (count($missed_readings) === 0): ?>
         <div class="tile p-4 mt-4 text-center">
           <h5 class="mb-1">YAY, you finished everything! 🎉</h5>
           <p class="text-muted mb-0">Great job—no pending readings left.</p>
@@ -286,13 +197,64 @@ if ($allDone && !$flash) {
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Auto-dismiss any alert after 3 seconds
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.alert').forEach((node) => {
-        const inst = bootstrap.Alert.getOrCreateInstance(node);
-        setTimeout(() => inst.close(), 3000);
-      });
+    function completeReadingFromCatchup(readingId, participantId, checkbox) {
+      if (!participantId) {
+        alert('You must be a participant to complete readings');
+        checkbox.checked = false;
+        return;
+      }
+      fetch('index.php?action=complete_reading', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `participant_id=${encodeURIComponent(participantId)}&reading_id=${encodeURIComponent(readingId)}`
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert(data.message || 'Error updating reading');
+            checkbox.checked = false;
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error updating reading');
+          checkbox.checked = false;
+        });
+    }
+
+  document.querySelectorAll('.catchup-checkbox').forEach(cb => {
+    cb.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      if (!cb.checked) {
+        cb.checked = true;
+        return;
+      }
+
+      const card = cb.closest('.reading-card');
+      if (!card) return;
+
+      const readingId = card.dataset.readingId;
+      const participantId = card.dataset.participantId;
+
+      completeReadingFromCatchup(readingId, participantId, cb);
     });
+  });
+  document.querySelectorAll('.reading-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const readingId = card.dataset.readingId;
+      const participantId = card.dataset.participantId;
+      const cb = card.querySelector('.catchup-checkbox');
+      if (cb && cb.disabled) return;
+
+      if (cb) cb.checked = true;
+      completeReadingFromCatchup(readingId, participantId, cb);
+    });
+  });
   </script>
 </body>
 </html>
