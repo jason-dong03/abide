@@ -468,9 +468,28 @@ function get_duration_days(string $start, string $end): int {
     }
     
     function deleteChallenge(challengeId) {
-      if (confirm('Are you sure you want to delete this challenge? This action cannot be undone.')) {
-        window.location.href = 'index.php?action=delete_challenge&cid=' + challengeId;
-      }
+      const confirmed = confirm(
+          "Are you sure you want to delete this challenge?\nThis action cannot be undone."
+      );
+      if (!confirmed) return;
+      fetch(`index.php?action=delete_challenge&challenge_id=${challengeId}`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+          },
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              window.location.href = 'index.php?action=dashboard';
+          } else {
+              alert(data.message || 'Error deleting challenge');
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          alert('Error deleting challenge');
+      });
     }
     
     document.addEventListener('keydown', function(e) {

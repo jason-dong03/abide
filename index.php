@@ -12,7 +12,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/backend/db.php';
 require_once __DIR__ . '/controllers/ReadController.php';
 
-$action = $_GET['action'] ?? $_GET['actiontype'] ?? 'welcome';
+$action = $_GET['action'] ?? $_POST['action'] ?? 'welcome';
 $mode = $_GET['mode'] ?? '';
 $cid = $_GET['cid'] ?? null;
 $controller = new ReadController();
@@ -40,20 +40,6 @@ switch ($action) {
   case 'discover_challenges':
     $controller -> showDiscoverChallenges();
     break;
-  case 'join_challenge':
-    $cid = (int)($_GET['cid'] ?? 0);
-    $uid = $_SESSION['user']['user_id'] ?? null;
-    if (!$uid) {
-        json_response(['success' => false, 'error' => 'Not logged in'], 401);
-    }
-    $controller -> joinChallenge($cid);
-    json_response(['success' => $result, 'message' => 'Joined successfully']);
-    break;
-  case 'delete_challenge':
-    $controller -> deleteChallenge($cid);
-  case 'create_challenge':
-    $controller->createChallenge();
-    break;
   case 'profile':
     $controller ->showProfile();
     break;
@@ -69,6 +55,134 @@ switch ($action) {
   case 'catchup':
     $controller -> showCatchup();
     break;
+  case 'delete_challenge':
+    $uid = $_SESSION['user']['user_id'] ?? null;
+    $cid = (int)($_GET['challenge_id'] ?? 0);
+    if (!$uid || !$cid) {
+        json_response([
+            'success' => false,
+            'message' => 'Invalid request'
+        ], 400);
+    }
+    $ok = $controller->deleteChallenge($uid, $cid);
+    json_response([
+        'success' => $ok,
+        'message' => $ok ? "Challenge deleted" : "Failed to delete challenge"
+    ]);
+    break;
+  case 'create_challenge':
+    $controller->createChallenge();
+    break;
+  case 'challenge':
+    $controller->showChallenge($cid);
+    break;
+  case 'edit_challenge':
+    $cid = (int)($_GET['challenge_id'] ?? 0);
+    $controller ->editChallenge($cid);
+    break;
+
+  /* JSON API CALLS*/
+   case 'join_challenge':
+    $cid = (int)($_GET['cid'] ?? 0);
+    $uid = $_SESSION['user']['user_id'] ?? null;
+    if (!$uid) {
+        json_response(['success' => false, 'error' => 'Not logged in'], 401);
+    }
+    $result = $controller -> joinChallenge($cid);
+    json_response(['success' => (bool)$result, 'message' => $result? "Joined successfully" : "Failed to join challenge"]);
+    break;
+  case 'add_reading': 
+      $uid = $_SESSION['user']['user_id'] ?? null;
+      if (!$uid) {
+          json_response(['success' => false, 'message' => 'Not logged in'], 401);
+      }
+      $readingId = $controller->handleAddReading((int)$uid);
+      if ($readingId === false) {
+          json_response([
+              'success' => false,
+              'message' => 'Failed to add reading',
+          ], 400);
+      }
+      json_response([
+          'success'=> true,
+          'message'=> 'Reading added successfully',
+          'reading_id'=> $readingId,
+      ]);
+      break;
+  case 'delete_reading': 
+      $uid = $_SESSION['user']['user_id'] ?? null;
+      $readingID = (int)($_POST['reading_id'] ?? 0);
+      $challenge_id = (int)($_POST['cid'] ?? 0);
+      if (!$uid) {
+          json_response(['success' => false, 'message' => 'Not logged in'], 401);
+      }
+      $ok = $controller->handleDeleteReading($uid, $challenge_id, $readingID);
+
+      json_response([
+          'success' => $ok,
+          'message' => $ok ? "Reading deleted" : "Failed to delete reading"
+      ]);
+      break;
+  case 'complete_reading': {
+      $uid = $_SESSION['user']['user_id'] ?? null;
+      if (!$uid) {
+          json_response(['success' => false, 'message' => 'Not logged in'], 401);
+      }
+
+      $readingId= $_POST['reading_id'] ?? null;
+      $participantId = $_POST['participant_id'] ?? null;
+
+      if (!$readingId || !$participantId) {
+          json_response(['success' => false, 'message' => 'Missing reading_id or participant_id'], 400);
+      }
+      $ok = $controller->handleCompleteReading($uid);
+
+      json_response([
+          'success' => (bool)$ok,
+          'message' => $ok ? 'Reading completed' : 'Failed to complete reading',
+      ]);
+      break;
+  }
+  case 'uncomplete_reading': {
+      $uid = $_SESSION['user']['user_id'] ?? null;
+      if (!$uid) {
+          json_response(['success' => false, 'message' => 'Not logged in'], 401);
+      }
+
+      $readingId= $_POST['reading_id'] ?? null;
+      $participantId = $_POST['participant_id'] ?? null;
+
+      if (!$readingId || !$participantId) {
+          json_response(['success' => false, 'message' => 'Missing reading_id or participant_id'], 400);
+      }
+
+      $ok = $controller->handleUncompleteReading($uid);
+
+      json_response([
+          'success' => (bool)$ok,
+          'message' => $ok ? 'Reading marked incomplete' : 'Failed to update reading',
+      ]);
+      break;
+  }
+  case 'leave_challenge': {
+      $uid = $_SESSION['user']['user_id'] ?? null;
+      if (!$uid) {
+          json_response(['success' => false, 'message' => 'Not logged in'], 401);
+      }
+
+      $participant_id = $_POST['participant_id'] ?? null;
+      if (!$participant_id) {
+          json_response(['success' => false, 'message' => 'Missing participant_id'], 400);
+      }
+
+      $ok = $controller->handleLeaveChallenge($uid, $participant_id);
+
+      json_response([
+          'success' => (bool)$ok,
+          'message' => $ok ? 'Left challenge' : 'Failed to leave challenge',
+      ]);
+      break;
+  }
   default:
     $controller->showWelcome();
     break;

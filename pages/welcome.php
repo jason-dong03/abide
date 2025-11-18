@@ -23,6 +23,7 @@ unset($_SESSION['form']);
 
 <html>
   <head>
+    <base href="/abide/">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
@@ -39,9 +40,9 @@ unset($_SESSION['form']);
       crossorigin="anonymous"
     />
 
-    <link rel="stylesheet" href="/abide/styles/theme.css" />
-    <link rel="stylesheet" href="/abide/styles/index.css" />
-    <link rel="stylesheet" href="/abide/styles/typewriter.css" />
+    <link rel="stylesheet" href="styles/theme.css" />
+    <link rel="stylesheet" href="styles/index.css" />
+    <link rel="stylesheet" href="styles/typewriter.css" />
   </head>
 
   <body>
@@ -94,7 +95,7 @@ unset($_SESSION['form']);
         <form
           class="auth-form d-flex flex-column text-start gap-3"
           method="post"
-          action="/abide/index.php?action=auth&mode=register"
+          action="index.php?action=auth&mode=register"
           autocomplete="off"
           autocorrect="off"
           autocapitalize="off"
@@ -109,7 +110,7 @@ unset($_SESSION['form']);
               <div id="avatar-upload" class="avatar-uploader">
                 <img
                   id="avatar-icon"
-                  src="/abide/assets/icons/profile.svg"
+                  src="assets/icons/profile.svg"
                   alt="Upload"
                 />
               </div>
@@ -210,7 +211,7 @@ unset($_SESSION['form']);
         <form
           class="auth-form d-flex flex-column text-start gap-3"
           method="post"
-          action="/abide/index.php?action=auth&mode=login"
+          action="index.php?action=auth&mode=login"
           autocomplete="off"
           autocorrect="off"
           autocapitalize="off"

@@ -97,7 +97,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
         <p class="catchup-desc mb-0 subtitle">
           You have <span class="emph">2 missed readings</span>
         </p>
-        <a href="/abide/index.php?action=catchup" class="stretched-link" aria-label="Access and catch up with late readings" tabindex="0"></a>
+        <a href="index.php?action=catchup" class="stretched-link" aria-label="Access and catch up with late readings" tabindex="0"></a>
       </div>
     </div>
   </div>
@@ -172,18 +172,17 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
                       $cid = (int)$ch['challenge_id'];
                       $participants = Db::count_participants($cid);
                       $isOwner = Db::is_challenge_owner($user['user_id'], $cid);
+                      $endDate = (new DateTimeImmutable($end))->setTime(0, 0, 0);
+                      $isExpired = $endDate < $today; 
                      
                 ?>
                   <div class="card glass-card p-3 position-relative challenge">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                       <strong><?= h($title) ?></strong>
                       <div class="d-flex gap-2">
-                        <?php if($isOwner): ?>
-                          <span class="badge badge-owner text-center">Owner</span>
-                        <?php else: ?>
-                          <span class="badge badge-member text-center">Member</span>
-                        <?php endif; ?>
-                        <span class="badge bg-brown text-center">Day <?= $day ?></span>
+                        <span class="badge <?= $isOwner ? 'badge-owner' : 'badge-member' ?> text-center fw-normal"><?= $isOwner? "Owner": "Member"?></span>
+                        <span class="badge <?= $isExpired ? 'badge-inactive' : 'badge-active' ?> text-center fw-normal"><?= $isExpired? "Inactive": "Active"?></span>
+                        <span class="badge bg-brown text-center fw-normal">Day <?= $day ?></span>
                       </div>
                     </div>
 
@@ -200,7 +199,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
                       <span><?= $participants ?> participants</span>
                     </div>
 
-                    <a href="/abide/index.php?action=challenge&cid=<?= $cid ?>" class="stretched-link" aria-label="View challenge"></a>
+                    <a href="index.php?action=challenge&cid=<?= $cid ?>" class="stretched-link" aria-label="View challenge"></a>
                   </div>
                 <?php endforeach; ?>
               </div>

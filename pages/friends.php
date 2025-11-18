@@ -2,9 +2,11 @@
 // Ensure we have session + data
 if (!isset($_SESSION)) { session_start(); }
 ?>
-<link rel="stylesheet" href="../styles/theme.css">
-<link rel="stylesheet" href="../styles/index.css">
-<link rel="stylesheet" href="../styles/typewriter.css">
+
+ <base href="/abide/">
+<link rel="stylesheet" href="styles/theme.css">
+<link rel="stylesheet" href="styles/index.css">
+<link rel="stylesheet" href="styles/typewriter.css">
 
 
 <div class="friends-page" style="padding: 20px; font-family: sans-serif;">

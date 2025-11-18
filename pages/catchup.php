@@ -139,6 +139,7 @@ if ($allDone && !$flash) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <base href="/abide/">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>read | Catch-Up Readings</title>
@@ -191,7 +192,7 @@ if ($allDone && !$flash) {
   <!-- Header -->
   <header>
     <nav class="navbar navbar-light bg-light px-3 py-3 shadow-sm">
-      <a href="/abide/index.php?action=dashboard" class="btn-container text-center p-2 ps-1">&larr; back to dashboard</a>
+      <a href="index.php?action=dashboard" class="btn-container text-center p-2 ps-1">&larr; back to dashboard</a>
       <span class="navbar-text ms-auto fw-bold pe-4">read</span>
     </nav>
   </header>

@@ -2,8 +2,6 @@
 declare(strict_types=1);
 require_once __DIR__ . '/../backend/db.php'; 
 final class ReadController {
-
-
     public function showWelcome(): void {
         require __DIR__ . '/../pages/welcome.php';
     }
@@ -12,15 +10,28 @@ final class ReadController {
         $_SESSION['challenges'] = $challenges;
         require __DIR__ . '/../pages/dashboard.php';
     }
-    
+
     public function showCreateChallenge(): void{
         require __DIR__ . '/../pages/challengecreation.php';
+    }
+    public function editChallenge($cid): void{
+        $_SESSION['cid'] = $cid;
+        require __DIR__ . '/../pages/edit_challenge.php';
     }
 
     public function showDiscoverChallenges(): void{
         $all_challenges = Db::get_all_challenges();
         $_SESSION['all_challenges'] = $all_challenges;
         require __DIR__ . '/../pages/discover.php';
+    }
+    public function showChallenge($cid){ 
+        $uid = $_SESSION['user']['user_id'];
+        $_SESSION['cid'] = $cid;
+        $_SESSION['challenge'] = Db::get_challenge_info($uid, $cid);
+        $_SESSION['pid'] = Db::get_participant_id($uid, $cid);
+        $_SESSION['participants'] = Db::get_all_participants($cid);
+        $_SESSION['readings'] = Db::get_user_reading_status($uid, $cid);
+        require __DIR__ . '/../pages/challenge.php';
     }
 
     public function showProfile(): void{
@@ -31,7 +42,7 @@ final class ReadController {
         require __DIR__ . '/../pages/catchup.php';
     }
     public function authUser($mode): void{
-         if (!isset($_POST['csrf']) || $_POST['csrf'] !== ($_SESSION['csrf'] ?? '')) {
+            if (!isset($_POST['csrf']) || $_POST['csrf'] !== ($_SESSION['csrf'] ?? '')) {
             http_response_code(400);
             header('Location: index.php?action=welcome');
             exit;
@@ -161,17 +172,8 @@ final class ReadController {
         header('Location: index.php?action=dashboard');
         exit;
     }
-    public function deleteChallenge($cid){
-        $uid = $_SESSION['user']['user_id'];
-        $delete_challenge = Db::delete_challenge($uid, $cid);
-        if($delete_challenge){
-            $_SESSION['sucess'] = "Successfully deleted the challenge!";
-        } else{
-            $_SESSION['error'] = "Something went wrong deleting the challenge, try again.";
-        }
-        session_write_close();
-        header('Location: index.php?action=dashboard');
-        exit; 
+    public function deleteChallenge(int $uid, int $cid): bool {
+        return Db::delete_challenge($uid, $cid);
     }
     public function logout(){
         session_unset();
@@ -179,38 +181,122 @@ final class ReadController {
         header('Location: index.php?action=welcome');
         exit;
     }
-   public function showFriends() {
-    if (!isset($_SESSION['user']['user_id'])) {
-        header("Location: index.php?action=welcome");
+    public function showFriends() {
+        if (!isset($_SESSION['user']['user_id'])) {
+            header("Location: index.php?action=welcome");
+            exit;
+        }
+
+        $user_id = $_SESSION['user']['user_id'];
+
+        $friends = Db::get_friends($user_id);
+        $non_friends = Db::get_non_friends($user_id);
+
+        require __DIR__ . '/../pages/friends.php';
+    }
+
+    public function addFriend(): void {
+        if (!isset($_SESSION['user'])) {
+            header("Location: index.php?action=welcome");
+            exit;
+        }
+
+        $user_id = $_SESSION['user']['user_id'];
+        $friend_id = intval($_POST['friend_id'] ?? 0);
+
+        if ($friend_id > 0) {
+            Db::add_friend($user_id, $friend_id);
+        }
+
+        header("Location: index.php?action=friends");
         exit;
     }
 
-    $user_id = $_SESSION['user']['user_id'];
 
-    $friends = Db::get_friends($user_id);
-    $non_friends = Db::get_non_friends($user_id);
 
-    require __DIR__ . '/../pages/friends.php';
-;
-}
+    /* API HANDLERS IN CONTROLLER */
+    public function handleAddReading(int $uid): int|false {
+        $challenge_id = intval($_POST['challenge_id'] ?? 0);
+        $title = trim($_POST['title'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+        $start_page = !empty($_POST['start_page']) ? intval($_POST['start_page']) : null;
+        $end_page = !empty($_POST['end_page']) ? intval($_POST['end_page']) : null;
+        $due_date = $_POST['due_date'] ?? '';
+        
+        if (!$title || !$due_date) {
+            return false;
+        }
 
-public function addFriend(): void {
-    if (!isset($_SESSION['user'])) {
-        header("Location: index.php?action=welcome");
-        exit;
+        $is_owner = Db::is_challenge_owner($uid, $challenge_id);
+        if (!$is_owner) {
+            return false;
+        }
+
+        $order_num = Db::get_challenge_order_num($challenge_id);
+
+        if (empty($description) && $start_page && $end_page) {
+            $description = "pages {$start_page}-{$end_page}";
+        }
+
+        $reading_id = Db::add_reading(
+            $challenge_id,
+            $title,
+            $description,
+            $start_page,
+            $end_page,
+            $due_date,
+            $order_num
+        );
+
+        if (!$reading_id) {
+            return false;
+        }
+        return (int)$reading_id;
     }
 
-    $user_id = $_SESSION['user']['user_id'];
-    $friend_id = intval($_POST['friend_id'] ?? 0);
 
-    if ($friend_id > 0) {
-        Db::add_friend($user_id, $friend_id);
+    public function handleDeleteReading($uid, $challenge_id, $readingID){
+        $is_owner = Db::is_challenge_owner($uid, $challenge_id);
+        if(!$is_owner){
+            return false;
+        }
+        Db::delete_reading($readingID);
+        return true;
     }
 
-    header("Location: index.php?action=friends");
-    exit;
+    public function handleCompleteReading($uid){
+        $participant_id = intval($_POST['participant_id'] ?? 0);
+        $reading_id = intval($_POST['reading_id'] ?? 0);
+
+        $participant = Db::getUserIdByParticipantId($participant_id);
+        if (!$participant || $participant['user_id'] != $uid) {
+            return false;
+        }
+        Db::complete_reading($participant_id, $reading_id);
+
+       
+        return true;
+    }
+    public function handleUncompleteReading($uid){
+        $participant_id = intval($_POST['participant_id'] ?? 0);
+        $reading_id = intval($_POST['reading_id'] ?? 0);
+
+        $participant = Db::getUserIdByParticipantId($participant_id);
+        if (!$participant || $participant['user_id'] != $uid) {
+            return false;
+        }
+        Db::uncomplete_reading($participant_id, $reading_id);
+        return true;
+    }
+    public function handleLeaveChallenge($uid, $pid){
+      
+        $participant = Db::getUserIdByParticipantId($pid);
+        if (!$participant || $participant['user_id'] != $uid) {
+            return false;
+        }
+        Db::leave_challenge($pid);  
+        return true;
+    }
+    
 }
 
-
-
-}

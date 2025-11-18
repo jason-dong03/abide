@@ -16,11 +16,13 @@ DROP TABLE IF EXISTS challenges CASCADE;
 DROP TABLE IF EXISTS user_badges CASCADE;
 DROP TABLE IF EXISTS badges CASCADE;
 DROP TABLE IF EXISTS login_events CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS read_users CASCADE;
 DROP TABLE IF EXISTS friends CASCADE;
+DROP TABLE IF EXISTS challenge_readings CASCADE;
+DROP TABLE IF EXISTS reading_completions CASCADE;
 
 -- USER + AUTH
-CREATE TABLE users (
+CREATE TABLE read_users (
     user_id               SERIAL PRIMARY KEY,
     first_name            TEXT NOT NULL,
     last_name             TEXT NOT NULL,
@@ -42,7 +44,7 @@ CREATE TABLE users (
 -- login events to track streak
 CREATE TABLE login_events (
   login_event_id SERIAL PRIMARY KEY,
-  user_id        INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+  user_id        INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
   logged_in_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
   logged_in_date DATE NOT NULL
 );
@@ -61,7 +63,7 @@ CREATE TABLE IF NOT EXISTS badges (
 );
 
 CREATE TABLE IF NOT EXISTS user_badges (
-    user_id     INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    user_id     INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
     badge_id     INTEGER NOT NULL REFERENCES badges(badge_id) ON DELETE CASCADE,
     awarded_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (user_id, badge_id)
@@ -72,7 +74,7 @@ CREATE TABLE IF NOT EXISTS user_badges (
 -- CHALLENGES
 CREATE TABLE IF NOT EXISTS challenges (
     challenge_id   SERIAL PRIMARY KEY,
-    creator_id     INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    creator_id     INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
     title          TEXT NOT NULL,
     description    TEXT,
     start_date     DATE NOT NULL,
@@ -83,27 +85,59 @@ CREATE TABLE IF NOT EXISTS challenges (
     is_private     BOOLEAN NOT NULL DEFAULT FALSE,
     invite_code    TEXT UNIQUE,
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    is_finished    BOOLEAN DEFAULT FALSE,
     CHECK (end_date >= start_date)
 );
 
 -- PARTICIPANTS
 CREATE TABLE IF NOT EXISTS challenge_participants(
-    id SERIAL PRIMARY KEY,
+    participant_id SERIAL PRIMARY KEY,
     challenge_id   INTEGER NOT NULL REFERENCES challenges(challenge_id) ON DELETE CASCADE,
-    user_id        INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    user_id        INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
     joined_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (challenge_id, user_id)
 );
+CREATE TABLE IF NOT EXISTS challenge_readings (
+    reading_id       SERIAL PRIMARY KEY,
+    challenge_id     INTEGER NOT NULL REFERENCES challenges(challenge_id) ON DELETE CASCADE,
+    title            TEXT NOT NULL,              -- e.g., "Chapter 1", "Section 2"
+    description      TEXT,                       -- e.g., "pages 1-30", "Introduction to Warriors"
+    start_page       INTEGER,                    -- optional: start page number
+    end_page         INTEGER,                    -- optional: end page number
+    due_date         DATE NOT NULL,
+    order_num        INTEGER NOT NULL,           -- maintains reading order
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    
+    UNIQUE (challenge_id, order_num),
+    CHECK (end_page IS NULL OR start_page IS NULL OR end_page >= start_page)
+);
+
+-- Individual participant completions (async tracking)
+CREATE TABLE IF NOT EXISTS reading_completions (
+    participant_id   INTEGER NOT NULL REFERENCES challenge_participants(participant_id) ON DELETE CASCADE,
+    reading_id       INTEGER NOT NULL REFERENCES challenge_readings(reading_id) ON DELETE CASCADE,
+    completed_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+    notes            TEXT,                      
+    
+    PRIMARY KEY (participant_id, reading_id)
+);
+
+-- Index for faster queries
+CREATE INDEX idx_reading_completions_participant ON reading_completions(participant_id);
+CREATE INDEX idx_reading_completions_reading ON reading_completions(reading_id);
+CREATE INDEX idx_challenge_readings_challenge ON challenge_readings(challenge_id, order_num);
+
+
 
 -- CHECKINS
 CREATE TABLE IF NOT EXISTS checkins (
     checkin_id     SERIAL PRIMARY KEY, 
-    participant_id INTEGER NOT NULL REFERENCES challenge_participants(id) ON DELETE CASCADE,
+    participant_id INTEGER NOT NULL REFERENCES challenge_participants(participant_id) ON DELETE CASCADE,
     checkin_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     amount_done    INTEGER NOT NULL CHECK (amount_done >= 0) -- numeric progress amount
 );
 CREATE TABLE friends (
-    user_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
-    friend_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES read_users(user_id) ON DELETE CASCADE,
+    friend_id INTEGER REFERENCES read_users(user_id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, friend_id)
 );

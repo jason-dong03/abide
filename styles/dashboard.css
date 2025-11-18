@@ -166,8 +166,9 @@ body {
   line-height: 1;
 }
 
-.progress-bar {
-  background-color: var(--accent-2);
+.progress-bar{
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2)) !important;
+  color: #fff;
 }
 .bg-brown {
   background-color: var(--accent-2);
@@ -281,9 +282,17 @@ footer {
 
 .badge-owner {
   background: #a08f1ed1;
-  color: #e7dd50;
+  color: #fff9ab;
 }
 .badge-member {
   background: #b73ed833;
   color: #8d23a7;
+}
+.badge-active{
+  background: #1a950f;
+  color: white;
+}
+.badge-inactive{
+  background: #7f1d18;
+  color: white;
 }
