@@ -93,9 +93,7 @@ function h(string $s): string {
     </div>
 
     <hr class="my-4 break">
-
-    <div class="d-flex flex-column gap-4 w-100">
-
+    <div class="d-flex flex-column justify-content-start gap-4 w-75 mx-auto">
       <div>
         <label class="form-label mb-1 label-brown">Name</label>
         <div class="input-group">

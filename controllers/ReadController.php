@@ -10,6 +10,8 @@ final class ReadController {
         $challenges = Db::get_challenges_for_user($uid);
         $_SESSION['challenges'] = $challenges;
         $_SESSION['missed_readings'] = Db::missed_readings($uid);
+        $_SESSION['friends_list'] = Db::get_friends($uid);
+        $_SESSION['notification_count']= Db::get_notification_count($uid);
         require __DIR__ . '/../pages/dashboard.php';
     }
 
@@ -135,7 +137,7 @@ final class ReadController {
                 header('Location: index.php?action=dashboard');
                 exit;  
             }else{
-                $_SESSION['error'] = "Account not found, please sign up!";
+                $_SESSION['error'] = "Incorrect password, try again!";
                 session_write_close();
                 header('Location: index.php?action=welcome');
                 exit;
@@ -194,38 +196,6 @@ final class ReadController {
         header('Location: index.php?action=welcome');
         exit;
     }
-    public function showFriends() {
-        if (!isset($_SESSION['user']['user_id'])) {
-            header("Location: index.php?action=welcome");
-            exit;
-        }
-
-        $user_id = $_SESSION['user']['user_id'];
-
-        $friends = Db::get_friends($user_id);
-        $non_friends = Db::get_non_friends($user_id);
-
-        require __DIR__ . '/../pages/friends.php';
-    }
-
-    public function addFriend(): void {
-        if (!isset($_SESSION['user'])) {
-            header("Location: index.php?action=welcome");
-            exit;
-        }
-
-        $user_id = $_SESSION['user']['user_id'];
-        $friend_id = intval($_POST['friend_id'] ?? 0);
-
-        if ($friend_id > 0) {
-            Db::add_friend($user_id, $friend_id);
-        }
-
-        header("Location: index.php?action=friends");
-        exit;
-    }
-
-
 
     /* API HANDLERS IN CONTROLLER */
     public function handleAddReading(int $uid): int|false {

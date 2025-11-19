@@ -136,8 +136,29 @@ CREATE TABLE IF NOT EXISTS checkins (
     checkin_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     amount_done    INTEGER NOT NULL CHECK (amount_done >= 0) -- numeric progress amount
 );
-CREATE TABLE friends (
-    user_id INTEGER REFERENCES read_users(user_id) ON DELETE CASCADE,
-    friend_id INTEGER REFERENCES read_users(user_id) ON DELETE CASCADE,
-    PRIMARY KEY (user_id, friend_id)
+
+
+CREATE TABLE IF NOT EXISTS friend_requests (
+    request_id SERIAL PRIMARY KEY,
+    requester_id INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
+    recipient_id INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
+    status friend_status NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(requester_id, recipient_id),
+    CHECK (requester_id != recipient_id)
 );
+
+CREATE INDEX idx_friend_requests_recipient ON friend_requests(recipient_id, status);
+CREATE INDEX idx_friend_requests_requester ON friend_requests(requester_id, status);
+
+CREATE TABLE friends (
+    user_id INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
+    friend_id INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (user_id, friend_id),
+    CHECK (user_id != friend_id)
+);
+
+CREATE INDEX idx_friends_user ON friends(user_id);
+CREATE INDEX idx_friends_friend ON friends(friend_id);

@@ -27,10 +27,27 @@ function h(string $s): string {
 }
 
 
+$friends = $_SESSION['friends_list'] ?? [];
+$notification_count = $_SESSION['notification_count'] ?? 0;
+
 
 $challenges = $_SESSION['challenges'] ?? [];
 $missed_readings = $_SESSION['missed_readings'] ?? [];
 $today = new DateTimeImmutable('today');
+
+$activeChallenges = [];
+$completedChallenges = [];
+
+foreach ($challenges as $ch) {
+    $endDate = new DateTimeImmutable($ch['end_date']);
+    $isFinished = !empty($ch['is_finished']); 
+
+    if ($isFinished || $endDate < $today) {
+        $completedChallenges[] = $ch;
+    } else {
+        $activeChallenges[] = $ch;
+    }
+}
 
 function pct_progress(string $start, string $end, DateTimeImmutable $today): int {
     $s = new DateTimeImmutable($start);
@@ -65,7 +82,6 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-  <!-- Navbar -->
   <header>
     <nav class="navbar navbar-light bg-light bg-opacity-75 shadow-sm backdrop-blur">
       <div class="container-fluid px-5 py-2 d-flex justify-content-between align-items-center">
@@ -73,7 +89,20 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
           <span class="fw-bold pe-4">read</span>
         </div>
         <div class="d-flex align-items-center gap-4">
-          <!-- Profile button with text on large screens -->
+          <div class="notification-icon-wrapper">
+            <button id="notificationBtn" class="btn btn-link p-0 nav-icon-link" aria-label="Notifications">
+              <img src="assets/icons/alert.svg" width="24" height="24" alt="Notifications">
+              <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
+            </button>
+            <div id="notificationsDropdown" class="notifications-dropdown">
+              <div class="p-3 border-bottom">
+                <strong>Friend Requests</strong>
+              </div>
+              <div id="notificationsList" >
+                <div class="notification-empty">No notifications</div>
+              </div>
+            </div>
+          </div>
           <a href="index.php?action=profile" class="nav-icon-link d-flex align-items-center gap-2" aria-label="Profile">
             <img src="assets/icons/dark-user-circle.svg" width="24" height="24" alt="Profile Icon">
             <span class="d-none d-lg-inline">Profile</span>
@@ -92,7 +121,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
 
     <!-- Primary Actions -->
    <div class="row g-3 mb-4">
-     <?php $isEmpty = empty($challenges); ?>
+    <?php $isEmpty = empty($challenges); ?>
     <div class="col-md-8">
       <div class="card glass-primary clickable-card p-4 position-relative">
         <span class="fw-semibold mb-1"><?= $isEmpty ? 'Start reading something, '. h($user['name']) : 'Continue Reading, ' . h($user['name']) ?></span>
@@ -119,7 +148,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
       <img src="assets/icons/dark-clock.svg" width="18" height="18" alt="">
       <div class="kpi-meta">
         <span class="kpi-label">Active</span>
-        <span class="kpi-value">3</span>
+        <span class="kpi-value"><?= count($activeChallenges)?></span>
       </div>
     </div>
 
@@ -127,7 +156,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
       <img src="assets/icons/dark-check.svg" width="18" height="18" alt="">
       <div class="kpi-meta">
         <span class="kpi-label">Completed</span>
-        <span class="kpi-value">2</span>
+        <span class="kpi-value"><?= count($completedChallenges)?></span>
       </div>
     </div>
 
@@ -223,26 +252,24 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
           <div class="d-flex align-items-center mb-3">
             <img src="assets/icons/dark-friends.svg" width="20" height="20" class="me-2" alt="">
             <span class="fw-semibold mb-0">Friends</span>
-            <button class="btn btn-link p-0 ms-auto" aria-label="Add Friend">
-              <img src="assets/icons/plus-brown.svg" width="16" height="16" alt="">
-            </button>
           </div>
 
-          <input type="text" class="form-control form-control-sm mb-3" placeholder="Search…" aria-label="Search friends">
+          <input type="text" id="friendSearch" class="form-control form-control-sm mb-3" placeholder="Search…" aria-label="Search friends">
 
           <div class="friends-list d-flex flex-column gap-1">
-            <div class="d-flex align-items-center gap-2 friend-item">
-              <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt=""><span class="small">Alice Johnson</span>
-            </div>
-            <div class="d-flex align-items-center gap-2 friend-item">
-              <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt=""><span class="small">John Doe</span>
-            </div>
-            <div class="d-flex align-items-center gap-2 friend-item">
-              <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt=""><span class="small">Isaac Newton</span>
-            </div>
+            <?php if (empty($friends)): ?>
+              <p class="text-muted small mb-3">No friends yet</p>
+            <?php else: ?>
+              <?php foreach ($friends as $friend): ?>
+                <div class="d-flex align-items-center gap-2 friend-item">
+                  <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt="">
+                  <span class="small"><?= h($friend['first_name'] . ' ' . $friend['last_name']) ?></span>
+                </div>
+              <?php endforeach; ?>
+            <?php endif; ?>
           </div>
 
-          <a class="btn btn-discover mt-auto w-100" role="button" href="today.html">Invite</a>
+          <button id ="addFriendBtn" class="btn btn-discover mt-auto w-100" aria-label="Add Friends">Add</button>
         </div>
       </aside>
     </div>
@@ -252,5 +279,267 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
   <footer class="text-center mt-auto py-3 small text-black">
     © 2025 Jason, Eyuel, Gianna – University of Virginia
   </footer>
+
+   <div class="modal fade" id="addFriendModal" tabindex="-1" aria-labelledby="addFriendModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addFriendModalLabel">Add Friends</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="userSearchInput" class="form-control mb-3" placeholder="Search users...">
+          <div id="usersList" class="modal-user-list">
+            <div class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  let allUsers = [];
+  let notificationCount = <?= $notification_count ?>;
+  
+  updateNotificationBadge(notificationCount);
+  
+  document.getElementById('notificationBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const dropdown = document.getElementById('notificationsDropdown');
+    dropdown.classList.toggle('show');
+    if (dropdown.classList.contains('show')) {
+      loadNotifications();
+    }
+  });
+  
+  document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('notificationsDropdown');
+    const btn = document.getElementById('notificationBtn');
+    if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+  
+
+  document.getElementById('addFriendBtn').addEventListener('click', function() {
+    const modal = new bootstrap.Modal(document.getElementById('addFriendModal'));
+    modal.show();
+    loadAllUsers();
+  });
+  
+  document.getElementById('userSearchInput').addEventListener('input', function(e) {
+    filterUsers(e.target.value);
+  });
+  
+
+  document.getElementById('friendSearch').addEventListener('input', function(e) {
+    filterFriendsList(e.target.value);
+  });
+  
+  function updateNotificationBadge(count) {
+    notificationCount = count;
+    const badge = document.getElementById('notificationBadge');
+    if (count > 0) {
+      badge.textContent = count;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  
+  function loadNotifications() {
+    fetch('index.php?action=get_notifications', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        displayNotifications(data.notifications);
+      }
+    });
+  }
+  
+  function displayNotifications(notifications) {
+    const container = document.getElementById('notificationsList');
+    
+    if (notifications.length === 0) {
+      container.innerHTML = '<div class="notification-empty">No notifications</div>';
+      return;
+    }
+    
+    container.innerHTML = notifications.map(n => `
+      <div class="notification-item">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt="">
+          <div>
+            <strong>${escapeHtml(n.first_name + ' ' + n.last_name)}</strong>
+            <div class="small text-muted">@${escapeHtml(n.username)}</div>
+          </div>
+        </div>
+        <div class="notification-actions">
+          <button class="btn btn-sm btn-primary" onclick="acceptRequest(${n.request_id})">Accept</button>
+          <button class="btn btn-sm btn-outline-secondary" onclick="rejectRequest(${n.request_id})">Decline</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  function acceptRequest(requestId) {
+    fetch('index.php?action=accept_request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `request_id=${requestId}`
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.message);
+      }
+    })
+    /*.then(response => response.text())
+    .then(txt => {
+        console.log('RAW RESPONSE:', txt);
+    })*/
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+  
+  function rejectRequest(requestId) {
+    fetch('index.php?action=reject_request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `request_id=${requestId}`
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert(data.message);
+      }
+    })
+     .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+  
+  function loadAllUsers() {
+    fetch('index.php?action=get_all_users', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        allUsers = data.users;
+        displayUsers(allUsers);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+  
+  function displayUsers(users) {
+    const container = document.getElementById('usersList');
+    
+    if (users.length === 0) {
+      container.innerHTML = '<div class="text-center text-muted py-4">No users found</div>';
+      return;
+    }
+    
+    container.innerHTML = users.map(u => {
+      let btnHtml = '';
+      if (u.status === 'friends') {
+        btnHtml = '<button class="btn btn-sm btn-success btn-add-friend" disabled>Friends</button>';
+      } else if (u.status === 'requested') {
+        btnHtml = '<button class="btn btn-sm btn-secondary btn-add-friend" disabled>Requested</button>';
+      } else {
+        btnHtml = `<button class="btn btn-sm btn-primary btn-add-friend" onclick="sendFriendRequest(${u.user_id}, this)">Add</button>`;
+      }
+      
+      return `
+        <div class="user-item">
+          <div class="d-flex align-items-center gap-2">
+            <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt="">
+            <div>
+              <div><strong>${escapeHtml(u.first_name + ' ' + u.last_name)}</strong></div>
+              <div class="small text-muted">@${escapeHtml(u.username)}</div>
+            </div>
+          </div>
+          ${btnHtml}
+        </div>
+      `;
+    }).join('');
+  }
+  
+  function filterUsers(search) {
+    const filtered = allUsers.filter(u => {
+      const name = (u.first_name + ' ' + u.last_name).toLowerCase();
+      const username = u.username.toLowerCase();
+      const term = search.toLowerCase();
+      return name.includes(term) || username.includes(term);
+    });
+    displayUsers(filtered);
+  }
+  
+  function filterFriendsList(search) {
+    const items = document.querySelectorAll('.friends-list .friend-item');
+    items.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      if (text.includes(search.toLowerCase())) {
+        item.style.display = '';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  }
+  
+  function sendFriendRequest(userId, btn) {
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    
+    fetch('index.php?action=send_request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `recipient_id=${userId}`
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        btn.textContent = 'Requested';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-secondary');
+      
+        const user = allUsers.find(u => u.user_id === userId);
+        if (user) user.status = 'requested';
+      } else {
+        alert(data.message);
+        btn.disabled = false;
+        btn.textContent = 'Add';
+      }
+    })
+    .catch(error => {
+      btn.textContent = 'Add';
+      btn.disabled = false;
+      console.error('Error:', error);
+    });
+  }
+  
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
 </body>
 </html>
