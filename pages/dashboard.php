@@ -252,10 +252,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
           <div class="d-flex align-items-center mb-3">
             <img src="assets/icons/dark-friends.svg" width="20" height="20" class="me-2" alt="">
             <span class="fw-semibold mb-0">Friends</span>
-          </div>
-
-          <input type="text" id="friendSearch" class="form-control form-control-sm mb-3" placeholder="Search…" aria-label="Search friends">
-
+          </div>      
           <div class="friends-list d-flex flex-column gap-1">
             <?php if (empty($friends)): ?>
               <p class="text-muted small mb-3">No friends yet</p>
