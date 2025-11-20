@@ -10,7 +10,6 @@ body {
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   border-radius: 0 0 16px 16px;
 
   position: relative; 
@@ -423,6 +422,67 @@ footer {
 .challenge-list::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.15);
   border-radius: 8px;
+}
+.challenge.disabled-challenge {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    background: #8f8e8e;
+}
+
+.challenge.disabled-challenge * {
+    color: #000000 !important;
+}
+
+.challenge.disabled-challenge .progress-bar {
+    background: #000000 !important;
+}
+.challenge.completed-challenge {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    background: #91ce85;
+    box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.12),
+    inset 0 1px rgba(0, 185, 12, 0.5);
+    border-color: darkgreen;
+}
+
+.challenge.completed-challenge * {
+    color: hsl(0, 0%, 0%) !important;
+}
+
+.challenge.completed-challenge .progress-bar {
+    background: #227811 !important;
+}
+
+.challenge-filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.filter-btn {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #333;
+}
+
+.filter-btn:hover {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+.filter-btn.active {
+  background: rgba(111, 169, 201, 0.85);
+  color: white;
+  border-color: rgba(111, 169, 201, 1);
 }
 
 .badge-owner {
