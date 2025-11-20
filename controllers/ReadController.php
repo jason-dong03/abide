@@ -112,6 +112,10 @@ final class ReadController {
                 Db::add_user($fname, $lname, $email, $username, $password);
                 $user = Db::find_user_by_email($email);
                 $_SESSION['user']['user_id'] = $user['user_id'];
+
+                // record login event upon registration
+                Db::record_login_event($user['user_id']);
+
                 session_write_close();
                 header('Location: index.php?action=dashboard');
                 exit;     
@@ -133,6 +137,9 @@ final class ReadController {
                 'username' => $user['username'],
                 'user_id' => $user['user_id']
                 ];
+
+                Db::record_login_event($user['user_id']);
+
                 session_write_close();
                 header('Location: index.php?action=dashboard');
                 exit;  

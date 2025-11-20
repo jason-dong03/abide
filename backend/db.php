@@ -56,17 +56,63 @@
     }
 
     public static function record_login_event(int $user_id): void {
+        $pdo = Db::pdo();
+
         $sql = "
-            INSERT INTO login_events (user_id)
-            SELECT :u
+            INSERT INTO login_events (user_id, logged_in_at, logged_in_date)
+            SELECT :u, NOW(), CURRENT_DATE
             WHERE NOT EXISTS (
                 SELECT 1
                 FROM login_events
                 WHERE user_id = :u
-                AND date_trunc('day', logged_in_at) = date_trunc('day', now())
-            )";
-        self::pdo()->prepare($sql)->execute([':u' => $user_id]);
+                AND logged_in_date = CURRENT_DATE
+            )
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':u' => $user_id]);
     }
+
+    public static function get_login_streak(int $user_id): int {
+        $pdo = Db::pdo();
+        $sql = "
+            SELECT logged_in_date
+            FROM login_events
+            WHERE user_id = :u
+            ORDER BY logged_in_date DESC
+        ";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':u' => $user_id]);
+        $days = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (!$days) {
+            return 0;
+        }
+
+        $today = new DateTimeImmutable('today');
+        $todayStr = $today->format('Y-m-d');
+
+        if (in_array($todayStr, $days, true)) {
+            $expected = $today;
+        } else {
+            $expected = $today->modify('-1 day');
+        }
+        
+        $streak = 0;
+        foreach ($days as $dayStr) {
+            $day = new DateTimeImmutable($dayStr);
+            if ($day > $expected) {
+                continue;
+            }
+            if ($day < $expected) {
+                break;
+            }
+            $streak++;
+            $expected = $expected->modify('-1 day');
+        }
+        return $streak;
+    }
+
 
     public static function add_challenge($creator_id, $challenge_name, $desc, $startDate, $endDate, $freq, $goal_num, $goal_type, $is_private){
         $pdo = Db::pdo();

@@ -30,10 +30,12 @@ function h(string $s): string {
 $friends = $_SESSION['friends_list'] ?? [];
 $notification_count = $_SESSION['notification_count'] ?? 0;
 
-
 $challenges = $_SESSION['challenges'] ?? [];
 $missed_readings = $_SESSION['missed_readings'] ?? [];
 $today = new DateTimeImmutable('today');
+
+$friendsCount = count($friends);
+$streakCount  = Db::get_login_streak((int)$user['user_id']);
 
 $activeChallenges = [];
 $completedChallenges = [];
@@ -164,7 +166,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
       <img src="assets/icons/dark-calendar.svg" width="18" height="18" alt="">
       <div class="kpi-meta">
         <span class="kpi-label">Streaks</span>
-        <span class="kpi-value">33 🔥</span>
+        <span class="kpi-value"><?= $streakCount?> 🔥</span>
       </div>
     </div>
 
@@ -173,7 +175,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
       <img src="assets/icons/dark-friends.svg" width="18" height="18" alt="">
       <div class="kpi-meta">
         <span class="kpi-label">Friends</span>
-        <span class="kpi-value">15</span>
+        <span class="kpi-value"><?= $friendsCount?></span>
       </div>
     </div>
   </div>
