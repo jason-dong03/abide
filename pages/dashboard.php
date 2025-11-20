@@ -29,7 +29,7 @@
 
 function streak_emoji(int $streak): string {
     if ($streak >= 30) {
-        return '🔥'; // insane!
+        return '🌴'; // insane!
     } elseif ($streak >= 7) {
         return '🌳'; // strong
     } elseif ($streak >= 3) {
