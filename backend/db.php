@@ -187,23 +187,56 @@
     }
     public static function get_notification_count($uid){
         $pdo = Db::pdo();
-        $sql = "SELECT COUNT(*) FROM friend_requests 
-        WHERE recipient_id = :u AND status = 'pending'";
+        $sql = "SELECT (SELECT COUNT(*) 
+            FROM friend_requests 
+            WHERE recipient_id = :u 
+            AND status = 'pending')
+            +
+            (SELECT COUNT(*) 
+            FROM user_messages 
+            WHERE recipient_id = :u 
+            AND is_read = FALSE)
+            AS total";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':u' => $uid]);
-        return (int)$stmt ->fetchColumn();
+        return (int)$stmt->fetchColumn();
     }
-    public static function get_user_notifications($uid){
+
+    public static function get_user_notifications(int $uid): array {
         $pdo = Db::pdo();
-        $sql = "SELECT fr.request_id, fr.created_at, ru.user_id,ru.first_name, ru.last_name, ru.username
+        $sql = "SELECT
+            'request'::text AS type,
+            fr.request_id,
+            NULL::int AS message_id,
+            fr.created_at,
+            ru.user_id,
+            ru.first_name,
+            ru.last_name,
+            ru.username,
+            NULL::text AS message_body
         FROM friend_requests fr
         JOIN read_users ru ON ru.user_id = fr.requester_id
         WHERE fr.recipient_id = :u AND fr.status = 'pending'
-        ORDER BY fr.created_at DESC";
+        UNION ALL
+        SELECT 'message'::text AS type,
+        NULL::int AS request_id,
+            m.message_id,
+            m.created_at,
+            ru.user_id,
+            ru.first_name,
+            ru.last_name,
+            ru.username,
+            m.body AS message_body
+        FROM user_messages m
+        JOIN read_users ru ON ru.user_id = m.sender_id
+        WHERE m.recipient_id = :u AND m.is_read = FALSE
+        ORDER BY created_at DESC";
+
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':u' => $uid]);
-        return $stmt ->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
     public static function get_all_users($uid){
         $pdo =Db::pdo();
         $sql ="SELECT user_id, first_name, last_name, username FROM read_users
@@ -287,6 +320,39 @@
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':r' =>$request_id, ':u'=>$uid]);
     }
+    public static function remove_friend(int $uid, int $friend_id): bool {
+        $pdo = Db::pdo();
+        $sql = "DELETE FROM friends
+                WHERE (user_id = :u AND friend_id = :f)
+                OR (user_id = :f AND friend_id = :u)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':u' => $uid, ':f' => $friend_id]);
+        return $stmt->rowCount() > 0;
+    }
+    public static function send_message(int $sender_id, int $recipient_id, string $body): int {
+        $pdo = Db::pdo();
+        $sql = "INSERT INTO user_messages (sender_id, recipient_id, body)
+                VALUES (:s, :r, :b)
+                RETURNING message_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':s' => $sender_id,
+            ':r' => $recipient_id,
+            ':b' => $body,
+        ]);
+        return (int)$stmt->fetchColumn();
+    }
+
+    public static function dismiss_message(int $uid, int $message_id): bool {
+        $pdo = Db::pdo();
+        $sql = "UPDATE user_messages
+                SET is_read = TRUE
+                WHERE message_id = :m AND recipient_id = :u";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':m' => $message_id, ':u' => $uid]);
+        return $stmt->rowCount() > 0;
+    }
+
     /* FRIEND SECTION END  */
 
 
@@ -523,6 +589,133 @@
             ':unit'=> $goal_unit,
             ':cid'=> $cid,
         ]);
+    }
+
+    public static function record_login_streak(int $uid): array{
+        $pdo = Db::pdo();
+        $pdo->beginTransaction();
+        try {
+            $sqlInsert = "
+                INSERT INTO login_events (user_id, logged_in_date)
+                VALUES (:uid, CURRENT_DATE)
+                ON CONFLICT (user_id, logged_in_date) DO NOTHING
+            ";
+            $stmt = $pdo->prepare($sqlInsert);
+            $stmt->execute([':uid' => $uid]);
+
+            $insertedToday = ($stmt->rowCount() > 0); // true if this is the first login of the day
+
+            // Optionally bump login_days_count when it's a *new* login day
+            if ($insertedToday) {
+                $sqlDays = "
+                    UPDATE read_users
+                    SET login_days_count = login_days_count + 1,
+                        last_login_at = current_login_at,
+                        current_login_at = NOW()
+                    WHERE user_id = :uid
+                ";
+            } else {
+                $sqlDays = "
+                    UPDATE read_users
+                    SET last_login_at = COALESCE(last_login_at, current_login_at),
+                        current_login_at = NOW()
+                    WHERE user_id = :uid
+                ";
+            }
+            $stmt = $pdo->prepare($sqlDays);
+            $stmt->execute([':uid' => $uid]);
+
+            $sqlPrev = "
+                SELECT logged_in_date
+                FROM login_events
+                WHERE user_id = :uid
+                AND logged_in_date < CURRENT_DATE
+                ORDER BY logged_in_date DESC
+                LIMIT 1
+            ";
+            $stmt = $pdo->prepare($sqlPrev);
+            $stmt->execute([':uid' => $uid]);
+            $prevDate = $stmt->fetchColumn(); 
+
+            $yesterday = (new DateTimeImmutable('yesterday'))->format('Y-m-d');
+
+            $sqlGetStreak = "
+                SELECT login_streak_current, login_streak_longest
+                FROM read_users
+                WHERE user_id = :uid
+            ";
+            $stmt = $pdo->prepare($sqlGetStreak);
+            $stmt->execute([':uid' => $uid]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $currentStreak = (int)($user['login_streak_current'] ?? 0);
+            $longestStreak = (int)($user['login_streak_longest'] ?? 0);
+
+            // only change streak if this is the first login for today
+            if ($insertedToday) {
+                if ($prevDate === $yesterday) {
+                    $currentStreak = max(1, $currentStreak + 1);
+                } else {
+                    // gap -> reset streak to 1
+                    $currentStreak = 1;
+                }
+
+                if ($currentStreak > $longestStreak) {
+                    $longestStreak = $currentStreak;
+                }
+
+                $sqlUpdateStreak = "
+                    UPDATE read_users
+                    SET login_streak_current = :cs,
+                        login_streak_longest = :ls
+                    WHERE user_id = :uid
+                ";
+                $stmt = $pdo->prepare($sqlUpdateStreak);
+                $stmt->execute([
+                    ':cs'  => $currentStreak,
+                    ':ls'  => $longestStreak,
+                    ':uid' => $uid,
+                ]);
+            }
+
+            $pdo->commit();
+
+            return [
+                'current' => $currentStreak,
+                'longest' => $longestStreak,
+            ];
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            return [
+                'current' => 0,
+                'longest' => 0,
+            ];
+        }
+    }
+    public static function upcoming_readings($uid){
+        $pdo = Db::pdo();
+        $sql = "SELECT c.challenge_id,
+            c.title AS challenge_title,
+            cr.reading_id,
+            cr.start_page AS reading_start_page,
+            cr.end_page AS reading_end_page,
+            cr.title AS reading_title,
+            cr.due_date as reading_due_date,
+            cp.participant_id,
+            CASE WHEN rc.reading_id IS NOT NULL THEN true ELSE false END as is_completed
+        FROM challenge_participants AS cp
+        JOIN challenges AS c  ON cp.challenge_id = c.challenge_id
+        JOIN challenge_readings AS cr ON cr.challenge_id = c.challenge_id
+        LEFT JOIN reading_completions AS rc 
+        ON rc.participant_id = cp.participant_id
+        AND rc.reading_id = cr.reading_id
+        WHERE cp.user_id = :u       
+        AND cr.due_date >= CURRENT_DATE 
+        ORDER BY cr.due_date ASC, c.challenge_id, cr.order_num;";
+
+        $stmt = $pdo -> prepare($sql);
+        $stmt -> execute([':u' => $uid]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 ?>

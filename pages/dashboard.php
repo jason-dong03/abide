@@ -1,31 +1,44 @@
 <?php
-declare(strict_types=1);
-if (session_status() === PHP_SESSION_NONE) {
-    session_start([
-      'cookie_httponly' => true,
-      'cookie_samesite' => 'Lax',
-      'cookie_secure'   => isset($_SERVER['HTTPS']),
-    ]);
+  declare(strict_types=1);
+  if (session_status() === PHP_SESSION_NONE) {
+      session_start([
+        'cookie_httponly' => true,
+        'cookie_samesite' => 'Lax',
+        'cookie_secure'   => isset($_SERVER['HTTPS']),
+      ]);
+  }
+
+  $user = $_SESSION['user'] ?? null;
+
+  if (!$user) {
+    header('Location: /abide/index.php?action=welcome');
+    exit;
+  }
+
+  if (empty($_SESSION['csrf'])) {
+    $_SESSION['csrf'] = bin2hex(random_bytes(32)); 
+  }
+  $csrf = $_SESSION['csrf'];
+  $error = $_SESSION['error'] ?? null;
+  unset($_SESSION['error']); 
+
+  function h(string $s): string {
+    return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+  }
+
+
+function streak_emoji(int $streak): string {
+    if ($streak >= 30) {
+        return '🔥'; // insane!
+    } elseif ($streak >= 7) {
+        return '⚡'; // strong
+    } elseif ($streak >= 3) {
+        return '✨'; // getting there
+    } elseif ($streak >= 1) {
+        return '🌱'; // just started
+    }
+    return '💤'; // n/a
 }
-
-$user = $_SESSION['user'] ?? null;
-
-if (!$user) {
-  header('Location: /abide/index.php?action=welcome');
-  exit;
-}
-
-if (empty($_SESSION['csrf'])) {
-   $_SESSION['csrf'] = bin2hex(random_bytes(32)); 
-}
-$csrf = $_SESSION['csrf'];
-$error = $_SESSION['error'] ?? null;
-unset($_SESSION['error']); 
-
-function h(string $s): string {
-  return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
-
 
 $friends = $_SESSION['friends_list'] ?? [];
 $notification_count = $_SESSION['notification_count'] ?? 0;
@@ -98,7 +111,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
             </button>
             <div id="notificationsDropdown" class="notifications-dropdown">
               <div class="p-3 border-bottom">
-                <strong>Friend Requests</strong>
+                <strong>Notifications</strong>
               </div>
               <div id="notificationsList" >
                 <div class="notification-empty">No notifications</div>
@@ -128,7 +141,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
       <div class="card glass-primary clickable-card p-4 position-relative">
         <span class="fw-semibold mb-1"><?= $isEmpty ? 'Start reading something, '. h($user['name']) : 'Continue Reading, ' . h($user['name']) ?></span>
         <p class="mb-0 subtitle">View your scheduled readings and stay on track</p>
-        <a href="today.html" class="stretched-link" aria-label="View your scheduled readings and check off progress" tabindex="0"></a>
+        <a href="index.php?action=upcoming" class="stretched-link" aria-label="View your scheduled readings and check off progress" tabindex="0"></a>
       </div>
     </div>
 
@@ -165,8 +178,12 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     <div class="kpi">
       <img src="assets/icons/dark-calendar.svg" width="18" height="18" alt="">
       <div class="kpi-meta">
-        <span class="kpi-label">Streaks</span>
-        <span class="kpi-value"><?= $streakCount?> 🔥</span>
+       <?php $streakCurrent = (int)($user['login_streak_current'] ?? 0);
+          $streakEmoji = streak_emoji($streakCurrent); ?>
+        <span class="kpi-label">Streak</span>
+        <span class="kpi-value">
+          <?= $streakCurrent ?> <?= $streakEmoji ?>  <span class="text-muted small fw-light" style="font-size: 12px;">(best: <?= (int)($user['login_streak_longest'] ?? 0) ?>)</span>
+        </span>
       </div>
     </div>
 
@@ -175,7 +192,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
       <img src="assets/icons/dark-friends.svg" width="18" height="18" alt="">
       <div class="kpi-meta">
         <span class="kpi-label">Friends</span>
-        <span class="kpi-value"><?= $friendsCount?></span>
+        <span class="kpi-value"><?= count($friends)?></span>
       </div>
     </div>
   </div>
@@ -204,11 +221,11 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
               <div class="challenge-list d-flex flex-column gap-3">
                 <?php foreach ($challenges as $ch): 
                       $title = $ch['title'] ?? 'Untitled';
-                      $desc  = $ch['description'] ?? '';
-                      $end   = $ch['end_date'];
+                      $desc = $ch['description'] ?? '';
+                      $end = $ch['end_date'];
                       $start = $ch['start_date'];
-                      $pct   = pct_progress($start, $end, $today);
-                      $day   = day_number($start, $end, $today);
+                      $pct = pct_progress($start, $end, $today);
+                      $day = day_number($start, $end, $today);
                       $endsPretty = date('M j, Y', strtotime($end));
                       $cid = (int)$ch['challenge_id'];
                       $participants = Db::count_participants($cid);
@@ -254,15 +271,21 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
           <div class="d-flex align-items-center mb-3">
             <img src="assets/icons/dark-friends.svg" width="20" height="20" class="me-2" alt="">
             <span class="fw-semibold mb-0">Friends</span>
-          </div>      
+          </div>  
+          <input type="text" id="friendSearch" class="form-control form-control-sm mb-3" placeholder="Search…" aria-label="Search friends">    
           <div class="friends-list d-flex flex-column gap-1">
             <?php if (empty($friends)): ?>
               <p class="text-muted small mb-3">No friends yet</p>
             <?php else: ?>
-              <?php foreach ($friends as $friend): ?>
-                <div class="d-flex align-items-center gap-2 friend-item">
+              <?php foreach ($friends as $friend): 
+                $fid = (int)$friend['user_id'];
+                $fname = $friend['first_name'] . ' ' . $friend['last_name'];?>
+                <div class="d-flex align-items-center gap-2 friend-item" 
+                role ="button" 
+                data-friend-id="<?= $fid?>"
+                data-friend-name = "<?=$fname?>">
                   <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt="">
-                  <span class="small"><?= h($friend['first_name'] . ' ' . $friend['last_name']) ?></span>
+                  <span class="small"><?= h($fname) ?></span>
                 </div>
               <?php endforeach; ?>
             <?php endif; ?>
@@ -300,13 +323,26 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     </div>
   </div>
 
- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<div id="friendActionsTooltip" class="friend-tooltip" style ="display:none;"> 
+  <p id="friendActionsTooltipHeader" class="ps-2 mt-1 mb-1 fw-semibold">Name</p>
+  <button type ="button" class="dropdown-item" id="friendActionMessage">Message</button>
+  <button type ="button" class="dropdown-item text-danger" id="friendActionRemove">Remove</button>
+</div>
+
+<div id="flashBanner" class="flash-banner" style="display:none;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   let allUsers = [];
   let notificationCount = <?= $notification_count ?>;
   
   updateNotificationBadge(notificationCount);
   
+  const friendTooltip = document.getElementById('friendActionsTooltip');
+  let currFriendId = null;
+  let currFriendName = '';
+
+
   document.getElementById('notificationBtn').addEventListener('click', function(e) {
     e.stopPropagation();
     const dropdown = document.getElementById('notificationsDropdown');
@@ -315,6 +351,56 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
       loadNotifications();
     }
   });
+
+  document.querySelectorAll('.friend-item').forEach(item =>{
+    item.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const rect = item.getBoundingClientRect();
+      currFriendId = parseInt(item.dataset.friendId, 10);
+      currFriendName = item.dataset.friendName;
+
+      friendTooltip.style.display = 'block';
+      friendTooltip.style.top = `${rect.bottom + window.scrollY + 4}px`;
+      friendTooltip.style.left = `${rect.left + window.scrollX}px`;
+      document.getElementById('friendActionsTooltipHeader').textContent = currFriendName;
+    });
+  });
+
+
+  friendTooltip.addEventListener('click', (e) => {
+    e.stopPropagation(); 
+  });
+
+  document.getElementById('friendActionRemove').addEventListener('click', ()=>{
+    if(!currFriendId){ return; }
+    fetch('index.php?action=remove_friend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `friend_id=${currFriendId}`
+    })
+   /* .then(response => response.text())
+    .then(txt => {
+        console.log('RAW RESPONSE:', txt);
+    })*/
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        document.querySelectorAll('.friend-item').forEach(el => {
+          if (parseInt(el.dataset.friendId, 10) === currFriendId) {
+            el.remove();
+          }
+        });
+        friendTooltip.style.display = 'none';
+        location.reload();
+      } else {
+        alert(data.message || 'Failed to remove friend');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Error removing friend');
+    });
+  });
   
   document.addEventListener('click', function(e) {
     const dropdown = document.getElementById('notificationsDropdown');
@@ -322,6 +408,8 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
       dropdown.classList.remove('show');
     }
+
+    friendTooltip.style.display = 'none';
   });
   
 
@@ -334,12 +422,32 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
   document.getElementById('userSearchInput').addEventListener('input', function(e) {
     filterUsers(e.target.value);
   });
-  
 
-  document.getElementById('friendSearch').addEventListener('input', function(e) {
-    filterFriendsList(e.target.value);
+  document.getElementById('friendActionMessage').addEventListener('click', () => {
+    if (!currFriendId) return;
+    const body = prompt(`Send a message to ${currFriendName}:`);
+    if (!body) return;
+
+    fetch('index.php?action=send_message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `recipient_id=${encodeURIComponent(currFriendId)}&body=${encodeURIComponent(body)}`
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        friendTooltip.style.display = 'none';
+        showFlash("Message successfully sent!");
+      } else {
+        showFlash((data.message || "Fail to send message"), "error");
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Error sending message');
+    });
   });
-  
+
   function updateNotificationBadge(count) {
     notificationCount = count;
     const badge = document.getElementById('notificationBadge');
@@ -360,6 +468,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     .then(data => {
       if (data.success) {
         displayNotifications(data.notifications);
+        updateNotificationBadge(data.notifications.length);
       }
     });
   }
@@ -367,27 +476,69 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
   function displayNotifications(notifications) {
     const container = document.getElementById('notificationsList');
     
-    if (notifications.length === 0) {
+    if (!notifications || notifications.length === 0) {
       container.innerHTML = '<div class="notification-empty">No notifications</div>';
       return;
     }
     
-    container.innerHTML = notifications.map(n => `
-      <div class="notification-item">
-        <div class="d-flex align-items-center gap-2 mb-2">
-          <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt="">
-          <div>
-            <strong>${escapeHtml(n.first_name + ' ' + n.last_name)}</strong>
-            <div class="small text-muted">@${escapeHtml(n.username)}</div>
+    container.innerHTML = notifications.map(n => {
+      if (n.type === 'request') {
+        return `
+          <div class="notification-item">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt="">
+              <div>
+                <strong>${escapeHtml(n.first_name + ' ' + n.last_name)}</strong>
+                <div class="small text-muted">@${escapeHtml(n.username)}</div>
+              </div>
+            </div>
+            <div class="notification-actions">
+              <button class="btn btn-sm btn-primary" onclick="acceptRequest(${n.request_id})">Accept</button>
+              <button class="btn btn-sm btn-outline-secondary" onclick="rejectRequest(${n.request_id})">Decline</button>
+            </div>
           </div>
-        </div>
-        <div class="notification-actions">
-          <button class="btn btn-sm btn-primary" onclick="acceptRequest(${n.request_id})">Accept</button>
-          <button class="btn btn-sm btn-outline-secondary" onclick="rejectRequest(${n.request_id})">Decline</button>
-        </div>
-      </div>
-    `).join('');
+        `;
+      } else if (n.type === 'message') {
+        return `
+          <div class="notification-item d-flex justify-content-between align-items-start">
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt="">
+                <div>
+                  <strong>${escapeHtml(n.first_name + ' ' + n.last_name)}</strong>
+                  <div class="small text-muted">@${escapeHtml(n.username)}</div>
+                </div>
+              </div>
+              <div class="small">${escapeHtml(n.message_body)}</div>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary" onclick="dismissMessage(${n.message_id})">✕</button>
+          </div>
+        `;
+      }
+      return '';
+    }).join('');
   }
+
+  function dismissMessage(messageId) {
+    fetch('index.php?action=dismiss_message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `message_id=${messageId}`
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        loadNotifications();
+      } else {
+        alert(data.message || 'Failed to dismiss message');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Error dismissing message');
+    });
+  }
+
   
   function acceptRequest(requestId) {
     fetch('index.php?action=accept_request', {
@@ -490,18 +641,25 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     });
     displayUsers(filtered);
   }
-  
-  function filterFriendsList(search) {
-    const items = document.querySelectorAll('.friends-list .friend-item');
-    items.forEach(item => {
-      const text = item.textContent.toLowerCase();
-      if (text.includes(search.toLowerCase())) {
-        item.style.display = '';
-      } else {
-        item.style.display = 'none';
-      }
+
+  const friendSearchInput = document.getElementById('friendSearch');
+
+  if (friendSearchInput) {
+    friendSearchInput.addEventListener('input', function () {
+      const term = this.value.trim().toLowerCase();
+
+      document.querySelectorAll('.friends-list .friend-item').forEach(item => {
+        const name = (item.dataset.friendName || item.textContent).toLowerCase();
+
+        if (!term || name.includes(term)) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
     });
   }
+
   
   function sendFriendRequest(userId, btn) {
     btn.disabled = true;
@@ -538,6 +696,21 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+  let flashTimeout;
+
+  function showFlash(message, type = 'success') {
+    const banner = document.getElementById('flashBanner');
+    if (!banner) return;
+
+    banner.textContent = message;
+    banner.className = 'flash-banner' + (type === 'error' ? ' error' : '');
+    banner.style.display = 'block';
+
+    clearTimeout(flashTimeout);
+    flashTimeout = setTimeout(() => {
+      banner.style.display = 'none';
+    }, 2500); 
   }
 </script>
 </body>

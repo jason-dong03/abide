@@ -9,7 +9,6 @@ DO $$ BEGIN
   CREATE TYPE checkin_frequency AS ENUM ('daily','weekly','monthly');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- drop tables (order doesn't matter due to CASCADE)
 DROP TABLE IF EXISTS checkins CASCADE;
 DROP TABLE IF EXISTS challenge_participants CASCADE;
 DROP TABLE IF EXISTS challenges CASCADE;
@@ -20,6 +19,8 @@ DROP TABLE IF EXISTS read_users CASCADE;
 DROP TABLE IF EXISTS friends CASCADE;
 DROP TABLE IF EXISTS challenge_readings CASCADE;
 DROP TABLE IF EXISTS reading_completions CASCADE;
+DROP TABLE IF EXISTS user_messages CASCADE;
+DROP TABLE IF EXISTS friend_requests;
 
 -- USER + AUTH
 CREATE TABLE read_users (
@@ -162,3 +163,14 @@ CREATE TABLE friends (
 
 CREATE INDEX idx_friends_user ON friends(user_id);
 CREATE INDEX idx_friends_friend ON friends(friend_id);
+
+CREATE TABLE IF NOT EXISTS user_messages (
+    message_id   SERIAL PRIMARY KEY,
+    sender_id    INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
+    recipient_id INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
+    body         TEXT NOT NULL,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    is_read      BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE INDEX idx_user_messages_recipient ON user_messages(recipient_id, is_read);

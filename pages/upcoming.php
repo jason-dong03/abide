@@ -22,32 +22,31 @@ if (empty($_SESSION['csrf'])) {
 }
 $csrf = $_SESSION['csrf'];
 
-$missed_readings = $_SESSION['missed_readings'] ?? [];
+$upcoming_readings = $_SESSION['upcoming_readings'] ?? [];
 
-$missedByChallenge = [];
+$upcomingByChallenge = [];
 
-foreach ($missed_readings as $row) {
+foreach ($upcoming_readings as $row) {
     $cid = $row['challenge_id'];
 
-    if (!isset($missedByChallenge[$cid])) {
-        $missedByChallenge[$cid] = [
-            'challenge_id'    => $cid,
+    if (!isset($upcomingByChallenge[$cid])) {
+        $upcomingByChallenge[$cid] = [
+            'challenge_id' => $cid,
             'challenge_title' => $row['challenge_title'],
-            'readings'        => []
+            'readings' => []
         ];
     }
 
-    $missedByChallenge[$cid]['readings'][] = [
+    $upcomingByChallenge[$cid]['readings'][] = [
         'reading_id'=> $row['reading_id'],
         'reading_title'=> $row['reading_title'],
         'reading_due_date'=> $row['reading_due_date'],
         'reading_start_page' => $row['reading_start_page'],
         'reading_end_page' => $row['reading_end_page'],
         'participant_id' => $row['participant_id'],
+        'is_completed' => $row['is_completed'] ?? false,
     ];
 }
-
-//PLAN: load all challenges with catchup, filter out data for only challenges with overdue readings
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,40 +54,11 @@ foreach ($missed_readings as $row) {
   <base href="/abide/">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>read | Catch-Up Readings</title>
+  <title>read | Upcoming Readings</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="styles/theme.css" />
-  <link rel="stylesheet" href="styles/catchup.css" />
-  <style>
-    .summary-row { gap: 1rem; }
-    .summary-chip {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      width: 110px; height: 110px; text-align: center;
-      background: var(--glass-bg); border: 1px solid var(--glass-brd);
-      border-radius: 16px; backdrop-filter: blur(14px) saturate(140%);
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
-      box-shadow: 0 6px 18px rgba(0,0,0,.12), inset 0 1px rgba(255,255,255,.45);
-    }
-    .summary-chip .count { font-size: 1.6rem; font-weight: 800; line-height: 1; }
-    .summary-chip .label { font-size: .8rem; color: var(--ink-muted); }
-
-    .reset-holder { display:flex; justify-content:flex-end; }
-    .btn-reset {
-      border: 1px solid var(--glass-brd);
-      background: rgba(255,255,255,.18);
-      color: var(--ink);
-      padding: .35rem .6rem; font-size: .8rem; border-radius: 8px;
-    }
-    .btn-reset:hover { background: rgba(255,255,255,.28); }
-
-    .section-header {
-      background: rgba(0,0,0,.12);           
-      border-color: rgba(255,255,255,.18);
-      color: #0d1117;
-    }
-    .section-header .title { color:#0d1117; font-weight:600; }
-  </style>
+  <link rel="stylesheet" href="styles/upcoming.css" />
 </head>
 <body class="d-flex flex-column min-vh-100">
 
@@ -112,79 +82,79 @@ foreach ($missed_readings as $row) {
     <div class="tile p-3 p-md-4 mb-4">
       <div class="d-flex align-items-start justify-content-between summary-row">
         <div>
-          <h3 class="mb-0 fw-bold">Catch-Up Readings</h3>
-          <p class="text-muted small mb-0">Stay on track with your readings!</p>
+          <h3 class="mb-0 fw-bold">Upcoming Readings</h3>
+          <p class="text-muted small mb-0">Stay ahead with your reading schedule!</p>
         </div>
 
         <div class="d-flex flex-column align-items-end">
           <div class="summary-chip">
-            <div class="count"><?= count($missed_readings)?></div>
-            <div class="label">Pending</div>
+            <div class="count"><?= count($upcoming_readings)?></div>
+            <div class="label">Scheduled</div>
           </div>
         </div>
       </div>
-     
+    </div>
 
-    <form method="post" id="selectForm" class="mt-3">
+    <form method="post" id="upcomingForm" class="mt-3">
       <input type="hidden" name="csrf" value="<?= h($csrf) ?>" />
-      <?php foreach ($missedByChallenge as $challenge):?>
+      <?php foreach ($upcomingByChallenge as $challenge):?>
         <div class="plan-section mb-4">
           <div class="section-header">
             <div class="title"><?= h($challenge['challenge_title']) ?></div>
-            <span class="badge badge-status-pending"><?= count($challenge['readings']) ?> pending</span>
+            <span class="badge badge-status-upcoming"><?= count($challenge['readings']) ?> scheduled</span>
           </div>
 
           <?php foreach ($challenge['readings'] as $reading): 
             $due = new DateTime($reading['reading_due_date']);
             $now = new DateTime('today');
 
-            $daysLate = $now->diff($due)->days;
-            $isLate = $now > $due;
+            $daysUntil = $now->diff($due)->days;
+            $isFuture = $due > $now;
+            $isToday = $due->format('Y-m-d') === $now->format('Y-m-d');
 
             $badge = null;
             $badge_text = '';
 
-            if ($isLate) {
-                if ($daysLate >= 4) {
-                    $badge = 'overdue';      
-                    $badge_text = "Overdue {$daysLate} days";
-                } elseif ($daysLate >= 1) {
-                    $badge = 'due-soon';       
-                    $badge_text = "Missed {$daysLate} days ago";
-                }
+            if ($isToday) {
+                $badge = 'due-today';      
+                $badge_text = "Due Today";
+            } elseif ($isFuture && $daysUntil <= 3) {
+                $badge = 'due-soon';       
+                $badge_text = "Due in {$daysUntil} days";
             }      
             ?>
-           <article class="reading-card tile d-flex align-items-center"
+           <article class="reading-card tile d-flex align-items-center <?= $reading['is_completed'] ? 'completed' : '' ?>"
                     data-reading-id="<?= (int)$reading['reading_id'] ?>"
-                    data-participant-id="<?= (int)$reading['participant_id'] ?>">
+                    data-participant-id="<?= (int)$reading['participant_id'] ?>"
+                    data-completed="<?= $reading['is_completed'] ? 'true' : 'false' ?>">
               <div class="form-check me-3">
                 <input
-                  class="form-check-input catchup-checkbox"
+                  class="form-check-input upcoming-checkbox"
                   type="checkbox"
-                  name="done[]"
+                  <?= $reading['is_completed'] ? 'checked' : '' ?>
                 />
               </div>
               <label class="body w-100">
                 <div class="title-row d-flex justify-content-between">
                   <h6 class="mb-0"><?= h($reading['reading_title']) ?></h6>
-                  <?php if ($badge === 'overdue'): ?>
-                    <span class="badge badge-overdue"><?= h($badge_text) ?></span>
+                  <?php if ($badge === 'due-today'): ?>
+                    <span class="badge badge-due-today"><?= h($badge_text) ?></span>
                   <?php elseif ($badge === 'due-soon'): ?>
                     <span class="badge badge-due-soon"><?= h($badge_text) ?></span>
                   <?php endif; ?>
                 </div>
                 <p class="ref mb-0">Pages <?= $reading['reading_start_page']?> - <?= $reading['reading_end_page']?></p>
-                <p class="meta mb-0">Originally due: <?= h($reading['reading_due_date']) ?></p>
+                <p class="meta mb-0">Due: <?= h($reading['reading_due_date']) ?></p>
               </label>
-          </article>
+            </article>
           <?php endforeach; ?>
         </div>
       <?php endforeach; ?>
 
-      <?php if (count($missed_readings) === 0): ?>
+      <?php if (count($upcoming_readings) === 0): ?>
         <div class="tile p-4 mt-4 text-center">
-          <h5 class="mb-1">YAY, you finished everything! 🎉</h5>
-          <p class="text-muted mb-0">Great job—no pending readings left.</p>
+          <h5 class="mb-1">No upcoming readings scheduled</h5>
+          <p class="text-muted mb-0">Check back later or join a challenge!</p>
         </div>
       <?php endif; ?>
     </form>
@@ -197,7 +167,7 @@ foreach ($missed_readings as $row) {
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    function completeReadingFromCatchup(readingId, participantId, checkbox) {
+   function completeReadingFromCatchup(readingId, participantId, checkbox) {
       if (!participantId) {
         alert('You must be a participant to complete readings');
         checkbox.checked = false;
@@ -227,20 +197,18 @@ foreach ($missed_readings as $row) {
           checkbox.checked = false;
         });
     }
-    document.querySelectorAll('.catchup-checkbox').forEach(cb => {
+    document.querySelectorAll('.upcoming-checkbox').forEach(cb => {
       cb.addEventListener('change', () => {
         if (!cb.checked) {
           cb.checked = true;
           return;
         }
-
         const readingId = cb.dataset.readingId;
         const participantId = cb.dataset.participantId;
 
         completeReadingFromCatchup(readingId, participantId, cb);
       });
     });
-
 
   </script>
 </body>

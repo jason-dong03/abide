@@ -231,10 +231,32 @@ body {
 }
 
 .friend-item {
+  position: relative;
+  cursor: pointer;
   padding: 0.35rem 0.5rem;
   border-radius: 0.5rem;
 }
+.friend-tooltip{
+  position: absolute;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  min-width: 160px;
+  font-size: 0.875rem;
 
+  z-index: 9999;
+}
+.friend-tooltip .dropdown-item{
+  width: 100%;
+  padding: 6px 12px;
+  background: transparent;
+  border:none;
+  text-align: left;
+}
+.friend-item .dropdown-item:hover{
+  background-color: #f8f9fa;
+}
 .friends-list {
   flex: 1 1 auto;
 }

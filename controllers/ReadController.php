@@ -5,8 +5,7 @@ final class ReadController {
     public function showWelcome(): void {
         require __DIR__ . '/../pages/welcome.php';
     }
-    public function showDashboard(): void {
-        $uid = $_SESSION['user']['user_id'];
+    public function showDashboard($uid): void {
         $challenges = Db::get_challenges_for_user($uid);
         $_SESSION['challenges'] = $challenges;
         $_SESSION['missed_readings'] = Db::missed_readings($uid);
@@ -37,8 +36,7 @@ final class ReadController {
         $_SESSION['all_challenges'] = $all_challenges;
         require __DIR__ . '/../pages/discover.php';
     }
-    public function showChallenge($cid){ 
-        $uid = $_SESSION['user']['user_id'];
+    public function showChallenge($uid, $cid){ 
         $_SESSION['cid'] = $cid;
         $_SESSION['challenge'] = Db::get_challenge_info($uid, $cid);
         $_SESSION['pid'] = Db::get_participant_id($uid, $cid);
@@ -51,6 +49,10 @@ final class ReadController {
         require __DIR__ . '/../pages/profile.php';
     }
 
+    public function showUpcoming($uid): void{
+        $_SESSION['upcoming_readings'] = Db::upcoming_readings($uid);
+        require __DIR__ . '/../pages/upcoming.php';
+    }
     public function showCatchup(): void{
         $uid = $_SESSION['user']['user_id'];
         $_SESSION['missed_readings'] = Db::missed_readings($uid);
@@ -112,10 +114,9 @@ final class ReadController {
                 Db::add_user($fname, $lname, $email, $username, $password);
                 $user = Db::find_user_by_email($email);
                 $_SESSION['user']['user_id'] = $user['user_id'];
-
-                // record login event upon registration
-                Db::record_login_event($user['user_id']);
-
+                $streakInfo = Db::record_login_streak((int)$user['user_id']);
+                $_SESSION['user']['login_streak_current'] = $streakInfo['current'];
+                $_SESSION['user']['login_streak_longest'] = $streakInfo['longest'];
                 session_write_close();
                 header('Location: index.php?action=dashboard');
                 exit;     
@@ -137,9 +138,9 @@ final class ReadController {
                 'username' => $user['username'],
                 'user_id' => $user['user_id']
                 ];
-
-                Db::record_login_event($user['user_id']);
-
+                $streakInfo = Db::record_login_streak((int)$user['user_id']);
+                $_SESSION['user']['login_streak_current'] = $streakInfo['current'];
+                $_SESSION['user']['login_streak_longest'] = $streakInfo['longest'];
                 session_write_close();
                 header('Location: index.php?action=dashboard');
                 exit;  
@@ -151,7 +152,7 @@ final class ReadController {
             }
         }
     }
-    public function createChallenge(): void {
+    public function createChallenge($uid): void {
         $challenge_name = trim($_POST['title'] ?? '');
         $desc = trim($_POST['description'] ?? '');
         $startDate = trim($_POST['start-date'] ?? '');
@@ -169,7 +170,6 @@ final class ReadController {
             header('Location: index.php?action=start_create_challenge');
             exit;
         } 
-        $uid = $_SESSION['user']['user_id'];
         $cid = db::add_challenge($uid, $challenge_name, 
         $desc, $startDate, $endDate, 
         $freq, $goal_num, $goal_type,

@@ -16,8 +16,8 @@ require_once __DIR__ . '/backend/db.php';
 require_once __DIR__ . '/controllers/ReadController.php';
 
 $action = $_GET['action'] ?? $_POST['action'] ?? 'welcome';
-$mode   = $_GET['mode'] ?? '';
-$cid    = isset($_GET['cid']) ? (int)$_GET['cid'] : null;
+$mode = $_GET['mode'] ?? '';
+$cid = isset($_GET['cid']) ? (int)$_GET['cid'] : null;
 
 $controller = new ReadController();
 
@@ -31,7 +31,8 @@ function json_response(array $data, int $status = 200): void {
 function require_user_id(): int {
     $uid = $_SESSION['user']['user_id'] ?? null;
     if (!$uid) {
-        json_response(['success' => false, 'message' => 'Not logged in'], 401);
+        header('Location: index.php?action=welcome');
+        exit;
     }
     return (int)$uid;
 }
@@ -41,60 +42,52 @@ function post_int(string $key): int {
     return isset($_POST[$key]) ? (int)$_POST[$key] : 0;
 }
 
-switch ($action) {
-    /*  PAGE ROUTES  */
-    case 'welcome':
-        $controller->showWelcome();
+
+switch($action){
+  case 'welcome':
+    $controller->showWelcome($uid);
+    break;
+
+  case 'auth':
+    $controller->authUser($mode);
+    break;
+  default:
+    $uid = require_user_id();
+    switch ($action) {
+      case 'dashboard':
+        $controller->showDashboard($uid);
         break;
 
-    case 'auth':
-        $controller->authUser($mode);
+      case 'start_create_challenge':
+        $controller->showCreateChallenge($uid);
         break;
-
-    case 'dashboard':
-        $controller->showDashboard();
-        break;
-
-    case 'start_create_challenge':
-        $controller->showCreateChallenge();
-        break;
-
-    case 'discover_challenges':
+      case 'discover_challenges':
         $controller->showDiscoverChallenges();
         break;
-
-    case 'profile':
+      case 'upcoming':
+        $controller->showUpcoming($uid);
+        break;
+      case 'profile':
         $controller->showProfile();
         break;
-
-    case 'logout':
+      case 'logout':
         $controller->logout();
-        break;
-
-    case 'friends':
-        $controller->showFriends();
-        break;
-
-    case 'add_friend':
+         break;
+      case 'add_friend':
         $controller->addFriend();
         break;
-
-    case 'catchup':
+      case 'catchup':
         $controller->showCatchup();
         break;
-
-    case 'create_challenge':
-        $controller->createChallenge();
+      case 'create_challenge':
+        $controller->createChallenge($uid);
         break;
-
-    case 'challenge':
-        $controller->showChallenge($cid);
+      case 'challenge':
+        $controller->showChallenge($uid, $cid);
         break;
-
-    /* CHALLENGE JSON */
-    case 'edit_challenge':
-    {
-        $uid = require_user_id();
+      /* CHALLENGE JSON */
+      case 'edit_challenge':
+      {
         $cid = post_int('challenge_id');
         $title = trim($_POST['ch_title'] ?? '');
         $desc = trim($_POST['ch_description'] ?? '');
@@ -125,10 +118,10 @@ switch ($action) {
             'message' => $ok ? 'Challenge updated' : 'Failed to update challenge',
         ]);
         break;
-    }
-    /*  FRIENDS / NOTIFICATIONS API  */
-    case 'get_notifications':
-    {
+      }
+      /*  FRIENDS / NOTIFICATIONS API  */
+      case 'get_notifications':
+      {
         $uid = require_user_id();
         $notifications = Db::get_user_notifications($uid);
 
@@ -137,9 +130,9 @@ switch ($action) {
             'notifications' => $notifications,
         ]);
         break;
-    }
-    case 'get_all_users':
-    {
+      }
+      case 'get_all_users':
+      {
         $uid = require_user_id();
         $users = Db::get_all_users($uid);
         $friends = Db::get_friends_id($uid);               
@@ -156,9 +149,9 @@ switch ($action) {
         unset($u);
         json_response(['success' => true, 'users' => $users]);
         break;
-    }
-    case 'send_request':
-    {
+      }
+      case 'send_request':
+      {
         $uid = require_user_id();
         $recipient_id = post_int('recipient_id');
         if (!$recipient_id) {
@@ -170,9 +163,9 @@ switch ($action) {
         Db::upsert_request($uid, $recipient_id);
         json_response(['success' => true, 'message' => 'Friend request sent']);
         break;
-    }
-    case 'accept_request':
-    {
+      }
+      case 'accept_request':
+      {
         $uid = require_user_id();
         $request_id = post_int('request_id');
 
@@ -187,9 +180,9 @@ switch ($action) {
         Db::add_friend($uid, $other_id, $request_id);
         json_response(['success' => true, 'message' => 'Friend request accepted']);
         break;
-    }
-    case 'reject_request':
-    {
+      }
+      case 'reject_request':
+      {
         $uid = require_user_id();
         $request_id = post_int('request_id');
 
@@ -197,7 +190,7 @@ switch ($action) {
             json_response(['success' => false, 'error' => 'Invalid request'], 400);
         }
 
-        $rows = Db::reject_request($uid, $request_id); // have this return affected rows from inside Db
+        $rows = Db::reject_request($uid, $request_id); 
 
         if ($rows === 0) {
             json_response(['success' => false, 'error' => 'Request not found'], 404);
@@ -205,134 +198,171 @@ switch ($action) {
 
         json_response(['success' => true, 'message' => 'Friend request rejected']);
         break;
-    }
-
-    /* CHALLENGE JSON API */
-
-    case 'join_challenge':
-    {
+      }
+      case 'remove_friend': {
         $uid = require_user_id();
-        $cid = isset($_GET['cid']) ? (int)$_GET['cid'] : 0;
-        if (!$cid) {
-            json_response(['success' => false, 'message' => 'Invalid challenge id'], 400);
-        }
-        $result = $controller->joinChallenge($cid);
-        json_response([
-            'success' => (bool)$result,
-            'message' => $result ? 'Joined successfully' : 'Failed to join challenge',
-        ]);
-        break;
-    }
+        $friend_id = (int)($_POST['friend_id'] ?? 0);
 
-    case 'add_reading':
-    {
-        $uid = require_user_id();
-        $readingId = $controller->handleAddReading($uid);
-        if ($readingId === false) {
-            json_response([
-                'success' => false,
-                'message' => 'Failed to add reading',
-            ], 400);
-        }
-        json_response([
-            'success'    => true,
-            'message'    => 'Reading added successfully',
-            'reading_id' => $readingId,
-        ]);
-        break;
-    }
-    case 'edit_reading':
-    {
-        $uid = require_user_id();
-        $ok  = $controller->handleEditReading($uid);
-        json_response([
-            'success' => (bool)$ok,
-            'message' => $ok ? 'Reading edited successfully' : 'Failed to edit reading',
-        ]);
-        break;
-    }
-    case 'delete_reading':
-    {
-        $uid = require_user_id();
-        $readingID = post_int('reading_id');
-        $challenge_id = post_int('cid');
-        if (!$readingID || !$challenge_id) {
-            json_response(['success' => false, 'message' => 'Invalid reading or challenge id'], 400);
-        }
-        $ok = $controller->handleDeleteReading($uid, $challenge_id, $readingID);
-        json_response([
-            'success' => (bool)$ok,
-            'message' => $ok ? 'Reading deleted' : 'Failed to delete reading',
-        ]);
-        break;
-    }
-    case 'complete_reading':
-    {
-        $uid = require_user_id();
-        $readingId = post_int('reading_id');
-        $participantId = post_int('participant_id');
-
-        if (!$readingId || !$participantId) {
-            json_response(['success' => false, 'message' => 'Missing reading_id or participant_id'], 400);
-        }
-        $ok = $controller->handleCompleteReading($uid);
-        json_response([
-            'success' => (bool)$ok,
-            'message' => $ok ? 'Reading completed' : 'Failed to complete reading',
-        ]);
-        break;
-    }
-    case 'uncomplete_reading':
-    {
-        $uid = require_user_id();
-
-        $readingId     = post_int('reading_id');
-        $participantId = post_int('participant_id');
-
-        if (!$readingId || !$participantId) {
-            json_response(['success' => false, 'message' => 'Missing reading_id or participant_id'], 400);
+        if (!$friend_id) {
+            json_response(['success' => false, 'message' => 'Missing friend_id'], 400);
         }
 
-        $ok = $controller->handleUncompleteReading($uid);
-
+        $ok = Db::remove_friend($uid, $friend_id);
         json_response([
-            'success' => (bool)$ok,
-            'message' => $ok ? 'Reading marked incomplete' : 'Failed to update reading',
+            'success' => $ok,
+            'message' => $ok ? 'Friend removed' : 'Failed to remove friend',
         ]);
         break;
+      }
+      /* MSG ROUTES */
+    case 'send_message': {
+      $uid = require_user_id(); 
+      $recipient_id = (int)($_POST['recipient_id'] ?? 0);
+      $body = trim($_POST['body'] ?? '');
+
+      if (!$recipient_id || $body === '') {
+          json_response(['success' => false, 'message' => 'Missing recipient or message'], 400);
+      }
+      if (!Db::is_friends($uid, $recipient_id)) {
+          json_response(['success' => false, 'message' => 'You can only message friends'], 403);
+      }
+
+      $mid = Db::send_message($uid, $recipient_id, $body);
+      json_response([
+          'success' => true,
+          'message' => 'Message sent',
+          'message_id' => $mid,
+      ]);
+      break;
     }
-
-    case 'leave_challenge':
-    {
-        $uid = require_user_id();
-        $participantId = post_int('participant_id');
-        if (!$participantId) {
-            json_response(['success' => false, 'message' => 'Missing participant_id'], 400);
-        }
-        $ok = $controller->handleLeaveChallenge($uid, $participantId);
-        json_response([
-            'success' => (bool)$ok,
-            'message' => $ok ? 'Left challenge' : 'Failed to leave challenge',
-        ]);
-        break;
+    case 'dismiss_message': {
+      $uid = require_user_id();
+      $message_id = (int)($_POST['message_id'] ?? 0);
+      if (!$message_id) {
+          json_response(['success' => false, 'message' => 'Missing message_id'], 400);
+      }
+      $ok = Db::dismiss_message($uid, $message_id);
+      json_response([
+          'success' => $ok,
+          'message' => $ok ? 'Message dismissed' : 'Not found',
+      ]);
+      break;
     }
+      /* CHALLENGE JSON API */
 
-    case 'delete_challenge':
-    {
-        $uid = require_user_id();
-        $cid = isset($_GET['challenge_id']) ? (int)$_GET['challenge_id'] : 0;
-        if (!$cid) {
-            json_response(['success' => false, 'message' => 'Invalid request'], 400);
-        }
+    case 'join_challenge': {
+      $uid = require_user_id();
+      $cid = isset($_GET['cid']) ? (int)$_GET['cid'] : 0;
+      if (!$cid) {
+          json_response(['success' => false, 'message' => 'Invalid challenge id'], 400);
+      }
+      $result = $controller->joinChallenge($cid);
+      json_response([
+          'success' => (bool)$result,
+          'message' => $result ? 'Joined successfully' : 'Failed to join challenge',
+      ]);
+      break;
+    }
+    case 'add_reading':{
+      $uid = require_user_id();
+      $readingId = $controller->handleAddReading($uid);
+      if ($readingId === false) {
+          json_response([
+              'success' => false,
+              'message' => 'Failed to add reading',
+          ], 400);
+      }
+      json_response([
+          'success' => true,
+          'message' => 'Reading added successfully',
+          'reading_id' => $readingId,
+      ]);
+      break;
+    }
+    case 'edit_reading':{
+      $uid = require_user_id();
+      $ok  = $controller->handleEditReading($uid);
+      json_response([
+          'success' => (bool)$ok,
+          'message' => $ok ? 'Reading edited successfully' : 'Failed to edit reading',
+      ]);
+      break;
+    }
+    case 'delete_reading':{
+      $uid = require_user_id();
+      $readingID = post_int('reading_id');
+      $challenge_id = post_int('cid');
+      if (!$readingID || !$challenge_id) {
+          json_response(['success' => false, 'message' => 'Invalid reading or challenge id'], 400);
+      }
+      $ok = $controller->handleDeleteReading($uid, $challenge_id, $readingID);
+      json_response([
+          'success' => (bool)$ok,
+          'message' => $ok ? 'Reading deleted' : 'Failed to delete reading',
+      ]);
+      break;
+    }
+    case 'complete_reading':{
+      $uid = require_user_id();
+      $readingId = post_int('reading_id');
+      $participantId = post_int('participant_id');
 
-        $ok = $controller->deleteChallenge($uid, $cid);
-        json_response([
-            'success' => (bool)$ok,
-            'message' => $ok ? 'Challenge deleted' : 'Failed to delete challenge',
-        ]);
-        break;
+      if (!$readingId || !$participantId) {
+          json_response(['success' => false, 'message' => 'Missing reading_id or participant_id'], 400);
+      }
+      $ok = $controller->handleCompleteReading($uid);
+      json_response([
+          'success' => (bool)$ok,
+          'message' => $ok ? 'Reading completed' : 'Failed to complete reading',
+      ]);
+      break;
+    }
+    case 'uncomplete_reading':{
+      $uid = require_user_id();
+      $readingId = post_int('reading_id');
+      $participantId = post_int('participant_id');
+
+      if (!$readingId || !$participantId) {
+          json_response(['success' => false, 'message' => 'Missing reading_id or participant_id'], 400);
+      }
+
+      $ok = $controller->handleUncompleteReading($uid);
+
+      json_response([
+          'success' => (bool)$ok,
+          'message' => $ok ? 'Reading marked incomplete' : 'Failed to update reading',
+      ]);
+      break;
+    }
+    case 'leave_challenge':{
+      $uid = require_user_id();
+      $participantId = post_int('participant_id');
+      if (!$participantId) {
+          json_response(['success' => false, 'message' => 'Missing participant_id'], 400);
+      }
+      $ok = $controller->handleLeaveChallenge($uid, $participantId);
+      json_response([
+          'success' => (bool)$ok,
+          'message' => $ok ? 'Left challenge' : 'Failed to leave challenge',
+      ]);
+      break;
+    }
+    case 'delete_challenge':{
+      $uid = require_user_id();
+      $cid = isset($_GET['challenge_id']) ? (int)$_GET['challenge_id'] : 0;
+      if (!$cid) {
+          json_response(['success' => false, 'message' => 'Invalid request'], 400);
+      }
+
+      $ok = $controller->deleteChallenge($uid, $cid);
+      json_response([
+          'success' => (bool)$ok,
+          'message' => $ok ? 'Challenge deleted' : 'Failed to delete challenge',
+      ]);
+      break;
     }
     default:
-        $controller->showWelcome();
-        break;
+      $controller->showWelcome();
+      break;
+    }
 }
