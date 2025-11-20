@@ -9,6 +9,7 @@ final class ReadController {
         $challenges = Db::get_challenges_for_user($uid);
         $_SESSION['challenges'] = $challenges;
         $_SESSION['missed_readings'] = Db::missed_readings($uid);
+        $_SESSION['upcoming_readings'] = Db::upcoming_readings($uid);
         $_SESSION['friends_list'] = Db::get_friends($uid);
         $_SESSION['notification_count']= Db::get_notification_count($uid);
         require __DIR__ . '/../pages/dashboard.php';
@@ -53,8 +54,7 @@ final class ReadController {
         $_SESSION['upcoming_readings'] = Db::upcoming_readings($uid);
         require __DIR__ . '/../pages/upcoming.php';
     }
-    public function showCatchup(): void{
-        $uid = $_SESSION['user']['user_id'];
+    public function showCatchup($uid): void{
         $_SESSION['missed_readings'] = Db::missed_readings($uid);
         require __DIR__ . '/../pages/catchup.php';
     }

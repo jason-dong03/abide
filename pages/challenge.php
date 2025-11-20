@@ -328,7 +328,7 @@ function isPast($date): bool {
                 id="ch_end_date"
                 class="form-input"
                 required
-                value="<?= h($challenge['end_date'] ?? '') ?>"  <!-- should already be Y-m-d from DB -->
+                value="<?= h($challenge['end_date'] ?? '') ?>"
                 >
             </div>
 
@@ -425,14 +425,13 @@ function isPast($date): bool {
                 },
                 body: `participant_id=${participantId}&reading_id=${readingId}`
             })
-           /* .then(response => response.text())
+            /*.then(response => response.text())
             .then(txt => {
                 console.log('RAW RESPONSE:', txt);
             })*/
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log()
                     location.reload();
                 } else {
                     alert(data.message || 'Error updating reading');
