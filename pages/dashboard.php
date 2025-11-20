@@ -31,9 +31,9 @@ function streak_emoji(int $streak): string {
     if ($streak >= 30) {
         return '🔥'; // insane!
     } elseif ($streak >= 7) {
-        return '⚡'; // strong
+        return '🌳'; // strong
     } elseif ($streak >= 3) {
-        return '✨'; // getting there
+        return '🪴'; // getting there
     } elseif ($streak >= 1) {
         return '🌱'; // just started
     }
@@ -199,23 +199,22 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
 
 
     <!-- challenges & freinds section -->
-    <div class="row g-4 align-items-stretch equal-panels">
-      <div class="row g-4 align-items-stretch equal-panels">
-        <?php $isEmpty = empty($challenges); ?>
-        <div class="col-lg-9">
-          <div class="card glass-card p-4 <?= $isEmpty ? '' : 'h-100' ?>">
-            <div class="d-flex align-items-center mb-3">
-              <img src="assets/icons/dark-bookmark.svg" width="20" height="20" class="me-2" alt="">
-              <span class="fw-semibold mb-0">Your Challenges</span>
-              <div class="ms-auto d-flex gap-2">
-                <a href="index.php?action=start_create_challenge" class="btn btn-create d-flex align-items-center gap-1">
-                  <img src="assets/icons/plus.svg" width="16" height="16" alt=""> <span>Create</span>
-                </a>
-                <a href="index.php?action=discover_challenges" class="btn btn-discover">Discover</a>
-              </div>
+    <div class="flex-container g-4 align-items-stretch equal-panels">
+      <?php $isEmpty = empty($challenges); ?>
+      <div class="col-lg-9">
+        <div class="card glass-card p-4 <?= $isEmpty ? '' : 'h-100' ?>">
+          <div class="d-flex align-items-center mb-3">
+            <img src="assets/icons/dark-bookmark.svg" width="20" height="20" class="me-2" alt="">
+            <span class="fw-semibold mb-0">Your Challenges</span>
+            <div class="ms-auto d-flex gap-2">
+              <a href="index.php?action=start_create_challenge" class="btn btn-create d-flex align-items-center gap-1">
+                <img src="assets/icons/plus.svg" width="16" height="16" alt=""> <span>Create</span>
+              </a>
+              <a href="index.php?action=discover_challenges" class="btn btn-discover">Discover</a>
             </div>
+          </div>
 
-            <?php if ($isEmpty): ?>
+          <?php if ($isEmpty): ?>
               <p class="text-muted small mb-0">No challenges yet.</p>
             <?php else: ?>
               <div class="challenge-list d-flex flex-column gap-3">
