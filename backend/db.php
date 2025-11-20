@@ -711,6 +711,7 @@
         AND rc.reading_id = cr.reading_id
         WHERE cp.user_id = :u       
         AND cr.due_date >= CURRENT_DATE 
+        AND rc.reading_id IS NULL
         ORDER BY cr.due_date ASC, c.challenge_id, cr.order_num;";
 
         $stmt = $pdo -> prepare($sql);

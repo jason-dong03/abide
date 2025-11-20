@@ -77,7 +77,7 @@ switch($action){
         $controller->addFriend();
         break;
       case 'catchup':
-        $controller->showCatchup();
+        $controller->showCatchup($uid);
         break;
       case 'create_challenge':
         $controller->createChallenge($uid);
@@ -122,7 +122,6 @@ switch($action){
       /*  FRIENDS / NOTIFICATIONS API  */
       case 'get_notifications':
       {
-        $uid = require_user_id();
         $notifications = Db::get_user_notifications($uid);
 
         json_response([
@@ -133,7 +132,6 @@ switch($action){
       }
       case 'get_all_users':
       {
-        $uid = require_user_id();
         $users = Db::get_all_users($uid);
         $friends = Db::get_friends_id($uid);               
         $requested = Db::get_pending_requests_sent_by_me($uid); 
@@ -152,7 +150,6 @@ switch($action){
       }
       case 'send_request':
       {
-        $uid = require_user_id();
         $recipient_id = post_int('recipient_id');
         if (!$recipient_id) {
             json_response(['success' => false, 'error' => 'Invalid recipient id'], 400);
@@ -166,7 +163,6 @@ switch($action){
       }
       case 'accept_request':
       {
-        $uid = require_user_id();
         $request_id = post_int('request_id');
 
         if (!$request_id) {
@@ -183,7 +179,6 @@ switch($action){
       }
       case 'reject_request':
       {
-        $uid = require_user_id();
         $request_id = post_int('request_id');
 
         if (!$request_id) {
@@ -200,7 +195,6 @@ switch($action){
         break;
       }
       case 'remove_friend': {
-        $uid = require_user_id();
         $friend_id = (int)($_POST['friend_id'] ?? 0);
 
         if (!$friend_id) {
@@ -216,7 +210,6 @@ switch($action){
       }
       /* MSG ROUTES */
     case 'send_message': {
-      $uid = require_user_id(); 
       $recipient_id = (int)($_POST['recipient_id'] ?? 0);
       $body = trim($_POST['body'] ?? '');
 
@@ -236,7 +229,6 @@ switch($action){
       break;
     }
     case 'dismiss_message': {
-      $uid = require_user_id();
       $message_id = (int)($_POST['message_id'] ?? 0);
       if (!$message_id) {
           json_response(['success' => false, 'message' => 'Missing message_id'], 400);
@@ -251,7 +243,6 @@ switch($action){
       /* CHALLENGE JSON API */
 
     case 'join_challenge': {
-      $uid = require_user_id();
       $cid = isset($_GET['cid']) ? (int)$_GET['cid'] : 0;
       if (!$cid) {
           json_response(['success' => false, 'message' => 'Invalid challenge id'], 400);
@@ -264,7 +255,6 @@ switch($action){
       break;
     }
     case 'add_reading':{
-      $uid = require_user_id();
       $readingId = $controller->handleAddReading($uid);
       if ($readingId === false) {
           json_response([
@@ -280,7 +270,6 @@ switch($action){
       break;
     }
     case 'edit_reading':{
-      $uid = require_user_id();
       $ok  = $controller->handleEditReading($uid);
       json_response([
           'success' => (bool)$ok,
@@ -289,7 +278,6 @@ switch($action){
       break;
     }
     case 'delete_reading':{
-      $uid = require_user_id();
       $readingID = post_int('reading_id');
       $challenge_id = post_int('cid');
       if (!$readingID || !$challenge_id) {
@@ -303,7 +291,6 @@ switch($action){
       break;
     }
     case 'complete_reading':{
-      $uid = require_user_id();
       $readingId = post_int('reading_id');
       $participantId = post_int('participant_id');
 
@@ -318,7 +305,6 @@ switch($action){
       break;
     }
     case 'uncomplete_reading':{
-      $uid = require_user_id();
       $readingId = post_int('reading_id');
       $participantId = post_int('participant_id');
 
@@ -335,7 +321,6 @@ switch($action){
       break;
     }
     case 'leave_challenge':{
-      $uid = require_user_id();
       $participantId = post_int('participant_id');
       if (!$participantId) {
           json_response(['success' => false, 'message' => 'Missing participant_id'], 400);
@@ -348,7 +333,6 @@ switch($action){
       break;
     }
     case 'delete_challenge':{
-      $uid = require_user_id();
       $cid = isset($_GET['challenge_id']) ? (int)$_GET['challenge_id'] : 0;
       if (!$cid) {
           json_response(['success' => false, 'message' => 'Invalid request'], 400);

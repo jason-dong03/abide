@@ -154,14 +154,14 @@ foreach ($missed_readings as $row) {
                 }
             }      
             ?>
-           <article class="reading-card tile d-flex align-items-center"
-                    data-reading-id="<?= (int)$reading['reading_id'] ?>"
-                    data-participant-id="<?= (int)$reading['participant_id'] ?>">
+           <article class="reading-card tile d-flex align-items-center">
               <div class="form-check me-3">
                 <input
                   class="form-check-input catchup-checkbox"
                   type="checkbox"
                   name="done[]"
+                  data-reading-id="<?= (int)$reading['reading_id'] ?>"
+                  data-participant-id="<?= (int)$reading['participant_id'] ?>"
                 />
               </div>
               <label class="body w-100">
@@ -197,6 +197,7 @@ foreach ($missed_readings as $row) {
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+
     function completeReadingFromCatchup(readingId, participantId, checkbox) {
       if (!participantId) {
         alert('You must be a participant to complete readings');
@@ -236,6 +237,7 @@ foreach ($missed_readings as $row) {
 
         const readingId = cb.dataset.readingId;
         const participantId = cb.dataset.participantId;
+
 
         completeReadingFromCatchup(readingId, participantId, cb);
       });

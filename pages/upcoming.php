@@ -80,10 +80,10 @@ foreach ($upcoming_readings as $row) {
 
   <main class="container-xxl my-4">
     <div class="tile p-3 p-md-4 mb-4">
-      <div class="d-flex align-items-start justify-content-between summary-row">
+      <div class="d-flex align-items-center justify-content-between summary-row">
         <div>
           <h3 class="mb-0 fw-bold">Upcoming Readings</h3>
-          <p class="text-muted small mb-0">Stay ahead with your reading schedule!</p>
+          <p class="text-muted small mb-0 mt-2">Stay ahead with your reading schedule!</p>
         </div>
 
         <div class="d-flex flex-column align-items-end">
@@ -123,14 +123,14 @@ foreach ($upcoming_readings as $row) {
                 $badge_text = "Due in {$daysUntil} days";
             }      
             ?>
-           <article class="reading-card tile d-flex align-items-center <?= $reading['is_completed'] ? 'completed' : '' ?>"
-                    data-reading-id="<?= (int)$reading['reading_id'] ?>"
-                    data-participant-id="<?= (int)$reading['participant_id'] ?>"
-                    data-completed="<?= $reading['is_completed'] ? 'true' : 'false' ?>">
+           <article class="reading-card tile d-flex align-items-center <?= $reading['is_completed'] ? 'completed' : '' ?>">
               <div class="form-check me-3">
                 <input
                   class="form-check-input upcoming-checkbox"
                   type="checkbox"
+                  data-reading-id="<?= (int)$reading['reading_id'] ?>"
+                  data-participant-id="<?= (int)$reading['participant_id'] ?>"
+                  data-completed="<?= $reading['is_completed'] ? 'true' : 'false' ?>"
                   <?= $reading['is_completed'] ? 'checked' : '' ?>
                 />
               </div>
@@ -153,7 +153,7 @@ foreach ($upcoming_readings as $row) {
 
       <?php if (count($upcoming_readings) === 0): ?>
         <div class="tile p-4 mt-4 text-center">
-          <h5 class="mb-1">No upcoming readings scheduled</h5>
+          <h5 class="mb-1">You completed all scheduled readings!</h5>
           <p class="text-muted mb-0">Check back later or join a challenge!</p>
         </div>
       <?php endif; ?>
@@ -173,8 +173,6 @@ foreach ($upcoming_readings as $row) {
         checkbox.checked = false;
         return;
       }
-
-      // Always mark as complete on catchup page
       fetch('index.php?action=complete_reading', {
         method: 'POST',
         headers: {

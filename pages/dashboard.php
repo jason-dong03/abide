@@ -40,11 +40,14 @@ function streak_emoji(int $streak): string {
     return '💤'; // n/a
 }
 
+
 $friends = $_SESSION['friends_list'] ?? [];
 $notification_count = $_SESSION['notification_count'] ?? 0;
 
 $challenges = $_SESSION['challenges'] ?? [];
 $missed_readings = $_SESSION['missed_readings'] ?? [];
+$upcoming_readings = $_SESSION['upcoming_readings'] ?? [];
+
 $today = new DateTimeImmutable('today');
 
 $friendsCount = count($friends);
@@ -140,7 +143,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     <div class="col-md-8">
       <div class="card glass-primary clickable-card p-4 position-relative">
         <span class="fw-semibold mb-1"><?= $isEmpty ? 'Start reading something, '. h($user['name']) : 'Continue Reading, ' . h($user['name']) ?></span>
-        <p class="mb-0 subtitle">View your scheduled readings and stay on track</p>
+        <p class="mb-0 subtitle">View your scheduled readings and stay on track <span class="text-success" style="font-size:11px; <?= count($upcoming_readings) > 0? "" :"display:none;"?>"><?= count($upcoming_readings)?> available reading(s)</span></p>
         <a href="index.php?action=upcoming" class="stretched-link" aria-label="View your scheduled readings and check off progress" tabindex="0"></a>
       </div>
     </div>
