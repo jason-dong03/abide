@@ -113,6 +113,60 @@
         return $streak;
     }
 
+    public static function phone_in_use(?string $phone_number, int $exclude_user_id): bool {
+        if ($phone_number === null || $phone_number === '') {
+            return false;
+        }
+
+        $pdo = Db::pdo();
+        $sql = "
+            SELECT 1
+            FROM read_users
+            WHERE phone_number = :phone
+            AND user_id <> :uid
+            LIMIT 1
+        ";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':phone' => $phone_number,
+            ':uid'   => $exclude_user_id,
+        ]);
+
+        return (bool)$stmt->fetchColumn();
+    }
+
+    public static function update_user_profile(
+        int $user_id,
+        string $first_name,
+        string $last_name,
+        ?string $phone_number
+    ): bool {
+        $pdo = Db::pdo();
+
+        $sql = "
+            UPDATE read_users
+            SET first_name  = :fn,
+                last_name   = :ln,
+                phone_number = :phone,
+                updated_at  = NOW()
+            WHERE user_id   = :uid
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':uid', $user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':fn', $first_name, PDO::PARAM_STR);
+        $stmt->bindValue(':ln', $last_name, PDO::PARAM_STR);
+
+        if ($phone_number === null || $phone_number === '') {
+            $stmt->bindValue(':phone', null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindValue(':phone', $phone_number, PDO::PARAM_STR);
+        }
+
+        return $stmt->execute();
+    }
+
+
 
     public static function add_challenge($creator_id, $challenge_name, $desc, $startDate, $endDate, $freq, $goal_num, $goal_type, $is_private){
         $pdo = Db::pdo();

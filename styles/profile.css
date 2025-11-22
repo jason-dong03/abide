@@ -22,11 +22,32 @@
   border: 1px solid rgba(255, 255, 255, 0.55);
 }
 
-
 #profileTabsContent {
-  padding: 2rem;
+  padding: 2.5rem 2.75rem;
 }
 
+.nav-link-skinny {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.9rem;
+  border-radius: 999px;
+  border:none;
+}
+
+.nav-link-skinny.active {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.nav-tabs .nav-link:first-child {
+  border-top-left-radius: 1rem !important;
+  border-bottom-left-radius: 1rem !important;
+}
+
+
+.nav-tabs .nav-link:last-child {
+  border-top-right-radius: 1rem !important;
+  border-bottom-right-radius: 1rem !important;
+}
 
 .profile {
   width: 90px;
@@ -53,5 +74,8 @@
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
 }
-.bigger-text{ font-size: 0.95rem; font-weight: 500; color: black; }
-.small-text{ font-size: 0.8rem; font-weight: 150; color: black; }
+
+
+
+.bigger-text{ font-size: 1rem; font-weight: 500; color: black; }
+.small-text{ font-size: 0.9rem; font-weight: 150; color: black; }
