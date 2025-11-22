@@ -24,29 +24,29 @@ DROP TABLE IF EXISTS friend_requests;
 
 -- USER + AUTH
 CREATE TABLE read_users (
-    user_id               SERIAL PRIMARY KEY,
-    first_name            TEXT NOT NULL,
-    last_name             TEXT NOT NULL,
-    email                 CITEXT UNIQUE NOT NULL,
-    phone_number          TEXT UNIQUE,
-    username              TEXT NOT NULL,
-    password_hash         TEXT NOT NULL,
+    user_id SERIAL PRIMARY KEY,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    email CITEXT UNIQUE NOT NULL,
+    phone_number TEXT UNIQUE,
+    username TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
 
-    login_days_count      INTEGER NOT NULL DEFAULT 0,
-    last_login_at         TIMESTAMPTZ,
-    current_login_at      TIMESTAMPTZ,
+    login_days_count INTEGER NOT NULL DEFAULT 0,
+    last_login_at TIMESTAMPTZ,
+    current_login_at TIMESTAMPTZ,
     login_streak_current  INTEGER NOT NULL DEFAULT 0,
     login_streak_longest  INTEGER NOT NULL DEFAULT 0,
 
-    created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at            TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- login events to track streak
 CREATE TABLE login_events (
   login_event_id SERIAL PRIMARY KEY,
-  user_id        INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
-  logged_in_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  user_id INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
+  logged_in_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   logged_in_date DATE NOT NULL
 );
 
@@ -56,17 +56,17 @@ CREATE UNIQUE INDEX uq_login_events_user_day
 
 -- BADGES
 CREATE TABLE IF NOT EXISTS badges (
-    badge_id    SERIAL PRIMARY KEY,
-    code        TEXT UNIQUE NOT NULL,
-    name        TEXT NOT NULL,
+    badge_id SERIAL PRIMARY KEY,
+    code TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
     description TEXT,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS user_badges (
-    user_id     INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
-    badge_id     INTEGER NOT NULL REFERENCES badges(badge_id) ON DELETE CASCADE,
-    awarded_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    user_id INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
+    badge_id INTEGER NOT NULL REFERENCES badges(badge_id) ON DELETE CASCADE,
+    awarded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (user_id, badge_id)
 );
 
@@ -74,40 +74,40 @@ CREATE TABLE IF NOT EXISTS user_badges (
 
 -- CHALLENGES
 CREATE TABLE IF NOT EXISTS challenges (
-    challenge_id   SERIAL PRIMARY KEY,
-    creator_id     INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
-    title          TEXT NOT NULL,
-    description    TEXT,
-    start_date     DATE NOT NULL,
-    end_date       DATE NOT NULL,
-    frequency      checkin_frequency NOT NULL,
-    goal_unit      TEXT NOT NULL CHECK (goal_unit IN ('pages', 'chapters')),
-    target_amount  INTEGER NOT NULL CHECK (target_amount > 0),
-    is_private     BOOLEAN NOT NULL DEFAULT FALSE,
-    invite_code    TEXT UNIQUE,
-    created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
-    is_finished    BOOLEAN DEFAULT FALSE,
+    challenge_id SERIAL PRIMARY KEY,
+    creator_id INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    description TEXT,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    frequency checkin_frequency NOT NULL,
+    goal_unit TEXT NOT NULL CHECK (goal_unit IN ('pages', 'chapters')),
+    target_amount INTEGER NOT NULL CHECK (target_amount > 0),
+    is_private BOOLEAN NOT NULL DEFAULT FALSE,
+    invite_code TEXT UNIQUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    is_finished BOOLEAN DEFAULT FALSE,
     CHECK (end_date >= start_date)
 );
 
 -- PARTICIPANTS
 CREATE TABLE IF NOT EXISTS challenge_participants(
     participant_id SERIAL PRIMARY KEY,
-    challenge_id   INTEGER NOT NULL REFERENCES challenges(challenge_id) ON DELETE CASCADE,
-    user_id        INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
-    joined_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    challenge_id INTEGER NOT NULL REFERENCES challenges(challenge_id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
+    joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (challenge_id, user_id)
 );
 CREATE TABLE IF NOT EXISTS challenge_readings (
-    reading_id       SERIAL PRIMARY KEY,
-    challenge_id     INTEGER NOT NULL REFERENCES challenges(challenge_id) ON DELETE CASCADE,
-    title            TEXT NOT NULL,              -- e.g., "Chapter 1", "Section 2"
-    description      TEXT,                       -- e.g., "pages 1-30", "Introduction to Warriors"
-    start_page       INTEGER,                    -- optional: start page number
-    end_page         INTEGER,                    -- optional: end page number
-    due_date         DATE NOT NULL,
-    order_num        INTEGER NOT NULL,           -- maintains reading order
-    created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    reading_id SERIAL PRIMARY KEY,
+    challenge_id INTEGER NOT NULL REFERENCES challenges(challenge_id) ON DELETE CASCADE,
+    title TEXT NOT NULL,              --  "Chapter 1", "Section 2"
+    description TEXT,                       -- "pages 1-30", "Introduction to Warriors"
+    start_page INTEGER,                    -- start page number
+    end_page INTEGER,                    -- end page number
+    due_date DATE NOT NULL,
+    order_num INTEGER NOT NULL,           -- maintains reading order
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     
     UNIQUE (challenge_id, order_num),
     CHECK (end_page IS NULL OR start_page IS NULL OR end_page >= start_page)
@@ -115,11 +115,10 @@ CREATE TABLE IF NOT EXISTS challenge_readings (
 
 -- Individual participant completions (async tracking)
 CREATE TABLE IF NOT EXISTS reading_completions (
-    participant_id   INTEGER NOT NULL REFERENCES challenge_participants(participant_id) ON DELETE CASCADE,
-    reading_id       INTEGER NOT NULL REFERENCES challenge_readings(reading_id) ON DELETE CASCADE,
-    completed_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
-    notes            TEXT,                      
-    
+    participant_id INTEGER NOT NULL REFERENCES challenge_participants(participant_id) ON DELETE CASCADE,
+    reading_id INTEGER NOT NULL REFERENCES challenge_readings(reading_id) ON DELETE CASCADE,
+    completed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    notes TEXT,                      
     PRIMARY KEY (participant_id, reading_id)
 );
 
@@ -132,10 +131,10 @@ CREATE INDEX idx_challenge_readings_challenge ON challenge_readings(challenge_id
 
 -- CHECKINS
 CREATE TABLE IF NOT EXISTS checkins (
-    checkin_id     SERIAL PRIMARY KEY, 
+    checkin_id SERIAL PRIMARY KEY, 
     participant_id INTEGER NOT NULL REFERENCES challenge_participants(participant_id) ON DELETE CASCADE,
-    checkin_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
-    amount_done    INTEGER NOT NULL CHECK (amount_done >= 0) -- numeric progress amount
+    checkin_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    amount_done INTEGER NOT NULL CHECK (amount_done >= 0) -- numeric progress amount
 );
 
 
@@ -165,12 +164,12 @@ CREATE INDEX idx_friends_user ON friends(user_id);
 CREATE INDEX idx_friends_friend ON friends(friend_id);
 
 CREATE TABLE IF NOT EXISTS user_messages (
-    message_id   SERIAL PRIMARY KEY,
-    sender_id    INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
+    message_id SERIAL PRIMARY KEY,
+    sender_id INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
     recipient_id INTEGER NOT NULL REFERENCES read_users(user_id) ON DELETE CASCADE,
-    body         TEXT NOT NULL,
-    created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
-    is_read      BOOLEAN NOT NULL DEFAULT FALSE
+    body TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    is_read BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE INDEX idx_user_messages_recipient ON user_messages(recipient_id, is_read);

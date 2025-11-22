@@ -21,6 +21,7 @@ $cid = isset($_GET['cid']) ? (int)$_GET['cid'] : null;
 
 $controller = new ReadController();
 
+/* Helper functions to organize our index between user auth / apis/ routes */
 function json_response(array $data, int $status = 200): void {
     http_response_code($status);
     header('Content-Type: application/json');
@@ -36,16 +37,13 @@ function require_user_id(): int {
     }
     return (int)$uid;
 }
-
-
 function post_int(string $key): int {
     return isset($_POST[$key]) ? (int)$_POST[$key] : 0;
 }
 
-
 switch($action){
   case 'welcome':
-    $controller->showWelcome($uid);
+    $controller->showWelcome();
     break;
 
   case 'auth':
@@ -342,6 +340,18 @@ switch($action){
       json_response([
           'success' => (bool)$ok,
           'message' => $ok ? 'Challenge deleted' : 'Failed to delete challenge',
+      ]);
+      break;
+    }
+    case 'complete_challenge':{
+      $cid = isset($_POST['cid']) ? (int)($_POST['cid']):0;
+      if (!$cid) {
+          json_response(['success' => false, 'message' => 'Invalid request'], 400);
+      }
+      $ok = $controller->handleCompleteChallenge($uid, $cid);
+      json_response([
+          'success' => (bool)$ok,
+          'message' => $ok ? 'Challenge completed' : 'Failed to complete challenge',
       ]);
       break;
     }

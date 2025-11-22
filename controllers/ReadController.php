@@ -300,6 +300,15 @@ final class ReadController {
         Db::leave_challenge($pid);  
         return true;
     }
+    public function handleCompleteChallenge($uid, $cid){
+        $is_owner = Db::is_challenge_owner($uid, $cid);
+        if(!$is_owner){
+            return false;
+        }
+        Db::complete_challenge($uid, $cid);
+
+        return true;
+    }
     
 }
 

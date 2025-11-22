@@ -464,6 +464,15 @@
             return false;
         }
     }
+    public static function complete_challenge($uid, $cid){
+        $pdo = Db::pdo();
+        $sql = "UPDATE challenges 
+            SET is_finished = TRUE 
+            WHERE challenge_id = :c 
+            AND creator_id = :u";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':u'=>$uid, ':c'=>$cid]);
+    }
     public static function count_participants(int $cid): int {
         $pdo = Db::pdo();
         $sql = "SELECT COUNT(*) 

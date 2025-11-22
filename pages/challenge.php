@@ -97,12 +97,15 @@ function isPast($date): bool {
                     <?php if ($is_owner): ?>
                         <!-- owner view -->
                         <div class="header-actions">
+                            <button onclick="handleCompleteChallenge(event)" class ="complete-btn">
+                                Complete
+                            </button>
                             <button onclick="showEditChallenge()" class="btn-primary-glass">
                                 Edit
                             </button>
                             <button onclick="showDeleteConfirm()" class ="delete-btn">
                                 Delete
-                            </button>
+                            </button>                   
                         </div>
                     <?php elseif ($is_participant): ?>
                         <!-- partipciant view -->
@@ -478,6 +481,30 @@ function isPast($date): bool {
             document.getElementById(modalId).classList.remove('active');
         }
 
+        function handleCompleteChallenge(event){
+            event.preventDefault();
+            if (!confirm('Are you sure you finished this challenge?')) {
+                return;
+            }
+            fetch(`index.php?action=complete_challenge`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `cid=${challengeId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "index.php?action=dashboard";
+                } else {
+                    alert(data.message || "Error completing challenge");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
         function handleAddReading(event) {
             event.preventDefault();
 

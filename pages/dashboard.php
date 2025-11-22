@@ -60,7 +60,7 @@ foreach ($challenges as $ch) {
     $endDate = new DateTimeImmutable($ch['end_date']);
     $isFinished = !empty($ch['is_finished']); 
 
-    if ($isFinished || $endDate < $today) {
+    if ($isFinished) {
         $completedChallenges[] = $ch;
     } else {
         $activeChallenges[] = $ch;
@@ -217,6 +217,18 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
             </div>
           </div>
 
+            <div class="challenge-filters mb-3 d-flex gap-2">
+              <button class="filter-btn active" data-filter="active" onclick="toggleFilter('active')">
+                Active
+              </button>
+              <button class="filter-btn" data-filter="expired" onclick="toggleFilter('expired')">
+                Expired
+              </button>
+              <button class="filter-btn" data-filter="completed" onclick="toggleFilter('completed')">
+                Completed
+              </button>
+            </div>
+
           <?php if ($isEmpty): ?>
               <p class="text-muted small mb-0">No challenges yet.</p>
             <?php else: ?>
@@ -234,12 +246,21 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
                       $isOwner = Db::is_challenge_owner($user['user_id'], $cid);
                       $endDate = (new DateTimeImmutable($end))->setTime(0, 0, 0);
                       $isExpired = $endDate < $today; 
+                      $isCompletedChallenge = (bool)$ch['is_finished'];
+                      $status = 'active';
+                      if ($isCompletedChallenge) {
+                          $status = 'completed';
+                      } elseif ($isExpired) {
+                          $status = 'expired';
+                      }
                      
                 ?>
-                  <div class="card glass-card p-3 position-relative challenge">
+                  <div class="card glass-card p-3 position-relative challenge <?= $isExpired ? 'disabled-challenge' : '' ?> <?= $isCompletedChallenge ? 'completed-challenge' : '' ?>"
+                    data-status="<?= $status ?>">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                       <strong><?= h($title) ?></strong>
                       <div class="d-flex gap-2">
+                        <span class="badge badge-active text-center fw-normal" style="<?= $isCompletedChallenge? "": "display:none;"?>">Completed</span>
                         <span class="badge <?= $isOwner ? 'badge-owner' : 'badge-member' ?> text-center fw-normal"><?= $isOwner? "Owner": "Member"?></span>
                         <span class="badge <?= $isExpired ? 'badge-inactive' : 'badge-active' ?> text-center fw-normal"><?= $isExpired? "Inactive": "Active"?></span>
                         <span class="badge bg-brown text-center fw-normal">Day <?= $day ?></span>
@@ -259,7 +280,9 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
                       <span><?= $participants ?> participants</span>
                     </div>
 
-                    <a href="index.php?action=challenge&cid=<?= $cid ?>" class="stretched-link" aria-label="View challenge"></a>
+                    <?php if (!$isExpired && !$isCompletedChallenge): ?> 
+                        <a href="index.php?action=challenge&cid=<?= $cid ?>" class="stretched-link" aria-label="View challenge"></a>
+                    <?php endif; ?>
                   </div>
                 <?php endforeach; ?>
               </div>
@@ -450,7 +473,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     });
   });
 
-  function updateNotificationBadge(count) {
+function updateNotificationBadge(count) {
     notificationCount = count;
     const badge = document.getElementById('notificationBadge');
     if (count > 0) {
@@ -461,7 +484,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     }
   }
   
-  function loadNotifications() {
+function loadNotifications() {
     fetch('index.php?action=get_notifications', {
       method: 'GET',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
@@ -475,7 +498,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     });
   }
   
-  function displayNotifications(notifications) {
+function displayNotifications(notifications) {
     const container = document.getElementById('notificationsList');
     
     if (!notifications || notifications.length === 0) {
@@ -521,7 +544,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     }).join('');
   }
 
-  function dismissMessage(messageId) {
+function dismissMessage(messageId) {
     fetch('index.php?action=dismiss_message', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -542,7 +565,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
   }
 
   
-  function acceptRequest(requestId) {
+function acceptRequest(requestId) {
     fetch('index.php?action=accept_request', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -565,7 +588,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     });
   }
   
-  function rejectRequest(requestId) {
+function rejectRequest(requestId) {
     fetch('index.php?action=reject_request', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -584,7 +607,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     });
   }
   
-  function loadAllUsers() {
+function loadAllUsers() {
     fetch('index.php?action=get_all_users', {
       method: 'GET',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -601,7 +624,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     });
   }
   
-  function displayUsers(users) {
+function displayUsers(users) {
     const container = document.getElementById('usersList');
     
     if (users.length === 0) {
@@ -634,7 +657,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     }).join('');
   }
   
-  function filterUsers(search) {
+function filterUsers(search) {
     const filtered = allUsers.filter(u => {
       const name = (u.first_name + ' ' + u.last_name).toLowerCase();
       const username = u.username.toLowerCase();
@@ -644,9 +667,9 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     displayUsers(filtered);
   }
 
-  const friendSearchInput = document.getElementById('friendSearch');
+const friendSearchInput = document.getElementById('friendSearch');
 
-  if (friendSearchInput) {
+if (friendSearchInput) {
     friendSearchInput.addEventListener('input', function () {
       const term = this.value.trim().toLowerCase();
 
@@ -663,7 +686,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
   }
 
   
-  function sendFriendRequest(userId, btn) {
+function sendFriendRequest(userId, btn) {
     btn.disabled = true;
     btn.textContent = 'Sending...';
     
@@ -694,14 +717,14 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     });
   }
   
-  function escapeHtml(text) {
+function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
   }
   let flashTimeout;
 
-  function showFlash(message, type = 'success') {
+function showFlash(message, type = 'success') {
     const banner = document.getElementById('flashBanner');
     if (!banner) return;
 
@@ -714,6 +737,78 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
       banner.style.display = 'none';
     }, 2500); 
   }
+document.addEventListener('DOMContentLoaded', function() {
+  loadFilterState();
+  applyFilters();
+});
+
+function toggleFilter(filterType) {
+  const clickedBtn = document.querySelector(`.filter-btn[data-filter="${filterType}"]`);
+  const isActive = clickedBtn.classList.contains('active');
+
+document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  if (!isActive) {
+    clickedBtn.classList.add('active');
+  }
+
+  saveFilterState();
+  applyFilters();
+}
+
+function saveFilterState() {
+  const activeFilters = [];
+  document.querySelectorAll('.filter-btn.active').forEach(btn => {
+    activeFilters.push(btn.dataset.filter);
+  });
+  localStorage.setItem('challengeFilters', JSON.stringify(activeFilters));
+}
+
+function loadFilterState() {
+  const saved = localStorage.getItem('challengeFilters');
+  if (!saved) {
+    return;
+  }
+
+  const activeFilters = JSON.parse(saved);
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  activeFilters.forEach(filter => {
+    const btn = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
+    if (btn) {
+      btn.classList.add('active');
+    }
+  });
+}
+
+function applyFilters() {
+  const activeFilters = [];
+  document.querySelectorAll('.filter-btn.active').forEach(btn => {
+    activeFilters.push(btn.dataset.filter); // "active", "expired", "completed"
+  });
+
+  const cards = document.querySelectorAll('.challenge');
+
+
+  if (activeFilters.length === 0) {
+    cards.forEach(card => {
+      card.style.display = '';
+    });
+    return;
+  }
+
+  cards.forEach(card => {
+    const status = card.dataset.status; 
+    if (activeFilters.includes(status)) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
 </script>
 </body>
 </html>
