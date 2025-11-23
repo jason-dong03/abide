@@ -97,6 +97,18 @@ unset($_SESSION['error'], $_SESSION['success']);
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="styles/theme.css">
   <link rel="stylesheet" href="styles/profile.css">
+	<style>
+		.summary-chip {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      width: 110px; height: 110px; text-align: center;
+      background: var(--glass-bg); border: 1px solid var(--glass-brd);
+      border-radius: 16px; backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      box-shadow: 0 6px 18px rgba(0,0,0,.12), inset 0 1px rgba(255,255,255,.45);
+    }
+    .summary-chip .count { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+    .summary-chip .label { font-size: .8rem; color: var(--ink-muted); }
+	</style>
 </head>
 <body class="d-flex flex-column min-vh-100"> 
 
@@ -217,28 +229,26 @@ unset($_SESSION['error'], $_SESSION['success']);
       </div>
       </div>
       <div class="tab-pane fade" id="pane-achievements" role="tabpanel">
-        <div class="container-sections">
-          <div class="row g-3 mb-3">
-          <div class="col-12 col-md-4">
-              <div class="metric-container h-100 d-flex flex-column justify-content-center align-items-center">
-              <div class="metric-number">4</div>
-              <div class="metric-label">Earned</div>
-              </div>
-          </div>
-          <div class="col-12 col-md-4">
-              <div class="metric-container h-100 d-flex flex-column justify-content-center align-items-center">
-              <div class="metric-number">5</div>
-              <div class="metric-label">In Progress</div>
-              </div>
-          </div>
-          <div class="col-12 col-md-4">
-              <div class="metric-container h-100 d-flex flex-column justify-content-center align-items-center">
-              <div class="metric-number">9</div>
-              <div class="metric-label">Total Available</div>
-              </div>
-          </div>
-          </div>
+        <div class="container-sections ">
+          <div class="d-flex justify-content-between align-items-center w-50 mx-auto mb-3 px-4">
+						<!-- badges earned display -->
+						<div class="summary-chip">
+							<div class="count">0</div>
+							<div class="label">Earned</div>
+						</div>
 
+						<!-- in progress badges display -->
+						<div class="summary-chip">
+							<div class="count">0</div>
+							<div class="label">In Progress</div>
+						</div>
+
+						<!-- available badges display -->
+						<div class="summary-chip">
+							<div class="count">0</div>
+							<div class="label">Total Available</div>
+						</div>
+          </div>
 
           <section class="section-box mb-3 w-75 mx-auto">
           <div class="section-header d-flex align-items-center gap-2 ps-2">
@@ -262,13 +272,13 @@ unset($_SESSION['error'], $_SESSION['success']);
           <div class="d-flex flex-column align-items-start">        
               <h6 class="mb-0">Notification Preferences</h6> 
               <div class="d-flex align-items-center gap-1 mb-2 mt-4">
-                  <img src="assets/icons/msg.svg" alt="Notif Icon" width="18" height="18">
+                  <img src="assets/icons/dark-message.svg" alt="Notif Icon" width="18" height="18">
                   <h5 class="mb-0 small fw-bold">How would you like to recieve notifications?</h5>
               </div>
               <!-- Email switch -->
               <div class="section-box d-flex justify-content-between align-items-center w-100 mb-3">
                 <div class="d-flex align-items-center gap-3">
-                  <img src="assets/icons/email.svg" alt="Email Icon" width="18" height="18">
+                  <img src="assets/icons/dark-@.svg" alt="Email Icon" width="18" height="18">
                   <label class="form-check-label mb-0" for="notifEmail">Email</label>
                 </div>
                 <div class="form-check form-switch m-0">
@@ -279,7 +289,7 @@ unset($_SESSION['error'], $_SESSION['success']);
               <!-- SMS switch -->
               <div class="section-box d-flex justify-content-between align-items-center w-100 mb-3">
                 <div class="d-flex align-items-center gap-3">
-                  <img src="assets/icons/call.svg" alt="Phone Icon" width="18" height="18">
+                  <img src="assets/icons/dark-phone.svg" alt="Phone Icon" width="18" height="18">
                   <label class="form-check-label mb-0" for="notifSMS">SMS</label>
                 </div>
                 <div class="form-check form-switch m-0">
@@ -290,7 +300,7 @@ unset($_SESSION['error'], $_SESSION['success']);
               <!-- Push Notifications switch -->
               <div class="section-box d-flex justify-content-between align-items-center w-100 mb-2">
                 <div class="d-flex align-items-center gap-3">
-                  <img src="assets/icons/alert-brown.svg" alt="Bell Icon" width="18" height="18">
+                  <img src="assets/icons/dark-bell.svg" alt="Bell Icon" width="18" height="18">
                   <label class="form-check-label mb-0" for="notifPush">Push</label>
                 </div>
                 <div class="form-check form-switch m-0">
@@ -303,44 +313,51 @@ unset($_SESSION['error'], $_SESSION['success']);
 
           <div class="d-flex flex-column gap-2 w-100 ps-1">
               <div>
-                  <h6 class="fw-bold"> Notiifcation Types</h6>
+                  <h6 class="fw-bold"><u>Notification Types</u></h6>
               </div> 
-              <!-- Challenge Completion Reminders -->
-              <div class="d-flex justify-content-between align-items-center w-100">
-                <div class="d-flex flex-column align-items-start">
-                  <h6 class="bigger-text">Challenge Completion Reminders</h6>
-                  <p class="small-text mb-0">Reminders when you haven't completed daily challenges</p>
-                </div>
-                <div class="form-check form-switch m-0">
-                  <input class="form-check-input" type="checkbox" id="notifCompletionReminders">
-                </div>
-              </div>
+							<div class="d-flex flex-column gap-4">
+								<!-- Challenge Completion Reminders -->
+								<div class="d-flex justify-content-between align-items-center w-100">
+									<div class="d-flex flex-column align-items-start">
+										<div class="d-flex flex-row align-items-start gap-3">
+											<img src="assets/icons/dark-alarm.svg" alt="Alarm Icon" width="18" height="18">
+											<h6 class="bigger-text fw-bold">Challenge Completion Reminders</h6>
+										</div>
+										<p class="small-text mb-0">Reminders when you haven't completed daily challenges</p>
+									</div>
+									<div class="form-check form-switch m-0">
+										<input class="form-check-input" type="checkbox" id="notifCompletionReminders">
+									</div>
+								</div>
 
-              <!-- Late Reading Alerts -->
-              <div class="d-flex justify-content-between align-items-center w-100 ">
-                <div class="d-flex flex-column align-items-start">
-                  <div class="d-flex flex-row align-items-start gap-3">
-                    <img src="assets/icons/clock.svg" alt="Clock Icon" width="18" height="18">
-                    <h6 class="bigger-text">Late Reading Alerts</h6>
-                  </div>
-                  <p class="small-text mb-0">Get reminded when you miss your daily reading</p>
-                </div>
-                <div class="form-check form-switch m-0">
-                  <input class="form-check-input" type="checkbox" id="notifLateReading">
-                </div>
-              </div>
+								<!-- Late Reading Alerts -->
+								<div class="d-flex justify-content-between align-items-center w-100 ">
+									<div class="d-flex flex-column align-items-start">
+										<div class="d-flex flex-row align-items-start gap-3">
+											<img src="assets/icons/dark-clock.svg" alt="Clock Icon" width="18" height="18">
+											<h6 class="bigger-text fw-bold">Late Reading Alerts</h6>
+										</div>
+										<p class="small-text mb-0">Get reminded when you miss your daily reading</p>
+									</div>
+									<div class="form-check form-switch m-0">
+										<input class="form-check-input" type="checkbox" id="notifLateReading">
+									</div>
+								</div>
 
-              <!-- Friends Activity -->
-              <div class="d-flex justify-content-between align-items-center w-100 mb-1">
-                <div class="d-flex flex-column align-items-start">
-                  <h6 class="bigger-text">Friend Activity Updates</h6>
-                  <p class="small-text mb-0">Notifications when friends complete challenges</p>
-                </div>
-                <div class="form-check form-switch m-0">
-                  <input class="form-check-input" type="checkbox" id="notifFriendsActivity">
-                </div>
-              </div>
-
+								<!-- Friends Activity -->
+								<div class="d-flex justify-content-between align-items-center w-100 mb-1">
+									<div class="d-flex flex-column align-items-start">
+										<div class="d-flex flex-row align-itmes-start gap-3">
+											<img src="assets/icons/dark-friends.svg" alt="Friends Icon" width="18" height="18">
+											<h6 class="bigger-text fw-bold">Friend Activity Updates</h6>
+										</div>
+										<p class="small-text mb-0">Notifications when friends complete challenges</p>
+									</div>
+									<div class="form-check form-switch m-0">
+										<input class="form-check-input" type="checkbox" id="notifFriendsActivity">
+									</div>
+								</div>
+							</div>
           </div>
       </div>
       <div class="tab-pane fade" id="pane-settings" role="tabpanel">
@@ -365,28 +382,30 @@ unset($_SESSION['error'], $_SESSION['success']);
           <hr class="my-4 break">
 
           <div class="d-flex flex-column gap-2 w-100 ps-2">
-              <h6 class="fw-bold"> Navigation Preferences</h6>
-              <!-- Display streaks switch -->
-              <div class="d-flex justify-content-between align-items-center w-100 ">
-                <div class="d-flex flex-column align-items-start">
-                  <h6 class="bigger-text">Show Reading Streak on Dashboard</h6>
-                  <p class="small-text mb-0">Display your current reading streak prominently</p>
-                </div>
-                <div class="form-check form-switch m-0">
-                  <input class="form-check-input" type="checkbox" id="prefShowStreak" checked>
-                </div>
-              </div>
+              <h6 class="fw-bold"><u>Navigation Preferences</u></h6>
+							<div class="d-flex flex-column gap-4">
+								<!-- Display streaks switch -->
+								<div class="d-flex justify-content-between align-items-center w-100">
+									<div class="d-flex flex-column align-items-start">
+										<h6 class="bigger-text fw-bold">Show Reading Streak on Dashboard</h6>
+										<p class="small-text mb-0">Display your current reading streak prominently</p>
+									</div>
+									<div class="form-check form-switch m-0">
+										<input class="form-check-input" type="checkbox" id="prefShowStreak" checked>
+									</div>
+								</div>
 
-              <!-- Compact Challenge View -->
-              <div class="d-flex justify-content-between align-items-center w-100 mb-1">
-                <div class="d-flex flex-column align-items-start">
-                  <h6 class="bigger-text">Compact Challenge View</h6>
-                  <p class="small-text mb-0">Show challenges in a more condensed format</p>
-                </div>
-                <div class="form-check form-switch m-0">
-                  <input class="form-check-input" type="checkbox" id="prefCompactView">
-                </div>
-              </div>
+								<!-- Compact Challenge View -->
+								<div class="d-flex justify-content-between align-items-center w-100 mb-1">
+									<div class="d-flex flex-column align-items-start">
+										<h6 class="bigger-text fw-bold">Compact Challenge View</h6>
+										<p class="small-text mb-0">Show challenges in a more condensed format</p>
+									</div>
+									<div class="form-check form-switch m-0">
+										<input class="form-check-input" type="checkbox" id="prefCompactView">
+									</div>
+								</div>
+							</div>
           </div>
       </div>
   </div>
