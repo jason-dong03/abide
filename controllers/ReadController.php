@@ -101,8 +101,11 @@ final class ReadController {
 
             $_SESSION['user'] = [ 
             'name' => $fname . " ". $lname,
+            'first_name' => $fname,
+            'last_name'=> $lname,
             'email' => $email,
-            'username' => $username
+            'username' => $username,
+            'phone_number' => null,
             ];
             $user = Db::find_user_by_email($email);
             if($user){ 
@@ -134,9 +137,12 @@ final class ReadController {
             if($user && Db::verify_password($email, $password)){ 
                 $_SESSION['user'] = [ 
                 'name' => $user['first_name'] . ' ' . $user['last_name'],
+                'first_name' => $user['first_name'],
+                'last_name'=> $user['last_name'],
                 'email' => $email,
                 'username' => $user['username'],
-                'user_id' => $user['user_id']
+                'user_id' => $user['user_id'],
+                'phone_number' => $user['phone_number'],
                 ];
                 $streakInfo = Db::record_login_streak((int)$user['user_id']);
                 $_SESSION['user']['login_streak_current'] = $streakInfo['current'];

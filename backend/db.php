@@ -31,7 +31,7 @@
     }
     public static function find_user_by_email(string $email): ?array {
         $pdo = Db::pdo();
-        $sql = 'SELECT user_id, first_name, last_name, email, username, password_hash, created_at
+        $sql = 'SELECT user_id, first_name, last_name, email, username, phone_number, password_hash, created_at
                             FROM read_users
                             WHERE email = :e LIMIT 1';
         $stmt = $pdo->prepare($sql);
