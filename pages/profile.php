@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start([
       'cookie_httponly' => true,
@@ -8,52 +9,51 @@ if (session_status() === PHP_SESSION_NONE) {
     ]);
 }
 
+function h(string $s): string {
+  return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+function split_name(string $full_name): array {
+    $full_name = trim(preg_replace('/\s+/', ' ', $full_name));
+    if ($full_name === '') {
+        return ['', ''];
+    }
+
+    $parts = explode(' ', $full_name);
+
+    if (count($parts) === 1) {
+        return [$parts[0], ''];
+    }
+
+    $first = array_shift($parts);
+    $last  = implode(' ', $parts);
+    return [$first, $last];
+}
+
 $user = $_SESSION['user'] ?? null;
 if (!$user) {
   header('Location: login.php');
   exit;
 }
 
-function h(string $s): string {
-  return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
+[$first, $last] = split_name($user['name'] ?? '');
 
-function split_name(string $full, string $fallback_first, string $fallback_last): array {
-	$full = trim(preg_replace('/\s+/', ' ', $full));
-	if ($full === '') {
-		return [$fallback_first, $fallback_last];
-	}
 
-	$parts = explode(' ', $full);
-	if (count($parts) === 1) {
-		return [$parts[0], $fallback_last];
-	}
-	$first = array_shift($parts);
-	$last = implode(' ', $parts);
-	return [$first, $last];
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $first_name = trim($_POST['first_name'] ?? '');
+    $last_name  = trim($_POST['last_name'] ?? '');
+    $phone      = trim($_POST['phone_number'] ?? '');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_profile') {
-	$full_name = trim($_POST['name'] ?? '');
-    $phone_number = trim($_POST['phone_number'] ?? '');
+    if ($first_name === '' || $last_name === '') {
+        $_SESSION['error'] = 'First and last name are required.';
+        header("Location: index.php?action=profile");
+        exit;
+    }
 
-	if ($full_name === '') {
-		$_SESSION['error'] = 'Name is required.';
-		header('Location: index.php?action=profile.php');
-		exit;
-	}
-
-	[$first_name, $last_name] = split_name(
-		$full_name,
-		$user['first_name'] ?? '',
-		$user['last_name'] ?? ''
-	);
-
-    $phone = $phone_number !== '' ? $phone_number : null;
-    
-    if ($phone !== null && Db::phone_in_use($phone, (int)$user['user_id'])) {
+    // Check phone uniqueness
+    if ($phone !== '' && Db::phone_in_use($phone, (int)$user['user_id'])) {
         $_SESSION['error'] = 'That phone number is already in use.';
-        header('Location: index.php?action=profile.php');
+        header("Location: index.php?action=profile");
         exit;
     }
 
@@ -61,23 +61,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
         (int)$user['user_id'],
         $first_name,
         $last_name,
-        $phone
+        $phone !== '' ? $phone : null
     );
 
     if ($ok) {
-        $_SESSION['user']['first_name']   = $first_name;
-        $_SESSION['user']['last_name']    = $last_name;
-		$_SESSION['user']['name'] = $full_name;
-        $_SESSION['user']['phone_number'] = $phone;
+        $_SESSION['user']['first_name'] = $first_name;
+        $_SESSION['user']['last_name']  = $last_name;
+        $_SESSION['user']['name']       = $first_name . ' ' . $last_name;
+        $_SESSION['user']['phone_number'] = $phone === '' ? null : $phone;
 
         $_SESSION['profile_success'] = true;
-    } else {
-        $_SESSION['error'] = 'Could not update your profile.';
-		header("location: index.php?action=profile");
-		exit;
+        header("Location: index.php?action=dashboard");
+        exit;
     }
 
-    header('Location: index.php?action=dashboard');
+    $_SESSION['error'] = 'Could not update your profile.';
+    header("Location: index.php?action=profile");
     exit;
 }
 
@@ -164,13 +163,35 @@ unset($_SESSION['error'], $_SESSION['success']);
       <hr class="my-4 break">
       <div class="d-flex flex-column justify-content-start gap-4 w-75 mx-auto">
         <div>
-          <label class="form-label mb-1 label-brown fw-bold">Name</label>
-          <div class="input-group">
-            <input type="text" name="name" class="form-control rounded-8" value="<?= h($user['name'])?> " aria-label="User's name">
-            <span class="input-group-text input-icon">
-              <img src="assets/icons/dark-edit.svg" alt="Edit" width="16" height="16">
-            </span>
-          </div>
+			<!-- First Name -->
+			<div class="mb-4">
+				<label class="form-label mb-1 label-brown fw-bold">First Name</label>
+				<div class="input-group">
+					<input type="text"
+						name="first_name"
+						class="form-control rounded-8"
+						value="<?= h($first) ?>"
+						required>
+					<span class="input-group-text input-icon">
+					<img src="assets/icons/dark-edit.svg" width="16" height="16">
+					</span>
+				</div>
+			</div>
+
+			<!-- Last Name -->
+			<div>
+				<label class="form-label mb-1 label-brown fw-bold">Last Name</label>
+				<div class="input-group">
+					<input type="text"
+						name="last_name"
+						class="form-control rounded-8"
+						value="<?= h($last) ?>"
+						required>
+					<span class="input-group-text input-icon">
+					<img src="assets/icons/dark-edit.svg" width="16" height="16">
+					</span>
+				</div>
+			</div>
         </div>
 
         <div>
