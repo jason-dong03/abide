@@ -74,6 +74,13 @@ final class ReadController {
 
             if ($fname === '' || $lname === '' || $email === '' || $username === '' || $password === '') {
                 $_SESSION['error'] = "All fields must be filled out!";
+                $_SESSION['register_form'] = [
+                    'first_name' => $fname,
+                    'last_name'=> $lname,
+                    'email'=> $email,
+                    'username'=> $username,
+                ];
+                $_SESSION['view'] = 'register';
                 session_write_close();
                 header('Location: index.php?action=welcome');
                 exit;
@@ -82,11 +89,25 @@ final class ReadController {
             $password_regex = '/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/';
             if (!preg_match($password_regex, $password)) {
                 $_SESSION['error'] = 'Password must be at least 8 chars and include uppercase, lowercase, a number, and a special character.';
+                $_SESSION['register_form'] = [
+                    'first_name' => $fname,
+                    'last_name'=> $lname,
+                    'email'=> $email,
+                    'username'=> $username,
+                ];
+                $_SESSION['view'] = 'register';
                 header('Location: index.php?action=welcome'); exit;
             }
 
             if (!hash_equals($password, $password_confirm)) {
                 $_SESSION['error'] = 'Passwords do not match.';
+                $_SESSION['register_form'] = [
+                    'first_name' => $fname,
+                    'last_name'=> $lname,
+                    'email'=> $email,
+                    'username'=> $username,
+                ];
+                $_SESSION['view'] = 'register';
                 header('Location: index.php?action=welcome'); exit;
             }
 
@@ -94,6 +115,13 @@ final class ReadController {
             $email_regex = '/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/';
             if (!preg_match($email_regex, $email)) {
                 $_SESSION['error'] = "Please enter a valid email address (e.g., name@example.com).";
+                $_SESSION['register_form'] = [
+                    'first_name' => $fname,
+                    'last_name'=> $lname,
+                    'email'=> $email,
+                    'username'=> $username,
+                ];
+                $_SESSION['view'] = 'register';
                 session_write_close();
                 header('Location: index.php?action=welcome');
                 exit;
@@ -110,6 +138,13 @@ final class ReadController {
             $user = Db::find_user_by_email($email);
             if($user){ 
                 $_SESSION['error'] = "This email is already registered, please sign in.";
+                $_SESSION['register_form'] = [
+                    'first_name' => $fname,
+                    'last_name'=> $lname,
+                    'email'=> $email,
+                    'username'=> $username,
+                ];
+                $_SESSION['view'] = 'register';
                 session_write_close();
                 header('Location: index.php?action=welcome');
                 exit;
@@ -129,11 +164,25 @@ final class ReadController {
             $password = trim($_POST['password'] ?? '');
             if ($email === '' || $password === '') {
                 $_SESSION['error'] = "All fields must be filled out!";
+                $_SESSION['login_form'] = [
+                    'email'=> $email,
+                ];
+                $_SESSION['view'] = 'login';
                 session_write_close();
                 header('Location: index.php?action=welcome');
                 exit;
             }
             $user = Db::find_user_by_email($email);
+            if (!$user) {
+                $_SESSION['error'] = "No account found for that email. Please register first.";
+                $_SESSION['login_form'] = [
+                    'email' => $email,
+                ];
+                $_SESSION['view'] = 'login';
+                session_write_close();
+                header('Location: index.php?action=welcome');
+                exit;
+            }
             if($user && Db::verify_password($email, $password)){ 
                 $_SESSION['user'] = [ 
                 'name' => $user['first_name'] . ' ' . $user['last_name'],
@@ -152,6 +201,10 @@ final class ReadController {
                 exit;  
             }else{
                 $_SESSION['error'] = "Incorrect password, try again!";
+                $_SESSION['login_form'] = [
+                    'email'=> $email,
+                ];
+                $_SESSION['view'] = 'login';
                 session_write_close();
                 header('Location: index.php?action=welcome');
                 exit;

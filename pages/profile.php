@@ -423,5 +423,14 @@ unset($_SESSION['error'], $_SESSION['success']);
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+      $(function(){
+        $(".summary-chip").hover(
+          function(){ $(this).css("transform", "scale(1.03)") },
+          function(){ $(this).css("transform", "scale(1)") }
+        );
+      });
+</script>
 </body>
 </html>

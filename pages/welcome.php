@@ -16,9 +16,20 @@ if (empty($_SESSION['csrf'])){
 $csrf = $_SESSION['csrf']; 
 $error =$_SESSION['error'] ?? null; 
 unset($_SESSION['error']);
-$name =$_SESSION['form']['name'] ?? ($_POST['name'] ?? ''); 
-$email =$_SESSION['form']['email'] ?? ($_POST['email'] ?? '');
-unset($_SESSION['form']);
+
+$view = $_SESSION['view'] ?? 'main';
+
+$register_form = $_SESSION['register_form'] ?? [];
+$login_form    = $_SESSION['login_form']    ?? [];
+
+unset($_SESSION['error'], $_SESSION['view'], $_SESSION['register_form'], $_SESSION['login_form']);
+
+$reg_first   = $register_form['first_name'] ?? '';
+$reg_last    = $register_form['last_name']  ?? '';
+$reg_email   = $register_form['email']      ?? '';
+$reg_user    = $register_form['username']   ?? '';
+
+$login_email = $login_form['email']         ?? '';
 ?>
 
 <html>
@@ -125,6 +136,7 @@ unset($_SESSION['form']);
                   id="first_name"
                   name="first_name"  
                   placeholder="First name"
+                  value="<?= h($reg_first) ?>"
                   required
                 />
               </div>
@@ -135,6 +147,7 @@ unset($_SESSION['form']);
                   id="last_name"
                   name="last_name"  
                   placeholder="Last name"
+                  value="<?= h($reg_last) ?>"
                   required
                 />
               </div>
@@ -149,13 +162,14 @@ unset($_SESSION['form']);
                 id="email"
                 name="email"
                 placeholder="you@example.com"
-                value="<?= h($email) ?>"
+                value="<?= h($reg_email) ?>"
                 required
+                autocomplete="off"
               />
             </div>
             <div class="col-12 col-md-6">
               <label for="username">Username</label>
-              <input type="text" id="username" name ="username" placeholder="username" />
+              <input type="text" id="username" name ="username" placeholder="username" value="<?= h($reg_user) ?>"/>
             </div>
           </div>
 
@@ -190,7 +204,13 @@ unset($_SESSION['form']);
                 placeholder="Repeat password"
                 required
               />
+              <div class="password-rules mt-2">
+                <ul class="rules-list list-unstyled">
+                  <li id="rule-match" class="invalid">passwords match</li>
+                </ul>
+              </div>
             </div>
+
           </div>
 
           <div class="auth-actions d-flex flex-column w-50 mx-auto gap-3 mt-3">
@@ -228,7 +248,7 @@ unset($_SESSION['form']);
               id="login-email"
               name="email"
               placeholder="you@example.com"
-              value="<?= h($email) ?>"
+              value="<?= h($login_email) ?>"
               required
               autocomplete="email"
             />
@@ -271,6 +291,7 @@ unset($_SESSION['form']);
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
       const avatar = document.getElementById("avatar-upload");
       const fileInput = document.getElementById("profile-pic");
@@ -290,72 +311,109 @@ unset($_SESSION['form']);
         reader.readAsDataURL(file);
       });
 
-      const show = (id) =>
-        document.getElementById(id).classList.remove("d-none");
-      const hide = (id) => document.getElementById(id).classList.add("d-none");
+      const show = (id) => document.getElementById(id)?.classList.remove("d-none");
+      const hide = (id) => document.getElementById(id)?.classList.add("d-none");
 
-      document.getElementById("register-btn").onclick = () => {
+      const registerBtn = document.getElementById("register-btn");
+      const loginBtn    = document.getElementById("login-btn");
+      const backReg     = document.getElementById("back-btn-reg");
+      const backLogin   = document.getElementById("back-btn-login");
+
+      registerBtn?.addEventListener("click", () => {
         hide("main");
         show("register");
         hide("login");
-        setTimeout(() => document.getElementById("first-name")?.focus(), 0);
-      };
-      document.getElementById("login-btn").onclick = () => {
+        setTimeout(() => document.getElementById("first_name")?.focus(), 0);
+      });
+
+      loginBtn?.addEventListener("click", () => {
         hide("main");
         hide("register");
         show("login");
         setTimeout(() => document.getElementById("login-email")?.focus(), 0);
-      };
-      document.getElementById("back-btn-reg").onclick = () => {
+      });
+
+      backReg?.addEventListener("click", () => {
         show("main");
         hide("register");
         hide("login");
-      };
-      document.getElementById("back-btn-login").onclick = () => {
+      });
+
+      backLogin?.addEventListener("click", () => {
         show("main");
         hide("register");
         hide("login");
-      };
-      // --- focus first field on page load ---
+      });
+
       window.addEventListener("DOMContentLoaded", () => {
-        const el =
-          document.getElementById("login-pwd") ||
-          document.getElementById("login-email") ||
-          document.getElementById("first_name");
-        if (el) el.focus();
+        const initialView = "<?= h($view) ?>"; // 'main' | 'register' | 'login'
+
+        if (initialView === "register") {
+          hide("main");
+          show("register");
+          hide("login");
+          document.getElementById("first_name")?.focus();
+        } else if (initialView === "login") {
+          hide("main");
+          hide("register");
+          show("login");
+          document.getElementById("login-email")?.focus();
+        } else {
+          show("main");
+          hide("register");
+          hide("login");
+        }
+
+        // auto-dismiss bootstrap alert after 5s
+        const alertNode = document.querySelector(".alert");
+        if (alertNode && window.bootstrap?.Alert) {
+          const alert = bootstrap.Alert.getOrCreateInstance(alertNode);
+          setTimeout(() => alert.close(), 5000);
+        }
       });
     </script>
     <script>
-      const passwordInput = document.getElementById('password');
+      const passwordInput  = document.getElementById('password');
+      const passwordRepeat = document.getElementById('password-repeat');
+
       const rules = {
-        length: document.getElementById('rule-length'),
-        number: document.getElementById('rule-number'),
-        special: document.getElementById('rule-special')
+        length:  document.getElementById('rule-length'),
+        number:  document.getElementById('rule-number'),
+        special: document.getElementById('rule-special'),
+        match:   document.getElementById('rule-match'),
       };
 
-      passwordInput?.addEventListener('input', () => {
-        const val = passwordInput.value;
+      function updatePasswordRules() {
+        if (!passwordInput || !passwordRepeat) return;
+
+        const pass    = passwordInput.value;
+        const confirm = passwordRepeat.value;
+
         const checks = {
-          length: val.length >= 8,
-          number: /\d/.test(val),
-          special: /[!@#$%^&*]/.test(val)
+          length:  pass.length >= 8,
+          // at least 1 digit, 1 lowercase letter, 1 uppercase letter
+          number:
+            /\d/.test(pass) &&        // has digit
+            /[a-z]/.test(pass) &&     // has lowercase
+            /[A-Z]/.test(pass),       // has uppercase
+          special: /[!@#$%^&*]/.test(pass),
+          match:   pass !== '' && pass === confirm,
         };
 
-        for (const [key, el] of Object.entries(rules)) {
+        for (const key in rules) {
+          const el = rules[key];
+          if (!el) continue;
+
           el.classList.toggle('valid', checks[key]);
           el.classList.toggle('invalid', !checks[key]);
         }
-      });
+      }
+      passwordInput?.addEventListener('input', updatePasswordRules);
+      passwordRepeat?.addEventListener('input', updatePasswordRules);
     </script>
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const alertNode = document.querySelector(".alert");
-        if (alertNode) {
-          const alert = bootstrap.Alert.getOrCreateInstance(alertNode);
-          setTimeout(() => {
-            alert.close();
-          }, 5000); // close after 5 seconds
-        }
+      $(document).ready(function () {
+        $(".alert").delay(2500).fadeOut(600);
       });
     </script>
   </body>
