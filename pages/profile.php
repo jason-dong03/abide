@@ -372,9 +372,6 @@ unset($_SESSION['error'], $_SESSION['success']);
                   <select class="form-select custom-select" id="themeSelect">
                       <option selected>Light Mode</option>
                       <option>Dark Mode</option>
-                      <option>Gradient 1</option>
-                      <option>Gradient 2</option>
-                      <option>Gradient 3</option>
                   </select>
               </div>
           </div>
@@ -432,5 +429,6 @@ unset($_SESSION['error'], $_SESSION['success']);
         );
       });
 </script>
+<script src="utils/theme-toggle.js"></script>
 </body>
 </html>

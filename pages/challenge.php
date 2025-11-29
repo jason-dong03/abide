@@ -24,16 +24,6 @@ $participant_id = $_SESSION['pid']?? null;
 $participants = $_SESSION['participants'] ?? [];
 $readings = $_SESSION['readings']?? [];
 
-// DEBUG: Log what we're rendering
-error_log("=== CHALLENGE PAGE DEBUG ===");
-error_log("Challenge ID: " . ($challenge_id ?? 'NULL'));
-error_log("Participant ID: " . ($participant_id ?? 'NULL'));
-error_log("Total readings: " . count($readings));
-foreach ($readings as $r) {
-    error_log("Reading {$r['reading_id']}: is_completed = " . var_export($r['is_completed'], true));
-}
-error_log("=========================");
-
 if (!$challenge_id || !$user_id) {
     header('Location: index.php?action=dashboard');
     exit;
@@ -669,5 +659,6 @@ function isPast($date): bool {
             });
         });
     </script>
+    <script src="utils/theme-toggle.js"></script>
 </body>
 </html>

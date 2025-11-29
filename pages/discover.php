@@ -498,5 +498,6 @@ function get_duration_days(string $start, string $end): int {
       }
     });
   </script>
+  <script src="utils/theme-toggle.js"></script>
 </body>
 </html>

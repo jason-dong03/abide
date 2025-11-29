@@ -107,6 +107,14 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
           <span class="fw-bold pe-4">read</span>
         </div>
         <div class="d-flex align-items-center gap-4">
+           <button onclick="startTour()" class="btn btn-link p-0 nav-icon-link" aria-label="Help & Tour" title="Start guided tour">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </button>
+
           <div class="notification-icon-wrapper">
             <button id="notificationBtn" class="btn btn-link p-0 nav-icon-link" aria-label="Notifications">
               <img src="assets/icons/alert.svg" width="24" height="24" alt="Notifications">
@@ -134,10 +142,8 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     </nav>
   </header>
 
-  <!-- Main -->
+  <!-- main -->
   <main class="container my-4">
-
-    <!-- Primary Actions -->
    <div class="row g-3 mb-4">
     <?php $isEmpty = empty($challenges); ?>
     <div class="col-md-8">
@@ -160,7 +166,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
   </div>
 
 
-    <!-- KPI Strip -->
+    <!-- badges -->
 <div class="card glass-card kpi-strip mb-4">
     <div class="kpi">
       <img src="assets/icons/dark-clock.svg" width="18" height="18" alt="">
@@ -808,7 +814,8 @@ function applyFilters() {
     }
   });
 }
-
 </script>
+<script src="utils/tour-guide.js"></script>
+<script src="utils/theme-toggle.js"></script>
 </body>
 </html>

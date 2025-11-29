@@ -153,6 +153,7 @@
     })
   })()
 </script>
+<script src="utils/theme-toggle.js"></script>
 </body>
 
 </html>

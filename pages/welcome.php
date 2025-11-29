@@ -416,5 +416,6 @@ $login_email = $login_form['email']?? '';
         $(".alert").delay(2500).fadeOut(600);
       });
     </script>
+    <script src="utils/theme-toggle.js"></script>
   </body>
 </html>

@@ -242,8 +242,7 @@ foreach ($missed_readings as $row) {
         completeReadingFromCatchup(readingId, participantId, cb);
       });
     });
-
-
   </script>
+  <script src="utils/theme-toggle.js"></script>
 </body>
 </html>
