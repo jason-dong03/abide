@@ -42,7 +42,7 @@ final class ReadController {
         $_SESSION['challenge'] = Db::get_challenge_info($uid, $cid);
         $_SESSION['pid'] = Db::get_participant_id($uid, $cid);
         $_SESSION['participants'] = Db::get_all_participants($cid);
-        $_SESSION['readings'] = Db::get_user_reading_status($uid, $cid);
+        $_SESSION['readings'] = Db::get_user_reading_status($_SESSION['pid'], $cid);
         require __DIR__ . '/../pages/challenge.php';
     }
 
@@ -326,20 +326,38 @@ final class ReadController {
         return true;
     }
 
-    public function handleCompleteReading($uid){
+    public function handleCompleteReading($uid, $cid){
         $participant_id = intval($_POST['participant_id'] ?? 0);
         $reading_id = intval($_POST['reading_id'] ?? 0);
 
+        error_log("=== COMPLETE READING DEBUG ===");
+        error_log("UID: $uid, CID: $cid");
+        error_log("Participant ID from POST: $participant_id");
+        error_log("Reading ID from POST: $reading_id");
+
         $participant = Db::getUserIdByParticipantId($participant_id);
         if (!$participant || $participant['user_id'] != $uid) {
+            error_log("FAILED: Participant check failed");
             return false;
         }
+        error_log("BEFORE complete_reading DB call");
         Db::complete_reading($participant_id, $reading_id);
-
+        error_log("AFTER complete_reading DB call");
+        if ($cid) {
+            $_SESSION['readings'] = Db::get_user_reading_status($participant_id, $cid);  
+            error_log("Refreshed readings count: " . count($_SESSION['readings']));
+            foreach ($_SESSION['readings'] as $r) {
+                error_log("  Reading {$r['reading_id']}: is_completed = " . var_export($r['is_completed'], true));
+            } 
+        }
+        else {
+            error_log("WARNING: CID is NULL, not refreshing session!");
+        }
        
+        error_log("=========================");
         return true;
     }
-    public function handleUncompleteReading($uid){
+    public function handleUncompleteReading($uid, $cid){
         $participant_id = intval($_POST['participant_id'] ?? 0);
         $reading_id = intval($_POST['reading_id'] ?? 0);
 
@@ -348,6 +366,10 @@ final class ReadController {
             return false;
         }
         Db::uncomplete_reading($participant_id, $reading_id);
+
+        if ($cid) {
+            $_SESSION['readings'] = Db::get_user_reading_status($participant_id, $cid);
+        }
         return true;
     }
     public function handleLeaveChallenge($uid, $pid){

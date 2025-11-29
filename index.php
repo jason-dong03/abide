@@ -2,6 +2,12 @@
 //urL: https://cs4640.cs.virginia.edu/ppf3jn/abide/index.php?action=welcome
 declare(strict_types=1);
 
+ini_set('log_errors', '1');
+ini_set('error_log', __DIR__ . '/debug.log');
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -296,7 +302,8 @@ switch($action){
       if (!$readingId || !$participantId) {
           json_response(['success' => false, 'message' => 'Missing reading_id or participant_id'], 400);
       }
-      $ok = $controller->handleCompleteReading($uid);
+      $ok = $controller->handleCompleteReading($uid, $cid);
+
       json_response([
           'success' => (bool)$ok,
           'message' => $ok ? 'Reading completed' : 'Failed to complete reading',
@@ -311,7 +318,7 @@ switch($action){
           json_response(['success' => false, 'message' => 'Missing reading_id or participant_id'], 400);
       }
 
-      $ok = $controller->handleUncompleteReading($uid);
+      $ok = $controller->handleUncompleteReading($uid,$cid);
 
       json_response([
           'success' => (bool)$ok,

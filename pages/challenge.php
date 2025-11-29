@@ -24,6 +24,16 @@ $participant_id = $_SESSION['pid']?? null;
 $participants = $_SESSION['participants'] ?? [];
 $readings = $_SESSION['readings']?? [];
 
+// DEBUG: Log what we're rendering
+error_log("=== CHALLENGE PAGE DEBUG ===");
+error_log("Challenge ID: " . ($challenge_id ?? 'NULL'));
+error_log("Participant ID: " . ($participant_id ?? 'NULL'));
+error_log("Total readings: " . count($readings));
+foreach ($readings as $r) {
+    error_log("Reading {$r['reading_id']}: is_completed = " . var_export($r['is_completed'], true));
+}
+error_log("=========================");
+
 if (!$challenge_id || !$user_id) {
     header('Location: index.php?action=dashboard');
     exit;
@@ -59,12 +69,10 @@ if ($end_date < $today) {
     $days_left = 0;
 }
 
-//check if date is today
 function isToday($date): bool {
     return date('Y-m-d', strtotime($date)) === date('Y-m-d');
 }
 
-//check if date is past
 function isPast($date): bool {
     return strtotime($date) < strtotime('today');
 }
@@ -435,6 +443,7 @@ function isPast($date): bool {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    console.log("successfully added!");
                     location.reload();
                 } else {
                     alert(data.message || 'Error updating reading');
@@ -451,6 +460,7 @@ function isPast($date): bool {
         }
 
         function showEditReading() {
+            console.log("edit clicked");
             document.getElementById('editReadingModal').classList.add('active');
         }
 

@@ -29,7 +29,7 @@ $reg_last    = $register_form['last_name']  ?? '';
 $reg_email   = $register_form['email']      ?? '';
 $reg_user    = $register_form['username']   ?? '';
 
-$login_email = $login_form['email']         ?? '';
+$login_email = $login_form['email']?? '';
 ?>
 
 <html>
