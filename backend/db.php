@@ -7,13 +7,13 @@
         return self::$pdo;
     }
 
-    $dsn = "pgsql:host=host.docker.internal;port=5432;dbname=read_db";
-        self::$pdo = new PDO($dsn, "jasondong", "", [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
+        $dsn = "pgsql:host=host.docker.internal;port=5432;dbname=read_db";
+            self::$pdo = new PDO($dsn, "jasondong", "", [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]);
 
-    return self::$pdo;
-}
+        return self::$pdo;
+    }
 
     public static function add_user(string $first_name, string $last_name, string $email, string $username, string $password){
         $pdo = Db::pdo();

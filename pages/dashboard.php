@@ -108,7 +108,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
         </div>
         <div class="d-flex align-items-center gap-4">
            <button onclick="startTour()" class="btn btn-link p-0 nav-icon-link" aria-label="Help & Tour" title="Start guided tour">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
               <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -117,7 +117,11 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
 
           <div class="notification-icon-wrapper">
             <button id="notificationBtn" class="btn btn-link p-0 nav-icon-link" aria-label="Notifications">
-              <img src="assets/icons/alert.svg" width="24" height="24" alt="Notifications">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 12a6 6 0 0 0-12 0c0 3-1 5-2 6h16c-1-1-2-3-2-6"></path>
+                <path d="M13.73 20a2 2 0 0 1-3.46 0"></path>
+              </svg>
               <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
             </button>
             <div id="notificationsDropdown" class="notifications-dropdown">
@@ -130,11 +134,20 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
             </div>
           </div>
           <a href="index.php?action=profile" class="nav-icon-link d-flex align-items-center gap-2" aria-label="Profile">
-            <img src="assets/icons/dark-user-circle.svg" width="24" height="24" alt="Profile Icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4"></circle>
+              <path d="M5.5 21a6.5 6.5 0 0 1 13 0"></path>
+            </svg>
             <span class="d-none d-lg-inline">Profile</span>
           </a>
           <a href="index.php?action=logout" class="nav-icon-link d-flex align-items-center gap-1" aria-label="Logout">
-            <img src="assets/icons/dark-logout.svg" alt="Logout Icon" width="20" height="20">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <path d="M16 17l5-5-5-5"></path>
+              <path d="M21 12H9"></path>
+            </svg>
             <span>Logout</span>
           </a>
         </div>
@@ -169,7 +182,11 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     <!-- badges -->
 <div class="card glass-card kpi-strip mb-4">
     <div class="kpi">
-      <img src="assets/icons/dark-clock.svg" width="18" height="18" alt="">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M12 7v5l3 2"></path>
+      </svg>
       <div class="kpi-meta">
         <span class="kpi-label">Active</span>
         <span class="kpi-value"><?= count($activeChallenges)?></span>
@@ -177,7 +194,10 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     </div>
 
     <div class="kpi">
-      <img src="assets/icons/dark-check.svg" width="18" height="18" alt="">
+     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="5 13 9 17 19 7"></polyline>
+      </svg>
       <div class="kpi-meta">
         <span class="kpi-label">Completed</span>
         <span class="kpi-value"><?= count($completedChallenges)?></span>
@@ -185,7 +205,14 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
     </div>
 
     <div class="kpi">
-      <img src="assets/icons/dark-calendar.svg" width="18" height="18" alt="">
+     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+        <polyline points="9 16 11.5 18.5 15 15"></polyline>
+      </svg>
       <div class="kpi-meta">
        <?php $streakCurrent = (int)($user['login_streak_current'] ?? 0);
           $streakEmoji = streak_emoji($streakCurrent); ?>
@@ -198,7 +225,13 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
 
 
     <div class="kpi">
-      <img src="assets/icons/dark-friends.svg" width="18" height="18" alt="">
+     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="9" cy="8" r="3"></circle>
+        <circle cx="17" cy="9" r="3"></circle>
+        <path d="M4 20a5 5 0 0 1 10 0"></path>
+        <path d="M14 20a4 4 0 0 1 7 0"></path>
+      </svg>
       <div class="kpi-meta">
         <span class="kpi-label">Friends</span>
         <span class="kpi-value"><?= count($friends)?></span>
@@ -213,11 +246,18 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
       <div class="col-lg-9">
         <div class="card glass-card p-4 <?= $isEmpty ? '' : 'h-100' ?>">
           <div class="d-flex align-items-center mb-3">
-            <img src="assets/icons/dark-bookmark.svg" width="20" height="20" class="me-2" alt="">
+            <svg class="me-2" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"></path>
+            </svg>
             <span class="fw-semibold mb-0">Your Challenges</span>
             <div class="ms-auto d-flex gap-2">
               <a href="index.php?action=start_create_challenge" class="btn btn-create d-flex align-items-center gap-1">
-                <img src="assets/icons/plus.svg" width="16" height="16" alt=""> <span>Create</span>
+               <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
               </a>
               <a href="index.php?action=discover_challenges" class="btn btn-discover">Discover</a>
             </div>
@@ -300,7 +340,13 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
       <aside class="col-lg-3 friends-sidebar ms-auto">
         <div class="card glass-card p-4 h-100 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
-            <img src="assets/icons/dark-friends.svg" width="20" height="20" class="me-2" alt="">
+           <svg class="me-2" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="8" r="3"></circle>
+              <circle cx="17" cy="9" r="3"></circle>
+              <path d="M4 20a5 5 0 0 1 10 0"></path>
+              <path d="M14 20a4 4 0 0 1 7 0"></path>
+            </svg>
             <span class="fw-semibold mb-0">Friends</span>
           </div>  
           <input type="text" id="friendSearch" class="form-control form-control-sm mb-3" placeholder="Search…" aria-label="Search friends">    
@@ -315,7 +361,11 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
                 role ="button" 
                 data-friend-id="<?= $fid?>"
                 data-friend-name = "<?=$fname?>">
-                  <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt="">
+                  <svg width="24" height="24" viewBox="0 0 24 24 " fill="none"
+                    stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="4"></circle>
+                    <path d="M5.5 21a6.5 6.5 0 0 1 13 0"></path>
+                  </svg>
                   <span class="small"><?= h($fname) ?></span>
                 </div>
               <?php endforeach; ?>
@@ -329,7 +379,7 @@ function day_number(string $start, string $end, DateTimeImmutable $today): int {
 
   </main>
 
-  <footer class="text-center mt-auto py-3 small text-black">
+  <footer class="text-center mt-auto py-3 small footer-label">
     © 2025 Jason, Eyuel, Gianna – University of Virginia
   </footer>
 
@@ -517,7 +567,11 @@ function displayNotifications(notifications) {
         return `
           <div class="notification-item">
             <div class="d-flex align-items-center gap-2 mb-2">
-              <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt="">
+              <svg width="24" height="24" viewBox="0 0 24 24 " fill="none"
+                stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="6" r="4"></circle>
+                <path d="M5.5 18a6.5 6.5 0 0 1 13 0"></path>
+              </svg>
               <div>
                 <strong>${escapeHtml(n.first_name + ' ' + n.last_name)}</strong>
                 <div class="small text-muted">@${escapeHtml(n.username)}</div>
@@ -534,7 +588,11 @@ function displayNotifications(notifications) {
           <div class="notification-item d-flex justify-content-between align-items-start">
             <div>
               <div class="d-flex align-items-center gap-2 mb-1">
-                <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt="">
+                <svg width="24" height="24" viewBox="0 0 24 24 " fill="none"
+                  stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="6" r="4"></circle>
+                  <path d="M5.5 18a6.5 6.5 0 0 1 13 0"></path>
+                </svg>
                 <div>
                   <strong>${escapeHtml(n.first_name + ' ' + n.last_name)}</strong>
                   <div class="small text-muted">@${escapeHtml(n.username)}</div>
@@ -651,7 +709,11 @@ function displayUsers(users) {
       return `
         <div class="user-item">
           <div class="d-flex align-items-center gap-2">
-            <img src="assets/icons/dark-profile-circle-fill.svg" width="32" height="32" alt="">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4"></circle>
+              <path d="M5.5 21a6.5 6.5 0 0 1 13 0"></path>
+            </svg>
             <div>
               <div><strong>${escapeHtml(u.first_name + ' ' + u.last_name)}</strong></div>
               <div class="small text-muted">@${escapeHtml(u.username)}</div>

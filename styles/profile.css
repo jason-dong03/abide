@@ -27,7 +27,7 @@
 }
 
 .nav-tabs {
-  background: rgba(255, 255, 255, 0.4);
+  background: var(--glass-bg);
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.55);
 }
@@ -37,14 +37,15 @@
 }
 
 .nav-link-skinny {
+  color: var(--ink);
   padding: 0.6rem 1.25rem;
   font-size: 0.9rem;
   border-radius: 999px;
   border:none;
 }
-
 .nav-link-skinny.active {
-  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  background-color: rgba(var(--primary-rgb), 0.9);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
 }
 
@@ -62,9 +63,9 @@
 .profile {
   width: 90px;
   height: 90px;
-  border: 2px solid rgba(255, 255, 255, 0.6);
+  border: 2px solid var(--glass-brd);
   background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-  color: white;
+  color: var(--ink);
   font-weight: 600;
   font-size: 1.5rem;
   display: flex;
@@ -87,5 +88,24 @@
 
 
 
-.bigger-text{ font-size: 1rem; font-weight: 500; color: black; }
-.small-text{ font-size: 0.9rem; font-weight: 150; color: black; }
+.bigger-text{ 
+  font-size: 1rem; 
+  font-weight: 500; 
+  color: var(--ink); 
+}
+.small-text{ 
+  font-size: 0.9rem;
+  font-weight: 150; 
+  color: var(--ink); 
+}
+input,input[name="phone_number"],
+textarea, .form-control, .form-control:focus, .email-at {
+  color: var(--ink); 
+}
+.input-icon{
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-brd)
+}
+.footer-overlay{
+  color: var(--ink);
+}

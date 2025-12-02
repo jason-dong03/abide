@@ -1,5 +1,5 @@
 <?php
-//urL: https://cs4640.cs.virginia.edu/ppf3jn/abide/index.php?action=welcome
+//urL: https://cs4640.cs.virginia.edu/abide/index.php?action=welcome
 declare(strict_types=1);
 
 ini_set('log_errors', '1');

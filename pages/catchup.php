@@ -61,33 +61,7 @@ foreach ($missed_readings as $row) {
   <link rel="stylesheet" href="styles/theme.css" />
   <link rel="stylesheet" href="styles/catchup.css" />
   <style>
-    .summary-row { gap: 1rem; }
-    .summary-chip {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      width: 110px; height: 110px; text-align: center;
-      background: var(--glass-bg); border: 1px solid var(--glass-brd);
-      border-radius: 16px; backdrop-filter: blur(14px) saturate(140%);
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
-      box-shadow: 0 6px 18px rgba(0,0,0,.12), inset 0 1px rgba(255,255,255,.45);
-    }
-    .summary-chip .count { font-size: 1.6rem; font-weight: 800; line-height: 1; }
-    .summary-chip .label { font-size: .8rem; color: var(--ink-muted); }
 
-    .reset-holder { display:flex; justify-content:flex-end; }
-    .btn-reset {
-      border: 1px solid var(--glass-brd);
-      background: rgba(255,255,255,.18);
-      color: var(--ink);
-      padding: .35rem .6rem; font-size: .8rem; border-radius: 8px;
-    }
-    .btn-reset:hover { background: rgba(255,255,255,.28); }
-
-    .section-header {
-      background: rgba(0,0,0,.12);           
-      border-color: rgba(255,255,255,.18);
-      color: #0d1117;
-    }
-    .section-header .title { color:#0d1117; font-weight:600; }
   </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -128,9 +102,9 @@ foreach ($missed_readings as $row) {
     <form method="post" id="selectForm" class="mt-3">
       <input type="hidden" name="csrf" value="<?= h($csrf) ?>" />
       <?php foreach ($missedByChallenge as $challenge):?>
-        <div class="plan-section mb-4">
+        <div class="mb-4">
           <div class="section-header">
-            <div class="title"><?= h($challenge['challenge_title']) ?></div>
+            <div><?= h($challenge['challenge_title']) ?></div>
             <span class="badge badge-status-pending"><?= count($challenge['readings']) ?> pending</span>
           </div>
 

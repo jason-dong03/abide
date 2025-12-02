@@ -20,14 +20,14 @@ unset($_SESSION['error']);
 $view = $_SESSION['view'] ?? 'main';
 
 $register_form = $_SESSION['register_form'] ?? [];
-$login_form    = $_SESSION['login_form']    ?? [];
+$login_form = $_SESSION['login_form']    ?? [];
 
 unset($_SESSION['error'], $_SESSION['view'], $_SESSION['register_form'], $_SESSION['login_form']);
 
-$reg_first   = $register_form['first_name'] ?? '';
-$reg_last    = $register_form['last_name']  ?? '';
-$reg_email   = $register_form['email']      ?? '';
-$reg_user    = $register_form['username']   ?? '';
+$reg_first = $register_form['first_name'] ?? '';
+$reg_last = $register_form['last_name'] ?? '';
+$reg_email = $register_form['email'] ?? '';
+$reg_user = $register_form['username'] ?? '';
 
 $login_email = $login_form['email']?? '';
 ?>
@@ -119,11 +119,11 @@ $login_email = $login_form['email']?? '';
           <div class="reg-top">
             <div class="avatar-column">
               <div id="avatar-upload" class="avatar-uploader">
-                <img
-                  id="avatar-icon"
-                  src="assets/icons/profile.svg"
-                  alt="Upload"
-                />
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="4"></circle>
+                  <path d="M5.5 21a6.5 6.5 0 0 1 13 0"></path>
+                </svg>
               </div>
               <input type="file" id="profile-pic" accept="image/*" hidden />
             </div>
