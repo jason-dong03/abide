@@ -1,4 +1,5 @@
 /* Author: Jason D */
+@import url('../styles/theme.css');
 .tw { display:inline-block; width: 4ch; }
 
 
@@ -6,6 +7,10 @@
   display:inline-block;
   overflow:hidden;
   white-space:nowrap;
+
+  color: var(--ink-inverse);             
+  border-right: 2px solid var(--ink-inverse);
+
   border-right:2px solid #fff;        
   width:0ch;
   animation:

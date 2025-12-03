@@ -277,7 +277,7 @@ $login_email = $login_form['email']?? '';
               Back
             </button>
             <p class="small text-center mt-2 mb-0">
-              Forgot password? click <a href="index.php?action=forgot">here</a>
+              Forgot password? click <a href="index.php?action=forgot" id="forgot-pass-link">here</a>
             </p>
           </div>
         </form>
